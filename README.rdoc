@@ -11,7 +11,6 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * No more segmentation fault
 * Full smoothing supported
 * Infinite number of environment features can be handled (in theory)
-* blah blah blah
 
 == BASIC USAGE:
 

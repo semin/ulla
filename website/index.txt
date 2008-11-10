@@ -1,33 +1,39 @@
-h1. rubst
+h1. egor: Environment-specific substitution table GeneratOR
+
 
 h2. What
 
-Rewrite of Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/) in Ruby programming language
+'egor' is a program for calculating environment-specific substitution tables
+
 
 h2. Installation
 
-<pre syntax="ruby">$ sudo gem install rubst</pre>
+<pre syntax="ruby">$ sudo gem install egor</pre>
+
 
 h2. Features
 
-* No more segmentation fault!
+* No more segmentation fault
 * Full smoothing supported
 * In theory, infinite number of environment features can be handled
-* blah blah blah
+
 
 h2. Demonstration of usage
 
-It's pretty much the same as Kenji's subst, so in most cases, you just need swap 'subst' with 'rubst'.
+It's pretty much the same as Kenji's subst, so in most cases, you just need swap 'subst' with 'egor'.
 
-<pre>$ rubst -l TEMLIST -c classdef.dat</pre>
+<pre>$ egor -l TEMLIST-file -c classdef.dat</pre>
+    or
+<pre>$ egor -l TEM-file -c classdef.dat</pre>
+
 
 h2. Repository
 
 You can fetch the source from
 
-* github: "http://github.com/semin/rubst/tree/master":http://github.com/semin/rubst/tree/master
+* github: "http://github.com/semin/egor/tree/master":http://github.com/semin/egor/tree/master
 
-<pre>git clone git://github.com/semin/rubst.git</pre>
+<pre>git clone git://github.com/semin/egor.git</pre>
 
 h2. License
 
@@ -35,4 +41,4 @@ This code is free to use under the terms of the MIT license.
 
 h2. Contact
 
-Comments are welcome, but DO NOT send an email to me. :)
+Comments are welcome, please send an email to me (seminlee at gmail dot com). 

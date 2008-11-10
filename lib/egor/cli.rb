@@ -45,13 +45,13 @@ Options:
     --tem-list (-l) STRING: a list for tem files
     --classdef (-c) STRING: a file for the defintion of environments (default: 'classdef.dat')
     --outfile (-o) STRING: output filename ("allmat.dat" if not specified)
-    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (not supported yet)
+    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
         0 for parial smoothing (default)
         1 for full smoothing
     --nosmooth: perform no smoothing operation
-    --cys (-y) INTEGER: (!!!not implemented yet!!!)
+    --cys (-y) INTEGER: (NOT implemented yet)
         0 for using C and J only for structure
         1 for both structure and sequence (default)
     --output INTEGER:
@@ -61,7 +61,7 @@ Options:
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5)
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log-odds calculation (default false) (!!!not implemented yet!!!)
+    --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
@@ -174,6 +174,7 @@ Options:
           [ '--heatmap',        GetoptLong::NO_ARGUMENT ],
           [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--penv',           GetoptLong::NO_ARGUMENT ],
           [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--verbose',  '-v', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--version',        GetoptLong::NO_ARGUMENT ]
@@ -195,6 +196,8 @@ Options:
           when '--outfile'
             $outfile      = arg
           when '--cyc'
+            $logger.error "!!! --cys option is not available yet"
+            exit 1
             $cysteine     = (arg.to_i == 1 ? false : true)
           when '--weight'
             $weight       = arg.to_i
@@ -215,6 +218,8 @@ Options:
           when '--add'
             $add          = arg.to_f
           when '--penv'
+            $logger.error "!!! --penv option is not available yet"
+            exit 1
             $penv         = true
           when '--heatmap'
             $heatmap      = true
