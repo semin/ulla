@@ -1,4 +1,4 @@
-h1. egor: Environment-specific suustitution taule GeneratOR
+h1. egor: Environment-specific substitution table GeneratOR
 
 
 h2. What
