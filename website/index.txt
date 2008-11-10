@@ -37,7 +37,7 @@ or, You can fetch the source from
 
 * github: "http://github.com/semin/egor/tree/master":http://github.com/semin/egor/tree/master
 
-<pre>git clone git://github.com/semin/egor.git</pre>
+<pre>$ git clone git://github.com/semin/egor.git</pre>
 
 h2. License
 
