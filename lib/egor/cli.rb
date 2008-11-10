@@ -398,12 +398,12 @@ Options:
                       aa2 = s2[pos].upcase
 
                       if !$amino_acids.include?(aa1)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not standard amino acid" unless aa1 == "-"
+                        $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not a standard amino acid" unless aa1 == "-"
                         next
                       end
 
                       if !$amino_acids.include?(aa2)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not standard amino acid" unless aa2 == "-"
+                        $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not a standard amino acid" unless aa2 == "-"
                         next
                       end
 

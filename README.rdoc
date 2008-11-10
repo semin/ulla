@@ -9,8 +9,10 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 == FEATURES/PROBLEMS:
 
 * No more segmentation fault
+* Fast enough not to leave your place
+* Slow enough to check your emails or have some chats with your colleague next you
 * Full smoothing supported
-* Infinite number of environment features can be handled (in theory)
+* In theory, infinite number of environment features can be handled
 
 == BASIC USAGE:
 
