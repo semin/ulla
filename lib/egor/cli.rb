@@ -51,20 +51,19 @@ Options:
         0 for parial smoothing (default)
         1 for full smoothing
     --nosmooth: perform no smoothing operation
-    --cys (-y) INTEGER:
+    --cys (-y) INTEGER: (!!!not implemented yet!!!)
         0 for using C and J only for structure
         1 for both structure and sequence (default)
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
         2 for log-odds (default)
-    --scale INTEGER: log-odds matrices in 1/n bit units (default 3) 
+    --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5)
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log-odds calculation (default false)
+    --penv: use environment-dependent frequencies for log-odds calculation (default false) (!!!not implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
-    --heatmap: generate heatmaps for substitution tables (not implemented yet)
     --verbose (-v) INTEGER
         0 for ERROR level (default)
         1 for WARN or above level
@@ -151,6 +150,7 @@ Options:
         $noweight     = false
         $smooth       = :partial
         $nosmooth     = false
+        $scale        = 3
         $pidmin       = nil
         $pidmax       = nil
         $scale        = 3
@@ -211,7 +211,7 @@ Options:
           when '--nosmooth'
             $nosmooth     = true
           when '--scale'
-            $scale        = arg.to_i
+            $scale        = arg.to_f
           when '--add'
             $add          = arg.to_f
           when '--penv'
@@ -1007,7 +1007,7 @@ HEADER
 
               # log-add ratio matrices from now on
               tot_logo_mat  = NMatrix.float(21,21)
-              factor        = 3.0 / Math::log(2)
+              factor        = $scale / Math::log(2)
 
               # grouping environments by its environment labels but amino acid label
               env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -1030,8 +1030,7 @@ HEADER
 
                   env.smooth_prob_array.to_a.each_with_index do |prob, j|
                     paj = 100.0 * $aa_rel_freq[$amino_acids[j]]
-                    odd = prob / paj
-                    logo_arr[j] = factor * Math::log(odd)
+                    logo_arr[j] = factor * Math::log(prob / paj)
                   end
                   0.upto(20) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
                 end
