@@ -1,0 +1,88 @@
+= egor
+
+* http://egor.rubyforge.org
+
+== DESCRIPTION:
+
+Rewrite of Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/) in Ruby programming language
+
+== FEATURES/PROBLEMS:
+
+* No more segmentation fault!
+* Full smoothing supported
+* Infinite number of environment features can be handled (in theory)
+* blah blah blah
+
+== BASIC USAGE:
+
+    $ egor -l TEMLIST -c classdef.dat
+
+== OPTIONS:
+    --tem-file (-f) FILE: a tem file
+    --tem-list (-l) FILE: a list for tem files
+    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --outfile (-o) FILE: output filename ("allmat.dat" if not specified)
+    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (not supported yet)
+    --noweight: calculate substitution counts with no weights (default)
+    --smooth (-s) INTEGER:
+        0 for parial smoothing (default)
+        1 for full smoothing
+    --nosmooth: perform no smoothing operation
+    --cys (-y)INTEGER:
+        0 for using C and J only for structure
+        1 for both structure and sequence (default)
+    --output INTEGER:
+        0 for raw counts (no-smoothing performed)
+        1 for probabilities (default)
+        2 for log-odds
+    --scale INTEGER: log-odds matrices in 1/n bit units (default 3) 
+    --sigma DOUBLE: change the sigma value for smoothing (default 5)
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
+    --penv: use environment-dependent frequencies for log-odds calculation (default false)
+    --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
+    --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+    --heatmap: generate heatmaps for substitution tables (not implemented yet)
+    --verbose (-v) INTEGER
+      0 for ERROR level (default)
+      1 for WARN or above level
+      2 for INFO or above level
+      3 for DEBUG or above level
+    --version: print version
+    --help (-h): show help
+
+== REQUIREMENTS:
+
+* ruby 1.8.6 or above (http://www.ruby-lang.org)
+* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
+* narray (http://narray.rubyforge.org/)
+* facets (http://facets.rubyforge.org/)
+* bio (http://bioruby.open-bio.org/)
+
+== INSTALL:
+
+    $ sudo gem install egor
+
+== LICENSE:
+
+(The MIT License)
+
+Copyright (c) 2008 Semin Lee
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
