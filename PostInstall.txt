@@ -1,7 +1,5 @@
+HELP/OPTIONS: egor -h
 
 For more information on egor, see http://egor.rubyforge.org
-
-NOTE: Change this information in PostInstall.txt 
-You can also delete it if you don't want it.
 
 
