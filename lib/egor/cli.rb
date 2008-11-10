@@ -1035,7 +1035,8 @@ HEADER
 
                   env.smooth_prob_array.to_a.each_with_index do |prob, j|
                     paj = 100.0 * $aa_rel_freq[$amino_acids[j]]
-                    logo_arr[j] = factor * Math::log(prob / paj)
+                    odds = prob == 0.0 ? 0.000001 / paj : prob / paj
+                    logo_arr[j] = factor * Math::log(odds)
                   end
                   0.upto(20) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
                 end
