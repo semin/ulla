@@ -41,10 +41,10 @@ Usage:
     egor [ options ] -f TEM-file -c CLASSDEF-file
 
 Options:
-    --tem-file (-f) STRING: a tem file
-    --tem-list (-l) STRING: a list for tem files
-    --classdef (-c) STRING: a file for the defintion of environments (default: 'classdef.dat')
-    --outfile (-o) STRING: output filename ("allmat.dat" if not specified)
+    --tem-file (-f) FILE: a tem file
+    --tem-list (-l) FILE: a list for tem files
+    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --outfile (-o) FILE: output filename ("allmat.dat" if not specified)
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
@@ -646,7 +646,7 @@ HEADER
 
           $outfh.puts "#"
           $outfh.puts "# Total amino acid frequencies:\n"
-          $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES MUT_OBS TOT_OBS MUTB REL_MUTB REL_FRQ]
+          $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FRQ]
 
           $aa_tot_obs.each_pair do |res, freq|
             $aa_mutb[res]      = $aa_mut_obs[res] / freq.to_f
@@ -657,10 +657,10 @@ HEADER
           $amino_acids.each do |res|
             if $noweight
               $outfh.puts "# %-3s %9d %9d %5.2f %8d %8.4f" %
-                [res, $aa_mut_obs[res], $aa_tot_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
+                [res, $aa_tot_obs[res], $aa_mut_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
             else
               $outfh.puts "# %-3s %9.2f %9.2f %5.2f %8d %8.4f" %
-                [res, $aa_mut_obs[res], $aa_tot_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
+                [res, $aa_tot_obs[res], $aa_mut_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
             end
           end
 
