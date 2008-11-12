@@ -255,8 +255,12 @@ Options:
         # Reading Environment Class Definition File
         #
 
-        # a hash for storing all environment feature objects
+        # an array for storing all environment feature objects
         $env_features = []
+
+
+        # an array for storing indexes of constrained environment features
+        $cst_features = []
 
         # aa1 amino acid in a substitution itself is a environment feature
         $env_features << EnvironmentFeature.new("sequence",
@@ -267,24 +271,29 @@ Options:
 
         # read environment class definiton file and
         # store them into the hash prepared above
+        env_index = 1
+
         IO.foreach($classdef) do |line|
+          line.chomp!
           if line.start_with?("#")
             next
           elsif (env_ftr = line.chomp.split(/;/)).length == 5
-            $logger.info ">>> An environment feature, #{line.chomp} detected"
+            $logger.info ">>> An environment feature, #{line} detected"
             if env_ftr[-1] == "T"
               # skip silenced environment feature
-              $logger.warn "!!! The environment feature, #{line.chomp} silent"
+              $logger.warn "!!! The environment feature, #{line} silent"
               next
             end
             if env_ftr[-2] == "T"
-              $logger.warn "!!! The environment feature, #{line.chomp} constrained"
+              $cst_features << env_index
+              $logger.warn "!!! The environment feature, #{line} constrained"
             end
             $env_features << EnvironmentFeature.new(env_ftr[0],
                                                     env_ftr[1].split(""),
                                                     env_ftr[2].split(""),
                                                     env_ftr[3],
                                                     env_ftr[4])
+            env_index += 1
           else
             $logger.error "@@@ #{line} doesn't seem to be a proper format for class definition"
             exit 1
@@ -330,7 +339,7 @@ Options:
               end
             end
 
-            $ali_size   += ali.size
+            $ali_size   += 1
             env_labels  = {}
             disulphide  = {}
 
@@ -415,7 +424,15 @@ Options:
                       aa1 = (((disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
                       aa2 = (((disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
 
-                      $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                      if $cst_features.empty?
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
+                             env_labels[id2][pos].split("").values_at(*$cst_features))
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                      else
+                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                        next
+                      end
 
                       grp_label = env_labels[id1][pos][1..-1]
 
@@ -517,8 +534,17 @@ Options:
                       obs1  = 1.0 / size1
                       obs2  = 1.0 / size2
 
-                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                      if $cst_features.empty?
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
+                             env_labels[id2][pos].split("").values_at(*$cst_features))
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                      else
+                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                        next
+                      end
 
                       grp_label1 = env_labels[id1][pos][1..-1]
                       grp_label2 = env_labels[id2][pos][1..-1]

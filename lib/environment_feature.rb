@@ -1,7 +1,7 @@
 class EnvironmentFeature < Struct.new(:name, :symbols, :labels, :constrained, :silent)
 
   def to_s
-    values.join(";")
+    [name, symbols.join, labels.join, constrained, silent].join(";")
   end
 
   def constrained?
