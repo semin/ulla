@@ -52,8 +52,8 @@ Options:
         1 for full smoothing
     --nosmooth: perform no smoothing operation
     --cys (-y) INTEGER: (NOT implemented yet)
-        0 for using C and J only for structure
-        1 for both structure and sequence (default)
+        0 for using C and J only for structure (default)
+        1 for both structure and sequence
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
@@ -155,6 +155,7 @@ Options:
         $pidmax       = nil
         $scale        = 3
         $add          = 0
+        $cys          = 0
         $penv         = false
         $heatmap      = false
         $smooth_prob  = {}
@@ -195,10 +196,10 @@ Options:
             $output       = arg.to_i
           when '--outfile'
             $outfile      = arg
-          when '--cyc'
+          when '--cys'
             $logger.error "!!! --cys option is not available yet"
             exit 1
-            $cysteine     = (arg.to_i == 1 ? false : true)
+            $cys          = (arg.to_i == 1 ? false : true)
           when '--weight'
             $weight       = arg.to_i
           when '--sigma'
@@ -633,6 +634,12 @@ HEADER
           end
           $outfh.puts "#"
 
+
+          # Part 5.
+          #
+          # Calculating substitution frequency tables
+          #
+
           # calculating probabilities for each environment
           $envs.values.each do |e|
             if e.freq_array.sum != 0
@@ -673,7 +680,12 @@ HEADER
             exit 0
           end
 
-          # for probability
+
+          # Part 6.
+          #
+          # Calculating substitution probability tables
+          #
+
           if $output == 1
             $outfh.puts <<HEADER
 #
@@ -1010,8 +1022,13 @@ HEADER
 #
 HEADER
 
-              # log-add ratio matrices from now on
-              tot_logo_mat  = NMatrix.float(21,21)
+              # Part 7.
+              #
+              # Calculating log-add ratio scoring matrices
+              #
+              exp_E         = 0.0
+              rel_H         = 0.0
+              tot_logo_mat  = $cys ? NMatrix.float(21,22) : NMatrix.float(21,21)
               factor        = $scale / Math::log(2)
 
               # grouping environments by its environment labels but amino acid label
@@ -1027,31 +1044,53 @@ HEADER
                 # calculating 21X21 substitution probability matrix for each envrionment
                 grp_label     = group[0]
                 grp_envs      = group[1]
-                grp_logo_mat  = NMatrix.float(21,21)
+                grp_logo_mat  = $cys ? NMatrix.float(21, 22) : NMatrix.float(21,21)
 
                 $amino_acids.each_with_index do |aa, ai|
                   env       = grp_envs.detect { |e| e.label.start_with?(aa) }
-                  logo_arr  = NArray.float(21)
+                  logo_arr  = $cys ? NArray.float(22) : NArray.float(21)
 
                   env.smooth_prob_array.to_a.each_with_index do |prob, j|
-                    paj = 100.0 * $aa_rel_freq[$amino_acids[j]]
-                    odds = prob == 0.0 ? 0.000001 / paj : prob / paj
+                    paj         = 100.0 * $aa_rel_freq[$amino_acids[j]]
+                    odds        = prob == 0.0 ? 0.000001 / paj : prob / paj
                     logo_arr[j] = factor * Math::log(odds)
                   end
+
                   0.upto(20) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
+
+                  # adding log odds ratio for "U" (J or C) when --cyc is ON
+                  if $cys
+                    paj   = 100.0 * ($aa_rel_freq["C"] + $aa_rel_freq["J"])
+                    prob  = env.smooth_prob_array[$amino_acids.index("C")] + env.smooth_prob_array[$amino_acids.index("J")]
+                    odds  = prob == 0.0 ? 0.000001 / paj : prob / paj
+                    logo_arr[logo_arr.size - 1] = factor * Math::log(odds)
+                    grp_logo_mat[ai, logo_arr.size - 1] = logo_arr[logo_arr.size - 1]
+                  end
                 end
 
                 tot_logo_mat += grp_logo_mat
 
                 $outfh.puts ">#{grp_label} #{group_no}"
-                $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+
+                if $cys
+                  $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+                else
+                  $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+                end
               end
 
               tot_logo_mat /= env_groups.size
 
               $outfh.puts ">Total"
-              $outfh.puts tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+
+              if $cys
+                $outfh.puts tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+              else
+                $outfh.puts tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              end
+
               $outfh.close
+
               exit 0
             end
           end
