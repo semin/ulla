@@ -212,7 +212,7 @@ Options:
           when '--noweight'
             $noweight     = true
           when '--smooth'
-            $smooth       = (arg.to_i == 1 ? :full : :parital)
+            $smooth       = (arg.to_i == 1 ? :full : :partial)
           when '--nosmooth'
             $nosmooth     = true
           when '--scale'
@@ -637,7 +637,6 @@ HEADER
           else
             $outfh.puts "# Weighting scheme: clustering at PID #{$weight} level"
           end
-          $outfh.puts "#"
 
           # calculate amino acid frequencies and mutabilities, and
           # print them as default statistics in the header part
@@ -791,6 +790,7 @@ HEADER
 
             if $smooth == :partial
               $outfh.puts <<HEADER
+#
 # Partial Smoothing:
 #
 # p1(ri) (i.e., amino acid composition) is estimated by summing over
@@ -913,6 +913,7 @@ HEADER
               end
             else
               $outfh.puts <<HEADER
+#
 # Full Smoothing:
 #
 # p1(ri) is estimated as:
