@@ -23,7 +23,7 @@ class Environment
     @smooth_prob_array  = NArray.float(21)
   end
 
-  def add_residue_count(a, inc = 1.0)
+  def increase_residue_count(a, inc = 1.0)
     @freq_array[@@amino_acids.index(a.upcase)] += inc
   end
 

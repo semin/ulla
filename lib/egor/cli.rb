@@ -249,6 +249,7 @@ Options:
           exit 1
         end
 
+
         # Part 3.
         #
         # Reading Environment Class Definition File
@@ -414,7 +415,7 @@ Options:
                       aa1 = (((disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
                       aa2 = (((disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
 
-                      $envs[env_labels[id1][pos]].add_residue_count(aa2)
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2)
 
                       grp_label = env_labels[id1][pos][1..-1]
 
@@ -516,8 +517,8 @@ Options:
                       obs1  = 1.0 / size1
                       obs2  = 1.0 / size2
 
-                      $envs[env_labels[id1][pos]].add_residue_count(aa2, 1.0 / (size1 * size2))
-                      $envs[env_labels[id2][pos]].add_residue_count(aa1, 1.0 / (size1 * size2))
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
 
                       grp_label1 = env_labels[id1][pos][1..-1]
                       grp_label2 = env_labels[id2][pos][1..-1]
