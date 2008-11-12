@@ -51,7 +51,7 @@ Options:
         0 for parial smoothing (default)
         1 for full smoothing
     --nosmooth: perform no smoothing operation
-    --cys (-y) INTEGER: (NOT implemented yet)
+    --cys (-y) INTEGER:
         0 for using C and J only for structure (default)
         1 for both structure and sequence
     --output INTEGER:
@@ -61,7 +61,7 @@ Options:
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5)
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet)
+    --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
@@ -137,12 +137,6 @@ Options:
         $outfile      = "allmat.dat"
         $outfh        = nil # file hanfle for outfile
         $output       = 2
-        $aa_tot_obs   = {}
-        $aa_mut_obs   = {}
-        $aa_mutb      = {}
-        $aa_rel_mutb  = {}
-        $aa_rel_freq  = {}
-        $env_aa_obs   = {}
         $ali_size     = 0
         $tot_aa       = 0
         $sigma        = 5.0
@@ -154,11 +148,20 @@ Options:
         $pidmin       = nil
         $pidmax       = nil
         $scale        = 3
-        $add          = 0
+        $add          = nil
         $cys          = 0
         $penv         = false
-        $heatmap      = false
+
+        $aa_tot_obs   = {}
+        $aa_mut_obs   = {}
+        $aa_mutb      = {}
+        $aa_rel_mutb  = {}
+        $aa_rel_freq  = {}
+        $env_aa_obs   = {}
         $smooth_prob  = {}
+        $tot_freq_mat = nil
+        $tot_prob_mat = nil
+        $tot_logo_mat = nil
 
         # Part 2.
         #
@@ -197,8 +200,6 @@ Options:
           when '--outfile'
             $outfile      = arg
           when '--cys'
-            $logger.error "!!! --cys option is not available yet"
-            exit 1
             $cys          = (arg.to_i == 1 ? false : true)
           when '--weight'
             $weight       = arg.to_i
@@ -217,9 +218,11 @@ Options:
           when '--scale'
             $scale        = arg.to_f
           when '--add'
+            $logger.error "!!! --add option is not supported yet"
+            exit 1
             $add          = arg.to_f
           when '--penv'
-            $logger.error "!!! --penv option is not available yet"
+            $logger.error "!!! --penv option is not supported yet"
             exit 1
             $penv         = true
           when '--heatmap'
@@ -486,6 +489,7 @@ Options:
                   cluster2.each do |id2|
                     seq1 = ali[id1].split("")
                     seq2 = ali[id2].split("")
+
                     seq1.each_with_index do |aa1, pos|
                       if env_labels[id1][pos].include?("X")
                         $logger.debug "*** Substitutions from #{id1}-#{pos}-#{aa1} were masked"
@@ -632,7 +636,6 @@ HEADER
                 [res, $aa_mut_obs[res], $aa_tot_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
             end
           end
-          $outfh.puts "#"
 
 
           # Part 5.
@@ -648,7 +651,7 @@ HEADER
           end
 
           # count raw frequencies
-          $tot_freq_matrix = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
+          $tot_freq_mat = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
 
           # for each combination of environment features
           env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -659,24 +662,24 @@ HEADER
               $env_features[i + 1].labels.index(l)
             }
           }.each_with_index do |group, group_no|
-            grp_freq_matrix = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
+            grp_freq_mat = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
 
             $amino_acids.each_with_index do |aa, ai|
               freq_array = group[1].find { |e| e.label.start_with?(aa) }.freq_array
-              0.upto(20) { |j| grp_freq_matrix[ai, j] = freq_array[j] }
+              0.upto(20) { |j| grp_freq_mat[ai, j] = freq_array[j] }
             end
 
-            $tot_freq_matrix += grp_freq_matrix
+            $tot_freq_mat += grp_freq_mat
 
             if $output == 0
               $outfh.puts ">#{group[0]} #{group_no}"
-              $outfh.puts grp_freq_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              $outfh.puts grp_freq_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             end
           end
 
           if $output == 0
             $outfh.puts ">Total"
-            $outfh.puts $tot_freq_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+            $outfh.puts $tot_freq_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             exit 0
           end
 
@@ -699,7 +702,7 @@ HEADER
 
           if ($output > 0) && $nosmooth
             # Probability matrices
-            tot_prob_matrix = NMatrix.float(21, 21)
+            $tot_prob_mat = NMatrix.float(21, 21)
 
             # for each combination of environment features
             env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -709,24 +712,24 @@ HEADER
                 $env_features[i + 1].labels.index(l)
               }
             }.each_with_index do |group, group_no|
-              grp_prob_matrix = NMatrix.float(21,21)
+              grp_prob_mat = NMatrix.float(21,21)
 
               $amino_acids.each_with_index do |aa, ai|
                 prob_array = group[1].find { |e| e.label.start_with?(aa) }.prob_array
-                0.upto(20) { |j| grp_prob_matrix[ai, j] = prob_array[j] }
+                0.upto(20) { |j| grp_prob_mat[ai, j] = prob_array[j] }
               end
 
-              tot_prob_matrix += grp_prob_matrix
+              $tot_prob_mat += grp_prob_mat
 
               if ($output == 1)
                 $outfh.puts ">#{group[0]} #{group_no}"
-                $outfh.puts grp_prob_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+                $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
               end
             end
 
             if ($output == 1)
               $outfh.puts ">Total"
-              $outfh.puts tot_prob_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
               $outfh.close
               exit 0
             end
@@ -783,7 +786,6 @@ HEADER
 # Weights (omegas) are calculated as in Topham et al. 1993)
 # 
 # sigma value used is:  5.00
-#
 HEADER
               1.upto($env_features.size) do |ci|
                 # for partial smoothing, only P1 ~ P3, and Pn are considered
@@ -909,7 +911,6 @@ HEADER
 # Weights (omegas) are calculated as in Topham et al. 1993)
 # 
 # sigma value used is:  5.00
-#
 HEADER
               # full smooting
               1.upto($env_features.size) do |ci|
@@ -971,7 +972,7 @@ HEADER
             $envs.values.each { |e| e.smooth_prob_array = $smooth_prob[$env_features.size + 1][e.label_set] }
 
             # for a total substitution probability matrix
-            tot_smooth_prob_matrix = NMatrix.float(21,21)
+            $tot_prob_mat = NMatrix.float(21,21)
 
             # grouping environments by its environment labels but amino acid label
             env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -984,51 +985,54 @@ HEADER
               }
             }.each_with_index do |group, group_no|
               # calculating 21X21 substitution probability matrix for each envrionment
-              grp_prob_matrix = NMatrix.float(21,21)
+              grp_prob_mat = NMatrix.float(21,21)
 
               $amino_acids.each_with_index do |aa, ai|
                 smooth_prob_array = group[1].find { |e| e.label.start_with?(aa) }.smooth_prob_array
-                0.upto(20) { |j| grp_prob_matrix[ai, j] = smooth_prob_array[j] }
+                0.upto(20) { |j| grp_prob_mat[ai, j] = smooth_prob_array[j] }
               end
 
-              tot_smooth_prob_matrix += grp_prob_matrix
+              $tot_prob_mat += grp_prob_mat
 
               if $output == 1
                 $outfh.puts ">#{group[0]} #{group_no}"
-                $outfh.puts grp_prob_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+                $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
               end
             end
 
-            tot_smooth_prob_matrix /= env_groups.size
+            $tot_prob_mat /= env_groups.size
 
             if $output == 1
               $outfh.puts ">Total"
-              $outfh.puts tot_smooth_prob_matrix.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
               $outfh.close
               exit 0
             end
 
+
+            # Part 7.
+            #
+            # Calculating log-add ratio scoring matrices
+            #
             if $output == 2
               $outfh.puts <<HEADER
 # 
 # The probabilities were then divided by the background probabilities
+HEADER
+              if $penv
+                $outfh.puts <<HEADER
 # which were derived from the environment-independent amino acid frequencies.
 #                             ^^^^^^^^^^^^^^^^^^^^^^^
-# 
-# Shown here are logarithms of these values multiplied by 3/log(2) 
-# rounded to the nearest integer (log-odds scores in 1/3 bit units).
-# 
-# For total (composite) matrix, Entropy = XXX bits, Expected score = XXX
-#
 HEADER
+              else
+                $outfh.puts <<HEADER
+# which were derived from the environment-dependent amino acid frequencies.
+#                             ^^^^^^^^^^^^^^^^^^^^^
+HEADER
+              end
 
-              # Part 7.
-              #
-              # Calculating log-add ratio scoring matrices
-              #
-              exp_E         = 0.0
-              rel_H         = 0.0
-              tot_logo_mat  = $cys ? NMatrix.float(21,22) : NMatrix.float(21,21)
+              $tot_logo_mat = $cys ? NMatrix.float(21,22) : NMatrix.float(21,21)
+              grp_logo_mats = []
               factor        = $scale / Math::log(2)
 
               # grouping environments by its environment labels but amino acid label
@@ -1068,10 +1072,45 @@ HEADER
                   end
                 end
 
-                tot_logo_mat += grp_logo_mat
+                $tot_logo_mat += grp_logo_mat
+                grp_logo_mats << [grp_label, grp_logo_mat]
+              end
 
-                $outfh.puts ">#{grp_label} #{group_no}"
+              $tot_logo_mat /= env_groups.size
 
+              # calculating relative entropy for each amino acid pair H and
+              # the expected score E in bit units
+              #
+              # I'm a bit suspicious about this part...
+              tot_E = 0.0
+              tot_H = 0.0
+
+              0.upto($tot_logo_mat.shape[0] - 1) do |i|
+                0.upto($tot_logo_mat.shape[0] - 1) do |j|
+                  if i != j
+                    tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]] / 2.0
+                    tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 2.0 / 10000.0
+                  else
+                    tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]]
+                    tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 10000.0
+                  end
+                end
+              end
+
+              $outfh.puts <<HEADER
+# 
+# Shown here are logarithms of these values multiplied by #{$scale}/log(2) 
+# rounded to the nearest integer (log-odds scores in 1/3 bit units).
+# 
+# For total (composite) matrix, Entropy = #{"%5.4f" % tot_H} bits, Expected score = #{"%5.4f" % tot_E}
+#
+HEADER
+
+              grp_logo_mats.each_with_index do |arr, grp_no|
+                grp_label     = arr[0]
+                grp_logo_mat  = arr[1]
+
+                $outfh.puts ">#{grp_label} #{grp_no}"
                 if $cys
                   $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
                 else
@@ -1079,18 +1118,13 @@ HEADER
                 end
               end
 
-              tot_logo_mat /= env_groups.size
-
-              $outfh.puts ">Total"
-
+              $outfh.puts ">Total #{grp_logo_mats.size}"
               if $cys
-                $outfh.puts tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+                $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
               else
-                $outfh.puts tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+                $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
               end
-
               $outfh.close
-
               exit 0
             end
           end
