@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{egor}
-  s.version = "0.0.1"
+  s.version = "0.0.2"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Semin Lee"]
-  s.date = %q{2008-11-10}
+  s.date = %q{2008-11-13}
   s.default_executable = %q{egor}
   s.description = %q{egor: Esst GeneratOR, a program for calculating environment-specific substitution tables}
   s.email = ["seminlee@gmail.com"]
@@ -32,14 +32,14 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<bio>, [">= 1.2.1"])
       s.add_runtime_dependency(%q<facets>, [">= 2.4.5"])
       s.add_runtime_dependency(%q<simple_memoize>, [">= 1.0.0"])
-      s.add_development_dependency(%q<newgem>, [">= 1.0.7"])
+      s.add_development_dependency(%q<newgem>, [">= 1.1.0"])
       s.add_development_dependency(%q<hoe>, [">= 1.8.0"])
     else
       s.add_dependency(%q<narray>, [">= 0.5.9.5"])
       s.add_dependency(%q<bio>, [">= 1.2.1"])
       s.add_dependency(%q<facets>, [">= 2.4.5"])
       s.add_dependency(%q<simple_memoize>, [">= 1.0.0"])
-      s.add_dependency(%q<newgem>, [">= 1.0.7"])
+      s.add_dependency(%q<newgem>, [">= 1.1.0"])
       s.add_dependency(%q<hoe>, [">= 1.8.0"])
     end
   else
@@ -47,7 +47,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<bio>, [">= 1.2.1"])
     s.add_dependency(%q<facets>, [">= 2.4.5"])
     s.add_dependency(%q<simple_memoize>, [">= 1.0.0"])
-    s.add_dependency(%q<newgem>, [">= 1.0.7"])
+    s.add_dependency(%q<newgem>, [">= 1.1.0"])
     s.add_dependency(%q<hoe>, [">= 1.8.0"])
   end
 end
