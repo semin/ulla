@@ -607,6 +607,7 @@ Options:
 
           # print out default header
           $outfh.puts <<HEADER
+#
 # Environment-specific amino acid substitution matrices
 # Creator: egor version #{Egor::VERSION}
 # Creation Date: #{Time.now.strftime("%d/%m/%Y %H:%M")}
@@ -813,6 +814,7 @@ HEADER
 # Weights (omegas) are calculated as in Topham et al. 1993)
 # 
 # sigma value used is:  5.00
+#
 HEADER
               1.upto($env_features.size) do |ci|
                 # for partial smoothing, only P1 ~ P3, and Pn are considered
@@ -939,6 +941,7 @@ HEADER
 # Weights (omegas) are calculated as in Topham et al. 1993)
 # 
 # sigma value used is:  5.00
+#
 HEADER
               # full smooting
               1.upto($env_features.size) do |ci|
