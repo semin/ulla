@@ -30,10 +30,10 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 
 
 == OPTIONS:
-    --tem-file (-f) STRING: a tem file
-    --tem-list (-l) STRING: a list for tem files
-    --classdef (-c) STRING: a file for the defintion of environments (default: 'classdef.dat')
-    --outfile (-o) STRING: output filename ("allmat.dat" if not specified)
+    --tem-file (-f) FILE: a tem file
+    --tem-list (-l) FILE: a list for tem files
+    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --outfile (-o) FILE: output filename ("allmat.dat" if not specified)
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (not supported yet)
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
