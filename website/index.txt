@@ -6,11 +6,6 @@ h2. What
 'egor' is a program for calculating environment-specific substitution tables
 
 
-h2. Installation
-
-<pre syntax="ruby">$ sudo gem install egor</pre>
-
-
 h2. Features
 
 * No more segmentation fault
@@ -18,6 +13,11 @@ h2. Features
 * Slow enough to check your emails or have some chats with your colleagues next you
 * Full smoothing supported
 * In theory, infinite number of environment features can be handled
+
+
+h2. Installation
+
+<pre syntax="ruby">$ sudo gem install egor</pre>
 
 
 h2. Demonstration of usage
@@ -41,9 +41,11 @@ or, You can fetch the source from
 
 <pre>$ git clone git://github.com/semin/egor.git</pre>
 
+
 h2. License
 
 This code is free to use under the terms of the MIT license. 
+
 
 h2. Contact
 

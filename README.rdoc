@@ -2,9 +2,11 @@
 
 * http://egor.rubyforge.org
 
+
 == DESCRIPTION:
 
 egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
+
 
 == FEATURES/PROBLEMS:
 
@@ -14,11 +16,18 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * Full smoothing supported
 * In theory, infinite number of environment features can be handled
 
+
+== INSTALL:
+
+    $ sudo gem install egor
+
+
 == BASIC USAGE:
 
     $ egor -l TEMLIST-file -c classdef.dat
         or
     $ egor -f TEM-file -c classdef.dat
+
 
 == OPTIONS:
     --tem-file (-f) STRING: a tem file
@@ -52,6 +61,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --version: print version
     --help (-h): show help
 
+
 == REQUIREMENTS:
 
 * ruby 1.8.6 or above (http://www.ruby-lang.org)
@@ -60,9 +70,6 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
 
-== INSTALL:
-
-    $ sudo gem install egor
 
 == LICENSE:
 

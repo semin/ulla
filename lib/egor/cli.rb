@@ -44,7 +44,7 @@ Options:
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
-    --outfile (-o) FILE: output filename ("allmat.dat" if not specified)
+    --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
