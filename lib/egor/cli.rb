@@ -1043,7 +1043,7 @@ HEADER
 
             # Part 7.
             #
-            # Calculating log-add ratio scoring matrices
+            # Calculating log odds ratio scoring matrices
             #
             if $output == 2
               $outfh.puts <<HEADER
