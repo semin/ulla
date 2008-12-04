@@ -22,7 +22,7 @@ h2. Installation
 
 h2. Demonstration of usage
 
-It's pretty much the same as Kenji's subst, so in most cases, you just need swap 'subst' with 'egor'.
+It's pretty much the same as Kenji's subst, so in most cases, you can swap 'subst' with 'egor'.
 
 <pre>$ egor -l TEMLIST-file -c classdef.dat</pre>
     or
