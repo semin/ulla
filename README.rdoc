@@ -33,16 +33,16 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
-    --outfile (-o) FILE: output filename ("allmat.dat" if not specified)
-    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (not supported yet)
+    --outfile (-o) FILE: output filename (default 'allmat.dat')
+    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
         0 for parial smoothing (default)
         1 for full smoothing
     --nosmooth: perform no smoothing operation
-    --cys (-y) INTEGER: (!!!not implemented yet!!!)
-        0 for using C and J only for structure
-        1 for both structure and sequence (default)
+    --cys (-y) INTEGER:
+        0 for using C and J only for structure (default)
+        1 for both structure and sequence
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
@@ -50,7 +50,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5)
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log-odds calculation (default false) (!!!not implemented yet!!!)
+    --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
@@ -66,9 +66,12 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 
 * ruby 1.8.6 or above (http://www.ruby-lang.org)
 * rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
+
+* Following GEMs will be automatically installed if you have rubygems installed
 * narray (http://narray.rubyforge.org/)
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
+* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
 
 
 == LICENSE:
