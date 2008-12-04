@@ -5,26 +5,26 @@ require "facets"
 
 class Environment
 
-  @@amino_acids  = "ACDEFGHIKLMNPQRSTVWYJ".split("")
-
-  attr_accessor :number,
+  attr_accessor :amino_acids,
+                :number,
                 :label,
                 :freq_array,
                 :prob_array,
                 :logodd_array,
                 :smooth_prob_array
 
-  def initialize(number, label)
+  def initialize(number, label, amino_acids = "ACDEFGHIKLMNPQRSTVWYJ".split(''))
+    @amino_acids        = amino_acids
     @number             = number
     @label              = label
-    @freq_array         = $noweight ? NArray.int(21) : NArray.float(21)
-    @prob_array         = NArray.float(21)
-    @logodd_array       = NArray.float(21)
-    @smooth_prob_array  = NArray.float(21)
+    @freq_array         = $noweight ? NArray.int(@amino_acids.size) : NArray.float(@amino_acids.size)
+    @prob_array         = NArray.float(@amino_acids.size)
+    @logodd_array       = NArray.float(@amino_acids.size)
+    @smooth_prob_array  = NArray.float(@amino_acids.size)
   end
 
   def increase_residue_count(a, inc = 1.0)
-    @freq_array[@@amino_acids.index(a.upcase)] += inc
+    @freq_array[@amino_acids.index(a.upcase)] += inc
   end
 
   def label_set

@@ -54,6 +54,7 @@ Options:
     --cys (-y) INTEGER:
         0 for using C and J only for structure (default)
         1 for both structure and sequence
+        2 for using only C for both
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
@@ -200,7 +201,7 @@ Options:
           when '--outfile'
             $outfile      = arg
           when '--cys'
-            $cys          = (arg.to_i == 1 ? false : true)
+            $cys          = arg.to_i
           when '--weight'
             $weight       = arg.to_i
           when '--sigma'
@@ -255,9 +256,11 @@ Options:
         # Reading Environment Class Definition File
         #
 
+        # set amino_acids
+        $amino_acids = "ACDEFGHIKLMNPQRSTVWY".split("") if $cys == 2
+
         # an array for storing all environment feature objects
         $env_features = []
-
 
         # an array for storing indexes of constrained environment features
         $cst_features = []
@@ -310,7 +313,7 @@ Options:
         }.inject { |pro, lb|
           pro.product(lb)
         }.each_with_index { |e, i|
-          $envs[e.flatten.join] = Environment.new(i, e.flatten.join)
+          $envs[e.flatten.join] = Environment.new(i, e.flatten.join, $amino_acids)
         }
 
         # Part 4.
@@ -365,7 +368,7 @@ Options:
                         "X"
                       else
                         if ei == 0 # Amino Acid Environment Feature
-                          ((disulphide[key][pos] == "F") && (sym == "C")) ? "J" : sym
+                          (( disulphide.has_key?(key) and disulphide[key][pos] == "F") && (sym == "C")) ? "J" : sym
                         else
                           ec.labels[ec.symbols.index(sym)]
                         end
@@ -421,8 +424,8 @@ Options:
                         next
                       end
 
-                      aa1 = (((disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
-                      aa2 = (((disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
+                      aa1 = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
+                      aa2 = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
 
                       if $cst_features.empty?
                         $envs[env_labels[id1][pos]].increase_residue_count(aa2)
@@ -515,7 +518,7 @@ Options:
                       end
 
                       aa1.upcase!
-                      aa2 = seq2[pos].upcase
+                      aa2 = seq2[pos].upcase rescue next # should fix this in sane way!
 
                       if !$amino_acids.include?(aa1)
                         $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not standard amino acid" unless aa1 == "-"
@@ -527,8 +530,8 @@ Options:
                         next
                       end
 
-                      aa1   = (((disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
-                      aa2   = (((disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
+                      aa1   = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
+                      aa2   = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
                       size1 = cluster1.size
                       size2 = cluster2.size
                       obs1  = 1.0 / size1
@@ -678,7 +681,7 @@ HEADER
           end
 
           # count raw frequencies
-          $tot_freq_mat = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
+          $tot_freq_mat = ($noweight ? NMatrix.int($amino_acids.size,$amino_acids.size) : NMatrix.float($amino_acids.size,$amino_acids.size))
 
           # for each combination of environment features
           env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -689,11 +692,11 @@ HEADER
               $env_features[i + 1].labels.index(l)
             }
           }.each_with_index do |group, group_no|
-            grp_freq_mat = ($noweight ? NMatrix.int(21,21) : NMatrix.float(21,21))
+            grp_freq_mat = ($noweight ? NMatrix.int($amino_acids.size,$amino_acids.size) : NMatrix.float($amino_acids.size,$amino_acids.size))
 
             $amino_acids.each_with_index do |aa, ai|
               freq_array = group[1].find { |e| e.label.start_with?(aa) }.freq_array
-              0.upto(20) { |j| grp_freq_mat[ai, j] = freq_array[j] }
+              0.upto($amino_acids.size - 1) { |j| grp_freq_mat[ai, j] = freq_array[j] }
             end
 
             $tot_freq_mat += grp_freq_mat
@@ -729,7 +732,7 @@ HEADER
 
           if ($output > 0) && $nosmooth
             # Probability matrices
-            $tot_prob_mat = NMatrix.float(21, 21)
+            $tot_prob_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
 
             # for each combination of environment features
             env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -739,11 +742,11 @@ HEADER
                 $env_features[i + 1].labels.index(l)
               }
             }.each_with_index do |group, group_no|
-              grp_prob_mat = NMatrix.float(21,21)
+              grp_prob_mat = NMatrix.float($amino_acids.size,$amino_acids.size)
 
               $amino_acids.each_with_index do |aa, ai|
                 prob_array = group[1].find { |e| e.label.start_with?(aa) }.prob_array
-                0.upto(20) { |j| grp_prob_mat[ai, j] = prob_array[j] }
+                0.upto($amino_acids.size - 1) { |j| grp_prob_mat[ai, j] = prob_array[j] }
               end
 
               $tot_prob_mat += grp_prob_mat
@@ -767,20 +770,20 @@ HEADER
             #
             # p1 probability
             #
-            p1      = NArray.float(21)
-            a0      = NArray.float(21).fill(1 / 21.0)
+            p1      = NArray.float($amino_acids.size)
+            a0      = NArray.float($amino_acids.size).fill(1.0 / $amino_acids.size)
             big_N   = $tot_aa.to_f
-            small_n = 21.0
+            small_n = $amino_acids.size.to_f
             omega1  = 1.0 / (1 + big_N / ($sigma * small_n))
             omega2  = 1.0 - omega1
 
             if $smooth == :partial
               # for partial smoothing, p1 probability is not smoothed!
-              0.upto(20) { |i| p1[i] = 100.0 * $aa_rel_freq[$amino_acids[i]] }
+              0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * $aa_rel_freq[$amino_acids[i]] }
               $smooth_prob[1] = p1
             else
               # for full smoothing, p1 probability is smoothed
-              0.upto(20) { |i| p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_rel_freq[$amino_acids[i]]) }
+              0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_rel_freq[$amino_acids[i]]) }
               $smooth_prob[1] = p1
             end
 
@@ -837,9 +840,9 @@ HEADER
 
                     # get environmetns, frequencies, and probabilities
                     envs      = $envs.values.select { |env| env.label.match(pattern.to_re) }
-                    freq_arr  = envs.inject(NArray.float(21)) { |sum, env| sum + env.freq_array }
-                    prob_arr  = NArray.float(21)
-                    0.upto(20) { |i| prob_arr[i] = (freq_arr[i] == 0 ? 0 : freq_arr[i] / freq_arr.sum.to_f) }
+                    freq_arr  = envs.inject(NArray.float($amino_acids.size)) { |sum, env| sum + env.freq_array }
+                    prob_arr  = NArray.float($amino_acids.size)
+                    0.upto($amino_acids.size - 1) { |i| prob_arr[i] = (freq_arr[i] == 0 ? 0 : freq_arr[i] / freq_arr.sum.to_f) }
 
   #                  # assess whether a residue type j is compatible with a particular combination of structural features
   #                  # corrections for non-zero colum vector phenomenon by switching the smoothing procedure off as below
@@ -855,7 +858,7 @@ HEADER
   #                      l               = label[1].chr
   #                      sub_pattern[i]  = l
   #                      sub_envs        = $envs.values.select { |env| env.label.match(pattern.to_re) }
-  #                      sub_freq_arr    = sub_envs.inject(NArray.float(21)) { |sum, env| sum + env.freq_array }
+  #                      sub_freq_arr    = sub_envs.inject(NArray.float($amino_acids.size)) { |sum, env| sum + env.freq_array }
   #                      sub_freq_sum    += sub_freq_arr.sum
   #                    end
   #
@@ -885,23 +888,23 @@ HEADER
                     end
 
                     # entropy based weighting priors
-                    entropy_max     = Math::log(21)
+                    entropy_max     = Math::log($amino_acids.size)
                     entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0.0 ? s - 1 : s + p * Math::log(p) } }
                     mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
                     weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
                     weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
 
                     # smoothing step
-                    smooth_prob_arr = NArray.float(21)
+                    smooth_prob_arr = NArray.float($amino_acids.size)
                     big_N           = freq_arr.sum.to_f
-                    small_n         = 21.0
+                    small_n         = $amino_acids.size.to_f
                     omega1          = 1.0 / (1 + big_N / ($sigma * small_n))
                     omega2          = 1.0 - omega1
-                    0.upto(20) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
+                    0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
 
                     # normalization step
                     smooth_prob_arr_sum = smooth_prob_arr.sum
-                    0.upto(20) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
+                    0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
 
                     # store smoothed probabilties in a hash using a set of envrionment labels as a key
                     if !$smooth_prob.has_key?(ci + 1)
@@ -956,9 +959,9 @@ HEADER
 
                     # get environmetns, frequencies, and probabilities
                     envs      = $envs.values.select { |env| env.label.match(pattern.to_re) }
-                    freq_arr  = envs.inject(NArray.float(21)) { |sum, env| sum + env.freq_array }
-                    prob_arr  = NArray.float(21)
-                    0.upto(20) { |i| prob_arr[i] = freq_arr[i] == 0 ? 0 : freq_arr[i] / freq_arr.sum.to_f }
+                    freq_arr  = envs.inject(NArray.float($amino_acids.size)) { |sum, env| sum + env.freq_array }
+                    prob_arr  = NArray.float($amino_acids.size)
+                    0.upto($amino_acids.size - 1) { |i| prob_arr[i] = freq_arr[i] == 0 ? 0 : freq_arr[i] / freq_arr.sum.to_f }
 
                     # collect priors
                     priors  = []
@@ -969,23 +972,23 @@ HEADER
                     end
 
                     # entropy based weighting priors
-                    entropy_max = Math::log(21)
+                    entropy_max = Math::log($amino_acids.size)
                     entropies = priors.map do |prior|
                       (entropy_max + prior.to_a.inject(0.0) { |s, p| s + p * Math::log(p) }) / entropy_max
                     end
                     weighted_priors = priors.map_with_index { |p, i| p * entropies[i] / entropies.sum }.sum
 
                     # smoothing step
-                    smooth_prob_arr = NArray.float(21)
+                    smooth_prob_arr = NArray.float($amino_acids.size)
                     big_N           = freq_arr.sum.to_f
-                    small_n         = 21.0
+                    small_n         = $amino_acids.size.to_f
                     omega1          = 1.0 / (1 + big_N / ($sigma * small_n))
                     omega2          = 1.0 - omega1
-                    0.upto(20) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
+                    0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
 
                     # normalization step
                     smooth_prob_arr_sum = smooth_prob_arr.sum
-                    0.upto(20) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
+                    0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
 
                     # store smoothed probabilties in a hash using a set of envrionment labels as a key
                     if !$smooth_prob.has_key?(ci + 1)
@@ -1003,7 +1006,7 @@ HEADER
             $envs.values.each { |e| e.smooth_prob_array = $smooth_prob[$env_features.size + 1][e.label_set] }
 
             # for a total substitution probability matrix
-            $tot_prob_mat = NMatrix.float(21,21)
+            $tot_prob_mat = NMatrix.float($amino_acids.size,$amino_acids.size)
 
             # grouping environments by its environment labels but amino acid label
             env_groups = $envs.values.group_by { |env| env.label[1..-1] }
@@ -1016,11 +1019,11 @@ HEADER
               }
             }.each_with_index do |group, group_no|
               # calculating 21X21 substitution probability matrix for each envrionment
-              grp_prob_mat = NMatrix.float(21,21)
+              grp_prob_mat = NMatrix.float($amino_acids.size,$amino_acids.size)
 
               $amino_acids.each_with_index do |aa, ai|
                 smooth_prob_array = group[1].find { |e| e.label.start_with?(aa) }.smooth_prob_array
-                0.upto(20) { |j| grp_prob_mat[ai, j] = smooth_prob_array[j] }
+                0.upto($amino_acids.size - 1) { |j| grp_prob_mat[ai, j] = smooth_prob_array[j] }
               end
 
               $tot_prob_mat += grp_prob_mat
@@ -1062,7 +1065,7 @@ HEADER
 HEADER
               end
 
-              $tot_logo_mat = $cys ? NMatrix.float(21,22) : NMatrix.float(21,21)
+              $tot_logo_mat = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
               grp_logo_mats = []
               factor        = $scale / Math::log(2)
 
@@ -1079,11 +1082,11 @@ HEADER
                 # calculating 21X21 substitution probability matrix for each envrionment
                 grp_label     = group[0]
                 grp_envs      = group[1]
-                grp_logo_mat  = $cys ? NMatrix.float(21, 22) : NMatrix.float(21,21)
+                grp_logo_mat  = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
 
                 $amino_acids.each_with_index do |aa, ai|
                   env       = grp_envs.detect { |e| e.label.start_with?(aa) }
-                  logo_arr  = $cys ? NArray.float(22) : NArray.float(21)
+                  logo_arr  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
 
                   env.smooth_prob_array.to_a.each_with_index do |prob, j|
                     paj         = 100.0 * $aa_rel_freq[$amino_acids[j]]
@@ -1091,10 +1094,10 @@ HEADER
                     logo_arr[j] = factor * Math::log(odds)
                   end
 
-                  0.upto(20) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
+                  0.upto($amino_acids.size - 1) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
 
-                  # adding log odds ratio for "U" (J or C) when --cyc is ON
-                  if $cys
+                  # adding log odds ratio for "U" (J or C) when --cyc is 0
+                  if $cys == 0
                     paj   = 100.0 * ($aa_rel_freq["C"] + $aa_rel_freq["J"])
                     prob  = env.smooth_prob_array[$amino_acids.index("C")] + env.smooth_prob_array[$amino_acids.index("J")]
                     odds  = prob == 0.0 ? 0.000001 / paj : prob / paj
@@ -1150,7 +1153,8 @@ HEADER
               end
 
               $outfh.puts ">Total #{grp_logo_mats.size}"
-              if $cys
+
+              if $cys == 0
                 $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
               else
                 $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
