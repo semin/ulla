@@ -646,17 +646,17 @@ HEADER
 
           # calculate amino acid frequencies and mutabilities, and
           # print them as default statistics in the header part
-          ala_factor  = 100.0 * $aa_tot_obs["A"] / $aa_mut_obs["A"].to_f
+          ala_factor  = $aa_mut_obs["A"] == 0 ? 0 : 100.0 * $aa_tot_obs["A"] / $aa_mut_obs["A"].to_f
           $tot_aa     = $aa_tot_obs.values.sum
 
           $outfh.puts "#"
           $outfh.puts "# Total amino acid frequencies:\n"
           $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FRQ]
 
-          $aa_tot_obs.each_pair do |res, freq|
-            $aa_mutb[res]      = $aa_mut_obs[res] / freq.to_f
-            $aa_rel_mutb[res]  = $aa_mutb[res] * ala_factor
-            $aa_rel_freq[res]  = freq / $tot_aa.to_f
+          $amino_acids.each do |res|
+            $aa_mutb[res]     = $aa_tot_obs[res] == 0 ? 0 : $aa_mut_obs[res] / $aa_tot_obs[res].to_f
+            $aa_rel_mutb[res] = $aa_mutb[res] * ala_factor
+            $aa_rel_freq[res] = $aa_tot_obs[res] / $tot_aa.to_f
           end
 
           $amino_acids.each do |res|
@@ -891,7 +891,12 @@ HEADER
 
                     # entropy based weighting priors
                     entropy_max     = Math::log($amino_acids.size)
-                    entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0.0 ? s - 1 : s + p * Math::log(p) } }
+                    entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p|
+                      begin
+                        p == 0.0 ? s - 1 : s + p * Math::log(p)
+                      rescue
+                        puts p
+                      end} }
                     mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
                     weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
                     weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
