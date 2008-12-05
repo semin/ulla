@@ -153,12 +153,12 @@ Options:
         $cys          = 0
         $penv         = false
 
-        $aa_tot_obs   = {}
-        $aa_mut_obs   = {}
+        $aa_tot_obs   = Hash.new(0)
+        $aa_mut_obs   = Hash.new(0)
         $aa_mutb      = {}
         $aa_rel_mutb  = {}
         $aa_rel_freq  = {}
-        $env_aa_obs   = {}
+        $env_aa_obs   = Hash.new(0)
         $smooth_prob  = {}
         $tot_freq_mat = nil
         $tot_prob_mat = nil
@@ -325,288 +325,290 @@ Options:
         $outfh = File.open($outfile, "w")
 
         if $tem_file
-          $tem_list = [$tem_file]
+          $tem_list_io = StringIO.new($tem_file)
         end
 
         if $tem_list
-          IO.foreach($tem_list) do |tem_file|
-            tem_file.chomp!
+          $tem_list_io = File.open($tem_list)
+        end
 
-            $logger.info ">>> Analysing #{tem_file} ..."
+        $tem_list_io.each_line do |tem_file|
+          tem_file.chomp!
 
-            ali = Bio::Alignment::OriginalAlignment.new
-            ff  = Bio::FlatFile.auto(tem_file)
+          $logger.info ">>> Analysing #{tem_file} ..."
+
+          ali = Bio::Alignment::OriginalAlignment.new
+          ff  = Bio::FlatFile.auto(tem_file)
+          ff.each_entry do |pir|
+            if pir.definition == "sequence"
+              ali.add_seq(pir.data.gsub("\n", ""), pir.entry_id)
+            end
+          end
+
+          $ali_size   += 1
+          env_labels  = {}
+          disulphide  = {}
+
+          ali.each_pair do |key, seq|
+            # check disulphide bond environment first!
+            ff.rewind
             ff.each_entry do |pir|
-              if pir.definition == "sequence"
-                ali.add_seq(pir.data.gsub("\n", ""), pir.entry_id)
+              if (pir.entry_id == key) && (pir.definition == "disulphide")
+                disulphide[key] = pir.data.gsub("\n", "").split("")
               end
             end
 
-            $ali_size   += 1
-            env_labels  = {}
-            disulphide  = {}
+            $env_features.each_with_index do |ec, ei|
+              env_labels[key] = [] unless env_labels.has_key?(key)
 
-            ali.each_pair do |key, seq|
-              # check disulphide bond environment first!
               ff.rewind
               ff.each_entry do |pir|
-                if (pir.entry_id == key) && (pir.definition == "disulphide")
-                  disulphide[key] = pir.data.gsub("\n", "").split("")
-                end
-              end
-
-              $env_features.each_with_index do |ec, ei|
-                env_labels[key] = [] unless env_labels.has_key?(key)
-
-                ff.rewind
-                ff.each_entry do |pir|
-                  if (pir.entry_id == key) && (pir.definition == ec.name)
-                    labels = pir.data.gsub("\n", "").split("").map_with_index do |sym, pos|
-                      if sym == "-"
-                        "-"
-                      elsif sym == "X" || sym == "x"
-                        "X"
+                if (pir.entry_id == key) && (pir.definition == ec.name)
+                  labels = pir.data.gsub("\n", "").split("").map_with_index do |sym, pos|
+                    if sym == "-"
+                      "-"
+                    elsif sym == "X" || sym == "x"
+                      "X"
+                    else
+                      if ei == 0 # Amino Acid Environment Feature
+                        (( disulphide.has_key?(key) and disulphide[key][pos] == "F") && (sym == "C")) ? "J" : sym
                       else
-                        if ei == 0 # Amino Acid Environment Feature
-                          (( disulphide.has_key?(key) and disulphide[key][pos] == "F") && (sym == "C")) ? "J" : sym
-                        else
-                          ec.labels[ec.symbols.index(sym)]
-                        end
+                        ec.labels[ec.symbols.index(sym)]
                       end
                     end
+                  end
 
-                    if env_labels[key].empty?
-                      env_labels[key] = labels
-                    else
-                      env_labels[key].each_with_index { |e, i| env_labels[key][i] = e + labels[i] }
-                    end
+                  if env_labels[key].empty?
+                    env_labels[key] = labels
+                  else
+                    env_labels[key].each_with_index { |e, i| env_labels[key][i] = e + labels[i] }
                   end
                 end
               end
             end
+          end
 
-            if $noweight
-              ali.each_pair do |id1, seq1|
-                ali.each_pair do |id2, seq2|
-                  if id1 != id2
-                    pid  = calc_pid(seq1, seq2)
-                    s1 = seq1.split("")
-                    s2 = seq2.split("")
+          if $noweight
+            ali.each_pair do |id1, seq1|
+              ali.each_pair do |id2, seq2|
+                if id1 != id2
+                  pid  = calc_pid(seq1, seq2)
+                  s1 = seq1.split("")
+                  s2 = seq2.split("")
 
-                    # check PID_MIN
-                    if $pidmin && (pid < $pidmin)
-                      $logger.info ">>> Skip alignment between #{id1} and #{id2} having PID, #{pid}% less than PID_MIN, #{$pidmin}"
+                  # check PID_MIN
+                  if $pidmin && (pid < $pidmin)
+                    $logger.info ">>> Skip alignment between #{id1} and #{id2} having PID, #{pid}% less than PID_MIN, #{$pidmin}"
+                    next
+                  end
+
+                  # check PID_MAX
+                  if $pidmax && (pid > $pidmax)
+                    $logger.info ">>> Skip alignment between #{id1} and #{id2} having PID, #{pid}% greater than PID_MAX, #{$pidmax}"
+                    next
+                  end
+
+                  s1.each_with_index do |aa1, pos|
+                    if env_labels[id1][pos].include?("X")
+                      $logger.info ">>> Substitutions from #{id1}-#{pos}-#{aa1} were masked"
                       next
                     end
 
-                    # check PID_MAX
-                    if $pidmax && (pid > $pidmax)
-                      $logger.info ">>> Skip alignment between #{id1} and #{id2} having PID, #{pid}% greater than PID_MAX, #{$pidmax}"
+                    aa1.upcase!
+                    aa2 = s2[pos].upcase
+
+                    if !$amino_acids.include?(aa1)
+                      $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not a standard amino acid" unless aa1 == "-"
                       next
                     end
 
-                    s1.each_with_index do |aa1, pos|
-                      if env_labels[id1][pos].include?("X")
-                        $logger.info ">>> Substitutions from #{id1}-#{pos}-#{aa1} were masked"
-                        next
-                      end
+                    if !$amino_acids.include?(aa2)
+                      $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not a standard amino acid" unless aa2 == "-"
+                      next
+                    end
 
-                      aa1.upcase!
-                      aa2 = s2[pos].upcase
+                    aa1 = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
+                    aa2 = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
 
-                      if !$amino_acids.include?(aa1)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not a standard amino acid" unless aa1 == "-"
-                        next
-                      end
+                    if $cst_features.empty?
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
+                            env_labels[id2][pos].split("").values_at(*$cst_features))
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                    else
+                      $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                      next
+                    end
 
-                      if !$amino_acids.include?(aa2)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not a standard amino acid" unless aa2 == "-"
-                        next
-                      end
+                    grp_label = env_labels[id1][pos][1..-1]
 
-                      aa1 = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
-                      aa2 = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
-
-                      if $cst_features.empty?
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2)
-                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
-                             env_labels[id2][pos].split("").values_at(*$cst_features))
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2)
+                    if $env_aa_obs.has_key? grp_label
+                      if $env_aa_obs[grp_label].has_key? aa1
+                        $env_aa_obs[grp_label][aa1] += 1
                       else
-                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
-                        next
-                      end
-
-                      grp_label = env_labels[id1][pos][1..-1]
-
-                      if $env_aa_obs.has_key? grp_label
-                        if $env_aa_obs[grp_label].has_key? aa1
-                          $env_aa_obs[grp_label][aa1] += 1
-                        else
-                          $env_aa_obs[grp_label][aa1] = 1
-                        end
-                      else
-                        $env_aa_obs[grp_label] = Hash.new(0)
                         $env_aa_obs[grp_label][aa1] = 1
                       end
-
-                      if $aa_tot_obs.has_key? aa1
-                        $aa_tot_obs[aa1] += 1
-                      else
-                        $aa_tot_obs[aa1] = 1
-                      end
-
-                      if aa1 != aa2
-                        if $aa_mut_obs.has_key? aa1
-                          $aa_mut_obs[aa1] += 1
-                        else
-                          $aa_mut_obs[aa1] = 1
-                        end
-                      end
-                      $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
+                    else
+                      $env_aa_obs[grp_label] = Hash.new(0)
+                      $env_aa_obs[grp_label][aa1] = 1
                     end
+
+                    if $aa_tot_obs.has_key? aa1
+                      $aa_tot_obs[aa1] += 1
+                    else
+                      $aa_tot_obs[aa1] = 1
+                    end
+
+                    if aa1 != aa2
+                      if $aa_mut_obs.has_key? aa1
+                        $aa_mut_obs[aa1] += 1
+                      else
+                        $aa_mut_obs[aa1] = 1
+                      end
+                    end
+                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
                   end
                 end
               end
-            else
-              # BLOSUM-like weighting
-              clusters = []
-              ali.each_pair { |i, s| clusters << [i] }
+            end
+          else
+            # BLOSUM-like weighting
+            clusters = []
+            ali.each_pair { |i, s| clusters << [i] }
 
-              # a loop for single linkage clustering
-              begin
-                continue = false
-                0.upto(clusters.size - 2) do |i|
-                  indexes = []
-                  (i + 1).upto(clusters.size - 1) do |j|
-                    found = false
-                    clusters[i].each do |c1|
-                      clusters[j].each do |c2|
-                        if calc_pid(ali[c1], ali[c2]) >= $weight
-                          indexes << j
-                          found = true
-                          break
-                        end
+            # a loop for single linkage clustering
+            begin
+              continue = false
+              0.upto(clusters.size - 2) do |i|
+                indexes = []
+                (i + 1).upto(clusters.size - 1) do |j|
+                  found = false
+                  clusters[i].each do |c1|
+                    clusters[j].each do |c2|
+                      if calc_pid(ali[c1], ali[c2]) >= $weight
+                        indexes << j
+                        found = true
+                        break
                       end
-                      break if found
                     end
-                  end
-
-                  unless indexes.empty?
-                    continue  = true
-                    group     = clusters[i]
-                    indexes.each do |k|
-                      group       = group.concat(clusters[k])
-                      clusters[k] = nil
-                    end
-                    clusters[i] = group
-                    clusters.compact!
+                    break if found
                   end
                 end
-              end while(continue)
 
-              clusters.combination(2).each do |cluster1, cluster2|
-                cluster1.each do |id1|
-                  cluster2.each do |id2|
-                    seq1 = ali[id1].split("")
-                    seq2 = ali[id2].split("")
+                unless indexes.empty?
+                  continue  = true
+                  group     = clusters[i]
+                  indexes.each do |k|
+                    group       = group.concat(clusters[k])
+                    clusters[k] = nil
+                  end
+                  clusters[i] = group
+                  clusters.compact!
+                end
+              end
+            end while(continue)
 
-                    seq1.each_with_index do |aa1, pos|
-                      if env_labels[id1][pos].include?("X")
-                        $logger.debug "*** Substitutions from #{id1}-#{pos}-#{aa1} were masked"
-                        next
-                      end
+            clusters.combination(2).each do |cluster1, cluster2|
+              cluster1.each do |id1|
+                cluster2.each do |id2|
+                  seq1 = ali[id1].split("")
+                  seq2 = ali[id2].split("")
 
-                      aa1.upcase!
-                      aa2 = seq2[pos].upcase rescue next # should fix this in sane way!
+                  seq1.each_with_index do |aa1, pos|
+                    if env_labels[id1][pos].include?("X")
+                      $logger.debug "*** Substitutions from #{id1}-#{pos}-#{aa1} were masked"
+                      next
+                    end
 
-                      if !$amino_acids.include?(aa1)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not standard amino acid" unless aa1 == "-"
-                        next
-                      end
+                    aa1.upcase!
+                    aa2 = seq2[pos].upcase rescue next # should fix this in sane way!
 
-                      if !$amino_acids.include?(aa2)
-                        $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not standard amino acid" unless aa2 == "-"
-                        next
-                      end
+                    if !$amino_acids.include?(aa1)
+                      $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not standard amino acid" unless aa1 == "-"
+                      next
+                    end
 
-                      aa1   = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
-                      aa2   = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
-                      size1 = cluster1.size
-                      size2 = cluster2.size
-                      obs1  = 1.0 / size1
-                      obs2  = 1.0 / size2
+                    if !$amino_acids.include?(aa2)
+                      $logger.warn "!!! #{id1}-#{pos}-#{aa2} is not standard amino acid" unless aa2 == "-"
+                      next
+                    end
 
-                      if $cst_features.empty?
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
-                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
-                             env_labels[id2][pos].split("").values_at(*$cst_features))
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                    aa1   = (((disulphide.has_key?(id1) and disulphide[id1][pos] == "F") && (aa1 == "C")) ? "J" : aa1)
+                    aa2   = (((disulphide.has_key?(id2) and disulphide[id2][pos] == "F") && (aa2 == "C")) ? "J" : aa2)
+                    size1 = cluster1.size
+                    size2 = cluster2.size
+                    obs1  = 1.0 / size1
+                    obs2  = 1.0 / size2
+
+                    if $cst_features.empty?
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
+                            env_labels[id2][pos].split("").values_at(*$cst_features))
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                    else
+                      $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                      next
+                    end
+
+                    grp_label1 = env_labels[id1][pos][1..-1]
+                    grp_label2 = env_labels[id2][pos][1..-1]
+
+                    if $env_aa_obs.has_key? grp_label1
+                      if $env_aa_obs[grp_label1].has_key? aa1
+                        $env_aa_obs[grp_label1][aa1] += obs1
                       else
-                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
-                        next
-                      end
-
-                      grp_label1 = env_labels[id1][pos][1..-1]
-                      grp_label2 = env_labels[id2][pos][1..-1]
-
-                      if $env_aa_obs.has_key? grp_label1
-                        if $env_aa_obs[grp_label1].has_key? aa1
-                          $env_aa_obs[grp_label1][aa1] += obs1
-                        else
-                          $env_aa_obs[grp_label1][aa1] = obs1
-                        end
-                      else
-                        $env_aa_obs[grp_label1] = Hash.new(0.0)
                         $env_aa_obs[grp_label1][aa1] = obs1
                       end
+                    else
+                      $env_aa_obs[grp_label1] = Hash.new(0.0)
+                      $env_aa_obs[grp_label1][aa1] = obs1
+                    end
 
-                      if $env_aa_obs.has_key? grp_label2
-                        if $env_aa_obs[grp_label2].has_key? aa2
-                          $env_aa_obs[grp_label2][aa2] += obs2
-                        else
-                          $env_aa_obs[grp_label2][aa2] = obs2
-                        end
+                    if $env_aa_obs.has_key? grp_label2
+                      if $env_aa_obs[grp_label2].has_key? aa2
+                        $env_aa_obs[grp_label2][aa2] += obs2
                       else
-                        $env_aa_obs[grp_label2] = Hash.new(0.0)
                         $env_aa_obs[grp_label2][aa2] = obs2
                       end
-
-                      if $aa_tot_obs.has_key? aa1
-                        $aa_tot_obs[aa1] += obs1
-                      else
-                        $aa_tot_obs[aa1] = obs1
-                      end
-
-                      if $aa_tot_obs.has_key? aa2
-                        $aa_tot_obs[aa2] += obs2
-                      else
-                        $aa_tot_obs[aa2] = obs2
-                      end
-
-                      if aa1 != aa2
-                        if $aa_mut_obs.has_key? aa1
-                          $aa_mut_obs[aa1] += obs1
-                        else
-                          $aa_mut_obs[aa1] = obs1
-                        end
-                        if $aa_mut_obs.has_key? aa2
-                          $aa_mut_obs[aa2] += obs2
-                        else
-                          $aa_mut_obs[aa2] = obs2
-                        end
-                      end
-
-                      $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
-                      $logger.debug "*** Add #{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substituion for #{env_labels[id2][pos]}"
+                    else
+                      $env_aa_obs[grp_label2] = Hash.new(0.0)
+                      $env_aa_obs[grp_label2][aa2] = obs2
                     end
+
+                    if $aa_tot_obs.has_key? aa1
+                      $aa_tot_obs[aa1] += obs1
+                    else
+                      $aa_tot_obs[aa1] = obs1
+                    end
+
+                    if $aa_tot_obs.has_key? aa2
+                      $aa_tot_obs[aa2] += obs2
+                    else
+                      $aa_tot_obs[aa2] = obs2
+                    end
+
+                    if aa1 != aa2
+                      if $aa_mut_obs.has_key? aa1
+                        $aa_mut_obs[aa1] += obs1
+                      else
+                        $aa_mut_obs[aa1] = obs1
+                      end
+                      if $aa_mut_obs.has_key? aa2
+                        $aa_mut_obs[aa2] += obs2
+                      else
+                        $aa_mut_obs[aa2] = obs2
+                      end
+                    end
+
+                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
+                    $logger.debug "*** Add #{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substituion for #{env_labels[id2][pos]}"
                   end
                 end
               end
-            end # if !$nosmooth
-          end # IO.foreach($tem_list)
+            end
+          end # if !$nosmooth
 
           # print out default header
           $outfh.puts <<HEADER
