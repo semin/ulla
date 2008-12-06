@@ -43,6 +43,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --cys (-y) INTEGER:
         0 for using C and J only for structure (default)
         1 for both structure and sequence
+        2 for using only C for both
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
