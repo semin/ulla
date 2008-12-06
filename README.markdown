@@ -1,14 +1,14 @@
-= egor
+# egor
 
 * http://egor.rubyforge.org
 
 
-== DESCRIPTION:
+## DESCRIPTION:
 
 egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
 
 
-== FEATURES/PROBLEMS:
+## FEATURES/PROBLEMS:
 
 * No more segmentation fault
 * Fast enough not to leave your place
@@ -17,19 +17,19 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * In theory, infinite number of environment features can be handled
 
 
-== INSTALL:
+## INSTALL:
 
     $ sudo gem install egor
 
 
-== BASIC USAGE:
+## BASIC USAGE:
 
     $ egor -l TEMLIST-file -c classdef.dat
         or
     $ egor -f TEM-file -c classdef.dat
 
 
-== OPTIONS:
+## OPTIONS:
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
@@ -62,7 +62,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --help (-h): show help
 
 
-== REQUIREMENTS:
+## REQUIREMENTS:
 
 * ruby 1.8.6 or above (http://www.ruby-lang.org)
 * rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
@@ -74,7 +74,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
 
 
-== LICENSE:
+## LICENSE:
 
 (The MIT License)
 
