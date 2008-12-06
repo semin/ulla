@@ -67,7 +67,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * ruby 1.8.6 or above (http://www.ruby-lang.org)
 * rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
 
-* Following GEMs will be automatically installed if you have rubygems installed
+Following GEMs will be automatically installed if you have rubygems installed
 * narray (http://narray.rubyforge.org/)
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
