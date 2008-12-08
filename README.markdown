@@ -25,9 +25,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 ## BASIC USAGE:
 
     $ egor -l TEMLIST-file -c classdef.dat
-
         or
-
     $ egor -f TEM-file -c classdef.dat
 
 
