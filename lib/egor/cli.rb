@@ -345,6 +345,11 @@ Options:
             end
           end
 
+          if ali.size < 2
+            $logger.warn "!!! Skipped #{tem_file}, there is only one 'sequence' entry"
+            next
+          end
+
           $ali_size   += 1
           env_labels  = {}
           disulphide  = {}
@@ -409,13 +414,18 @@ Options:
                   end
 
                   s1.each_with_index do |aa1, pos|
+                    aa1.upcase!
+                    aa2 = s2[pos].upcase
+
                     if env_labels[id1][pos].include?("X")
                       $logger.info ">>> Substitutions from #{id1}-#{pos}-#{aa1} were masked"
                       next
                     end
 
-                    aa1.upcase!
-                    aa2 = s2[pos].upcase
+                    if env_labels[id2][pos].include?("X")
+                      $logger.info ">>> Substitutions to #{id2}-#{pos}-#{aa2} were masked"
+                      next
+                    end
 
                     if !$amino_acids.include?(aa1)
                       $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not a standard amino acid" unless aa1 == "-"
@@ -432,8 +442,7 @@ Options:
 
                     if $cst_features.empty?
                       $envs[env_labels[id1][pos]].increase_residue_count(aa2)
-                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
-                            env_labels[id2][pos].split("").values_at(*$cst_features))
+                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) == env_labels[id2][pos].split("").values_at(*$cst_features))
                       $envs[env_labels[id1][pos]].increase_residue_count(aa2)
                     else
                       $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
@@ -466,7 +475,7 @@ Options:
                         $aa_mut_obs[aa1] = 1
                       end
                     end
-                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
+                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution for #{env_labels[id1][pos]}"
                   end
                 end
               end
@@ -515,13 +524,18 @@ Options:
                   seq2 = ali[id2].split("")
 
                   seq1.each_with_index do |aa1, pos|
+                    aa1.upcase!
+                    aa2 = seq2[pos].upcase rescue next # should fix this in sane way!
+
                     if env_labels[id1][pos].include?("X")
                       $logger.debug "*** Substitutions from #{id1}-#{pos}-#{aa1} were masked"
                       next
                     end
 
-                    aa1.upcase!
-                    aa2 = seq2[pos].upcase rescue next # should fix this in sane way!
+                    if env_labels[id2][pos].include?("X")
+                      $logger.debug "*** Substitutions to #{id2}-#{pos}-#{aa2} were masked"
+                      next
+                    end
 
                     if !$amino_acids.include?(aa1)
                       $logger.warn "!!! #{id1}-#{pos}-#{aa1} is not standard amino acid" unless aa1 == "-"
@@ -540,16 +554,20 @@ Options:
                     obs1  = 1.0 / size1
                     obs2  = 1.0 / size2
 
-                    if $cst_features.empty?
-                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
-                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) ==
-                            env_labels[id2][pos].split("").values_at(*$cst_features))
-                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
-                    else
-                      $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
-                      next
+                    begin
+                      if $cst_features.empty?
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) == env_labels[id2][pos].split("").values_at(*$cst_features))
+                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                      else
+                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                        next
+                      end
+                    rescue
+                      $logger.warn "!!! #{id1}-#{pos}-#{aa1}-#{env_labels[id1][pos]} and #{id2}-#{pos}-#{aa2}-#{env_labels[id2][pos]}"
+                      exit 1
                     end
 
                     grp_label1 = env_labels[id1][pos][1..-1]
@@ -602,8 +620,8 @@ Options:
                       end
                     end
 
-                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substituion for #{env_labels[id1][pos]}"
-                    $logger.debug "*** Add #{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substituion for #{env_labels[id2][pos]}"
+                    $logger.debug "*** Add #{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution for #{env_labels[id1][pos]}"
+                    $logger.debug "*** Add #{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substitution for #{env_labels[id2][pos]}"
                   end
                 end
               end
