@@ -25,7 +25,9 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 ## BASIC USAGE:
 
     $ egor -l TEMLIST-file -c classdef.dat
+
         or
+
     $ egor -f TEM-file -c classdef.dat
 
 
@@ -73,7 +75,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 * narray (http://narray.rubyforge.org/)
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
-* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
+* simple\_memoize (http://github.com/JackDanger/simple\_memoize/tree/master)
 
 
 ## LICENSE:
