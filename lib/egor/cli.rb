@@ -554,20 +554,15 @@ Options:
                     obs1  = 1.0 / size1
                     obs2  = 1.0 / size2
 
-                    begin
-                      if $cst_features.empty?
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
-                      elsif (env_labels[id1][pos].split("").values_at(*$cst_features) == env_labels[id2][pos].split("").values_at(*$cst_features))
-                        $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
-                        $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
-                      else
-                        $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
-                        next
-                      end
-                    rescue
-                      $logger.warn "!!! #{id1}-#{pos}-#{aa1}-#{env_labels[id1][pos]} and #{id2}-#{pos}-#{aa2}-#{env_labels[id2][pos]}"
-                      exit 1
+                    if $cst_features.empty?
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                    elsif (env_labels[id1][pos].split("").values_at(*$cst_features) == env_labels[id2][pos].split("").values_at(*$cst_features))
+                      $envs[env_labels[id1][pos]].increase_residue_count(aa2, 1.0 / (size1 * size2))
+                      $envs[env_labels[id2][pos]].increase_residue_count(aa1, 1.0 / (size1 * size2))
+                    else
+                      $logger.debug "*** #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other"
+                      next
                     end
 
                     grp_label1 = env_labels[id1][pos][1..-1]
