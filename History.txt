@@ -1,3 +1,9 @@
+== 0.0.3 2008-12-09
+
+* 2 major enhancement:
+  * An option '--cys (-j) 2' added not to distinguish J from C, so 'disulphide bond' environment feature is not prerequisite
+  * Masking works for target amino acid, too
+
 == 0.0.2 2008-11-13
 
 * 2 major enhancement:

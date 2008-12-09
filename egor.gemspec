@@ -2,11 +2,12 @@
 
 Gem::Specification.new do |s|
   s.name = %q{egor}
-  s.version = "0.0.2"
+  s.version = "0.0.3"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Semin Lee"]
-  s.date = %q{2008-11-13}
+  s.cert_chain = ["/Users/semin/.gem/gem-public_cert.pem"]
+  s.date = %q{2008-12-09}
   s.default_executable = %q{egor}
   s.description = %q{egor: Esst GeneratOR, a program for calculating environment-specific substitution tables}
   s.email = ["seminlee@gmail.com"]
@@ -20,8 +21,9 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{egor}
   s.rubygems_version = %q{1.3.1}
+  s.signing_key = %q{/Users/semin/.gem/gem-private_key.pem}
   s.summary = %q{egor: Esst GeneratOR, a program for calculating environment-specific substitution tables}
-  s.test_files = ["test/test_helper.rb", "test/test_egor.rb", "test/test_enumerable_extensions.rb", "test/test_environment_feature.rb", "test/test_nmatrix_extensions.rb", "test/test_egor_cli.rb"]
+  s.test_files = ["test/test_egor.rb", "test/test_egor_cli.rb", "test/test_enumerable_extensions.rb", "test/test_environment_feature.rb", "test/test_helper.rb", "test/test_nmatrix_extensions.rb"]
 
   if s.respond_to? :specification_version then
     current_version = Gem::Specification::CURRENT_SPECIFICATION_VERSION

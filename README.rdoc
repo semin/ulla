@@ -1,14 +1,14 @@
-# egor
+= egor
 
 * http://egor.rubyforge.org
 
 
-## DESCRIPTION:
+== DESCRIPTION:
 
 egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
 
 
-## FEATURES/PROBLEMS:
+== FEATURES/PROBLEMS:
 
 * No more segmentation fault
 * Fast enough not to leave your place
@@ -17,19 +17,19 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * In theory, infinite number of environment features can be handled
 
 
-## INSTALL:
+== INSTALL:
 
     $ sudo gem install egor
 
 
-## BASIC USAGE:
+== BASIC USAGE:
 
     $ egor -l TEMLIST-file -c classdef.dat
         or
     $ egor -f TEM-file -c classdef.dat
 
 
-## OPTIONS:
+== OPTIONS:
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
@@ -50,7 +50,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
         2 for log-odds (default)
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5)
-    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/=classes)
     --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
@@ -63,7 +63,7 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --help (-h): show help
 
 
-## REQUIREMENTS:
+== REQUIREMENTS:
 
 * ruby 1.8.6 or above (http://www.ruby-lang.org)
 * rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
@@ -73,10 +73,10 @@ Following RubyGems will be automatically installed if you have rubygems installe
 * narray (http://narray.rubyforge.org/)
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
-* simple\_memoize (http://github.com/JackDanger/simple\_memoize/tree/master)
+* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
 
 
-## LICENSE:
+== LICENSE:
 
 (The MIT License)
 
