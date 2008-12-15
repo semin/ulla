@@ -163,6 +163,9 @@ Options:
         $tot_freq_mat = nil
         $tot_prob_mat = nil
         $tot_logo_mat = nil
+        #
+        # Part 1 END
+        #
 
         # Part 2.
         #
@@ -174,6 +177,7 @@ Options:
           [ '--tem-file', '-f', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--classdef', '-c', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--smooth',   '-s', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--nosmooth',       GetoptLong::NO_ARGUMENT ],
           [ '--weight',   '-w', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--noweight',       GetoptLong::NO_ARGUMENT ],
           [ '--heatmap',        GetoptLong::NO_ARGUMENT ],
@@ -249,6 +253,9 @@ Options:
           print_usage
           exit 1
         end
+        #
+        # Part 2 END
+        #
 
 
         # Part 3.
@@ -315,6 +322,9 @@ Options:
         }.each_with_index { |e, i|
           $envs[e.flatten.join] = Environment.new(i, e.flatten.join, $amino_acids)
         }
+        #
+        # Part 3 END
+        #
 
         # Part 4.
         #
@@ -621,7 +631,7 @@ Options:
                 end
               end
             end
-          end # if !$nosmooth
+          end
         end
 
         # print out default header
@@ -688,6 +698,9 @@ HEADER
               [res, $aa_tot_obs[res], $aa_mut_obs[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_rel_freq[res]]
           end
         end
+        #
+        # Part 4. END
+        #
 
 
         # Part 5.
@@ -734,6 +747,9 @@ HEADER
           $outfh.puts $tot_freq_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
           exit 0
         end
+        #
+        # Part 5. END
+        #
 
 
         # Part 6.
@@ -752,6 +768,7 @@ HEADER
 HEADER
         end
 
+        # when nosmoothing !!!
         if ($output > 0) && $nosmooth
           # Probability matrices
           $tot_prob_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
@@ -787,7 +804,7 @@ HEADER
           end
         end
 
-        # for smoothing...
+        # when smoothing!!!
         if ($output > 0) && !$nosmooth
           #
           # p1 probability
@@ -1070,96 +1087,101 @@ HEADER
             $outfh.close
             exit 0
           end
+        end
+        #
+        # Part 6. END
+        #
 
 
-          # Part 7.
-          #
-          # Calculating log odds ratio scoring matrices
-          #
-          if $output == 2
-            $outfh.puts <<HEADER
+        # Part 7.
+        #
+        # Calculating log odds ratio scoring matrices
+        #
+        if $output == 2
+          $outfh.puts <<HEADER
 # 
 # The probabilities were then divided by the background probabilities
 HEADER
-            if $penv
-              $outfh.puts <<HEADER
+          if $penv
+            $outfh.puts <<HEADER
 # which were derived from the environment-independent amino acid frequencies.
 #                             ^^^^^^^^^^^^^^^^^^^^^^^
 HEADER
-            else
-              $outfh.puts <<HEADER
+          else
+            $outfh.puts <<HEADER
 # which were derived from the environment-dependent amino acid frequencies.
 #                             ^^^^^^^^^^^^^^^^^^^^^
 HEADER
-            end
+          end
 
-            $tot_logo_mat = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
-            grp_logo_mats = []
-            factor        = $scale / Math::log(2)
+          $tot_logo_mat = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
+          grp_logo_mats = []
+          factor        = $scale / Math::log(2)
 
-            # grouping environments by its environment labels but amino acid label
-            env_groups = $envs.values.group_by { |env| env.label[1..-1] }
+          # grouping environments by its environment labels but amino acid label
+          env_groups = $envs.values.group_by { |env| env.label[1..-1] }
 
-            # sorting environments and build 21X21 substitution matrices
-            env_groups.to_a.sort_by { |env_group|
-              # a bit clumsy sorting here...
-              env_group[0].split("").map_with_index { |l, i|
-                $env_features[i + 1].labels.index(l)
-              }
-            }.each_with_index do |group, group_no|
-              # calculating 21X21 substitution probability matrix for each envrionment
-              grp_label     = group[0]
-              grp_envs      = group[1]
-              grp_logo_mat  = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
+          # sorting environments and build 21X21 substitution matrices
+          env_groups.to_a.sort_by { |env_group|
+            # a bit clumsy sorting here...
+            env_group[0].split("").map_with_index { |l, i|
+              $env_features[i + 1].labels.index(l)
+            }
+          }.each_with_index do |group, group_no|
+            # calculating substitution probability matrix for each envrionment
+            grp_label     = group[0]
+            grp_envs      = group[1]
+            grp_logo_mat  = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
 
-              $amino_acids.each_with_index do |aa, ai|
-                env       = grp_envs.detect { |e| e.label.start_with?(aa) }
-                logo_arr  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
+            $amino_acids.each_with_index do |aa, ai|
+              env       = grp_envs.detect { |e| e.label.start_with?(aa) }
+              logo_arr  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
 
-                env.smooth_prob_array.to_a.each_with_index do |prob, j|
-                  paj         = 100.0 * $aa_rel_freq[$amino_acids[j]]
-                  odds        = prob == 0.0 ? 0.000001 / paj : prob / paj
-                  logo_arr[j] = factor * Math::log(odds)
-                end
-
-                0.upto($amino_acids.size - 1) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
-
-                # adding log odds ratio for "U" (J or C) when --cyc is 0
-                if $cys == 0
-                  paj   = 100.0 * ($aa_rel_freq["C"] + $aa_rel_freq["J"])
-                  prob  = env.smooth_prob_array[$amino_acids.index("C")] + env.smooth_prob_array[$amino_acids.index("J")]
-                  odds  = prob == 0.0 ? 0.000001 / paj : prob / paj
-                  logo_arr[logo_arr.size - 1] = factor * Math::log(odds)
-                  grp_logo_mat[ai, logo_arr.size - 1] = logo_arr[logo_arr.size - 1]
-                end
+              env.send($nosmooth ? "prob_array" : "smooth_prob_array").to_a.each_with_index do |prob, j|
+                paj         = 100.0 * $aa_rel_freq[$amino_acids[j]]
+                odds        = prob == 0.0 ? 0.000001 / paj : prob / paj
+                logo_arr[j] = factor * Math::log(odds)
               end
 
-              $tot_logo_mat += grp_logo_mat
-              grp_logo_mats << [grp_label, grp_logo_mat]
-            end
+              0.upto($amino_acids.size - 1) { |j| grp_logo_mat[ai, j] = logo_arr[j] }
 
-            $tot_logo_mat /= env_groups.size
-
-            # calculating relative entropy for each amino acid pair H and
-            # the expected score E in bit units
-            #
-            # I'm a bit suspicious about this part...
-            tot_E = 0.0
-            tot_H = 0.0
-
-            0.upto($tot_logo_mat.shape[0] - 1) do |i|
-              0.upto($tot_logo_mat.shape[0] - 1) do |j|
-                if i != j
-                  tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]] / 2.0
-                  tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 2.0 / 10000.0
-                else
-                  tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]]
-                  tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 10000.0
-                end
+              # adding log odds ratio for "U" (J or C) when --cyc is 0
+              if $cys == 0
+                paj   = 100.0 * ($aa_rel_freq["C"] + $aa_rel_freq["J"])
+                prob  = env.send($nosmooth ? "prob_array" : "smooth_prob_array")[$amino_acids.index("C")] +
+                        env.send($nosmooth ? "prob_array" : "smooth_prob_array")[$amino_acids.index("J")]
+                odds  = prob == 0.0 ? 0.000001 / paj : prob / paj
+                logo_arr[logo_arr.size - 1] = factor * Math::log(odds)
+                grp_logo_mat[ai, logo_arr.size - 1] = logo_arr[logo_arr.size - 1]
               end
             end
 
-            $outfh.puts <<HEADER
+            $tot_logo_mat += grp_logo_mat
+            grp_logo_mats << [grp_label, grp_logo_mat]
+          end
+
+          $tot_logo_mat /= env_groups.size
+
+          # calculating relative entropy for each amino acid pair H and
+          # the expected score E in bit units
+          #
+          # I'm a bit suspicious about this part...
+          tot_E = 0.0
+          tot_H = 0.0
+
+          0.upto($tot_logo_mat.shape[0] - 1) do |i|
+            0.upto($tot_logo_mat.shape[0] - 1) do |j|
+              if i != j
+                tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]] / 2.0
+                tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 2.0 / 10000.0
+              else
+                tot_E += $tot_logo_mat[i, j] * $aa_rel_freq[$amino_acids[i]] * $aa_rel_freq[$amino_acids[j]]
+                tot_H += $tot_logo_mat[i, j] * $tot_prob_mat[i, j] / 10000.0
+              end
+            end
+          end
+
+          $outfh.puts <<HEADER
 # 
 # Shown here are logarithms of these values multiplied by #{$scale}/log(2) 
 # rounded to the nearest integer (log-odds scores in 1/3 bit units).
@@ -1168,31 +1190,30 @@ HEADER
 #
 HEADER
 
-            grp_logo_mats.each_with_index do |arr, grp_no|
-              grp_label     = arr[0]
-              grp_logo_mat  = arr[1]
+          grp_logo_mats.each_with_index do |arr, grp_no|
+            grp_label     = arr[0]
+            grp_logo_mat  = arr[1]
 
-              $outfh.puts ">#{grp_label} #{grp_no}"
-              if $cys
-                $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
-              else
-                $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-              end
-            end
-
-            $outfh.puts ">Total #{grp_logo_mats.size}"
-
-            if $cys == 0
-              $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+            $outfh.puts ">#{grp_label} #{grp_no}"
+            if $cys
+              $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
             else
-              $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              $outfh.puts grp_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             end
-            $outfh.close
-            exit 0
           end
+
+          $outfh.puts ">Total #{grp_logo_mats.size}"
+
+          if $cys == 0
+            $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+          else
+            $outfh.puts $tot_logo_mat.round.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+          end
+          $outfh.close
+          exit 0
         end
       end
+    end
 
-    end # class << self
   end # class CLI
 end # module Egor
