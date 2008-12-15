@@ -1,3 +1,9 @@
+== 0.0.4 2008-12-15
+
+* 2 major enhancement:
+  * log-odds ratio matrices can be generated with --nosmooth option
+  * safe handling for zero observations or mutations of amino acids
+
 == 0.0.3 2008-12-09
 
 * 2 major enhancement:
