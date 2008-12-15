@@ -48,13 +48,13 @@ Options:
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
     --noweight: calculate substitution counts with no weights (default)
     --smooth (-s) INTEGER:
-        0 for parial smoothing (default)
+        0 for partial smoothing (default)
         1 for full smoothing
     --nosmooth: perform no smoothing operation
     --cys (-y) INTEGER:
         0 for using C and J only for structure (default)
         1 for both structure and sequence
-        2 for using only C for both
+        2 for using only C for both (should be set having no 'disulphide bonds' environment feature)
     --output INTEGER:
         0 for raw counts (no-smoothing performed)
         1 for probabilities
@@ -660,7 +660,13 @@ HEADER
 
         # calculate amino acid frequencies and mutabilities, and
         # print them as default statistics in the header part
-        ala_factor  = 100.0 * $aa_tot_obs["A"] / $aa_mut_obs["A"].to_f
+        ala_factor  = if $aa_tot_obs["A"] == 0
+                        0.0
+                      elsif $aa_mut_obs["A"] == 0
+                        0.0
+                      else
+                        100.0 * $aa_tot_obs["A"] / $aa_mut_obs["A"].to_f
+                      end
         $tot_aa     = $aa_tot_obs.values.sum
 
         $outfh.puts "#"
@@ -668,9 +674,9 @@ HEADER
         $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FRQ]
 
         $amino_acids.each do |res|
-          $aa_mutb[res]     = $aa_mut_obs[res] / $aa_tot_obs[res].to_f
+          $aa_mutb[res]     = $aa_tot_obs[res] == 0 ? 1.0 : $aa_mut_obs[res] / $aa_tot_obs[res].to_f
           $aa_rel_mutb[res] = $aa_mutb[res] * ala_factor
-          $aa_rel_freq[res] = $aa_tot_obs[res] / $tot_aa.to_f
+          $aa_rel_freq[res] = $aa_tot_obs[res] == 0 ? 0.0 : $aa_tot_obs[res] / $tot_aa.to_f
         end
 
         $amino_acids.each do |res|
@@ -797,6 +803,7 @@ HEADER
             # for partial smoothing, p1 probability is not smoothed!
             0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * $aa_rel_freq[$amino_acids[i]] }
             $smooth_prob[1] = p1
+            puts p1.to_a.join("\n")
           else
             # for full smoothing, p1 probability is smoothed
             0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_rel_freq[$amino_acids[i]]) }
@@ -905,7 +912,13 @@ HEADER
 
                   # entropy based weighting priors
                   entropy_max     = Math::log($amino_acids.size)
-                  entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0.0 ? s - 1 : s + p * Math::log(p) } }
+                  entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p|
+                    begin
+                      p == 0.0 ? s - 1 : s + p * Math::log(p)
+                    rescue
+                      #puts "P: #{p}"
+                    end
+                  } }
                   mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
                   weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
                   weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
