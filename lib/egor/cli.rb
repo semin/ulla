@@ -803,7 +803,6 @@ HEADER
             # for partial smoothing, p1 probability is not smoothed!
             0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * $aa_rel_freq[$amino_acids[i]] }
             $smooth_prob[1] = p1
-            puts p1.to_a.join("\n")
           else
             # for full smoothing, p1 probability is smoothed
             0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_rel_freq[$amino_acids[i]]) }
