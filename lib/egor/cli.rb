@@ -189,64 +189,69 @@ Options:
           [ '--version',        GetoptLong::NO_ARGUMENT ]
         )
 
-        opts.each do |opt, arg|
-          case opt
-          when '--help'
-            print_usage
-            exit 0
-          when '--tem-list'
-            $tem_list     = arg
-          when '--tem-file'
-            $tem_file     = arg
-          when '--classdef'
-            $classdef     = arg
-          when '--output'
-            $output       = arg.to_i
-          when '--outfile'
-            $outfile      = arg
-          when '--cys'
-            $cys          = arg.to_i
-          when '--weight'
-            $weight       = arg.to_i
-          when '--sigma'
-            $sigma        = arg.to_f
-          when '--pidmin'
-            $pidmin       = arg.to_f
-          when '--pidmax'
-            $pidmax       = arg.to_f
-          when '--noweight'
-            $noweight     = true
-          when '--smooth'
-            $smooth       = (arg.to_i == 1 ? :full : :partial)
-          when '--nosmooth'
-            $nosmooth     = true
-          when '--scale'
-            $scale        = arg.to_f
-          when '--add'
-            $logger.error "!!! --add option is not supported yet"
-            exit 1
-            $add          = arg.to_f
-          when '--penv'
-            $logger.error "!!! --penv option is not supported yet"
-            exit 1
-            $penv         = true
-          when '--heatmap'
-            $heatmap      = true
-          when '--verbose'
-            $logger.level = case arg.to_i
-                            when 0 then Logger::ERROR
-                            when 1 then Logger::WARN
-                            when 2 then Logger::INFO
-                            when 3 then Logger::DEBUG
-                            else Logger::ERROR
-                            end
-          when '--version'
-            print_version
-            exit 0
+        begin
+          opts.each do |opt, arg|
+            case opt
+            when '--help'
+              print_usage
+              exit 0
+            when '--tem-list'
+              $tem_list     = arg
+            when '--tem-file'
+              $tem_file     = arg
+            when '--classdef'
+              $classdef     = arg
+            when '--output'
+              $output       = arg.to_i
+            when '--outfile'
+              $outfile      = arg
+            when '--cys'
+              $cys          = arg.to_i
+            when '--weight'
+              $weight       = arg.to_i
+            when '--sigma'
+              $sigma        = arg.to_f
+            when '--pidmin'
+              $pidmin       = arg.to_f
+            when '--pidmax'
+              $pidmax       = arg.to_f
+            when '--noweight'
+              $noweight     = true
+            when '--smooth'
+              $smooth       = (arg.to_i == 1 ? :full : :partial)
+            when '--nosmooth'
+              $nosmooth     = true
+            when '--scale'
+              $scale        = arg.to_f
+            when '--add'
+              $logger.error "!!! --add option is not supported yet"
+              exit 1
+              $add          = arg.to_f
+            when '--penv'
+              $logger.error "!!! --penv option is not supported yet"
+              exit 1
+              $penv         = true
+            when '--heatmap'
+              $heatmap      = true
+            when '--verbose'
+              $logger.level = case arg.to_i
+                              when 0 then Logger::ERROR
+                              when 1 then Logger::WARN
+                              when 2 then Logger::INFO
+                              when 3 then Logger::DEBUG
+                              else Logger::ERROR
+                              end
+            when '--version'
+              print_version
+              exit 0
+            end
           end
+        rescue
+          # invalid option
+          exit 1
         end
 
-        # when arguments are nonsense, print usage
+        # when a combination of arguments is nonsense, print usage
         if ((ARGV.length != 0) ||
             (!$tem_list && !$tem_file) ||
             ($tem_list && $tem_file))
