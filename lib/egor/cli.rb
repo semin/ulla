@@ -45,8 +45,8 @@ Options:
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
     --outfile (-o) FILE: output filename (default 'allmat.dat')
-    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting
-    --noweight: calculate substitution counts with no weights (default)
+    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
+    --noweight: calculate substitution counts with no weights
     --smooth (-s) INTEGER:
         0 for partial smoothing (default)
         1 for full smoothing
@@ -666,6 +666,14 @@ HEADER
 # #{$amino_acids.join}
 # 
 HEADER
+
+        if $amino_acids.include? "J"
+          $outfh.puts <<HEADER
+# C: Cystine (the disulfide-bonded form)
+# J: Cysteine (the free thiol form)
+#
+HEADER
+        end
 
         if $noweight
           $outfh.puts "# Weighting scheme: none"
