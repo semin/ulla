@@ -11,7 +11,9 @@ lib/egor.rb
 lib/egor/cli.rb
 lib/enumerable_extensions.rb
 lib/environment.rb
+lib/environment_class_hash.rb
 lib/environment_feature.rb
+lib/environment_feature_array.rb
 lib/math_extensions.rb
 lib/narray_extensions.rb
 lib/nmatrix_extensions.rb
