@@ -1,3 +1,6 @@
+require 'rubygems'
+require 'facets'
+
 class EnvironmentFeatureArray < Array
 
   def label_combinations
