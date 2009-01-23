@@ -10,7 +10,7 @@ class Environment
                 :label,
                 :freq_array,
                 :prob_array,
-                :logodd_array,
+                :logo_array,
                 :smooth_prob_array
 
   def initialize(number, label, amino_acids = "ACDEFGHIKLMNPQRSTVWYJ".split(''))
@@ -19,7 +19,7 @@ class Environment
     @label              = label
     @freq_array         = $noweight ? NArray.int(@amino_acids.size) : NArray.float(@amino_acids.size)
     @prob_array         = NArray.float(@amino_acids.size)
-    @logodd_array       = NArray.float(@amino_acids.size)
+    @logo_array         = NArray.float(@amino_acids.size)
     @smooth_prob_array  = NArray.float(@amino_acids.size)
   end
 

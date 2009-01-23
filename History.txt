@@ -1,3 +1,17 @@
+== 0.0.5 2009-1-23
+
+* 4 major enhancement:
+  * Egor warns if your sigma value is too big for any amino acid count (minimum ratio of amino acid count to sigma value: 500.0)
+  * --augosigma option was added to avoid excessive influence of backgournd frequencies
+  * a bug in p2 probabilty calculation of the partial smoothing procedure was fixed
+  * a bug in total probability/log odds ratio calculation was fixed
+
+* 4 minor enhancement:
+  * --noround option was added to get original log odds ratios
+  * --p1smooth option was added to enable p1 probability smoothing when partial smoothing
+  * default verbosity has been changed from ERROR to WARN
+  * codes were refactored to be more human readable and DRY
+
 == 0.0.4 2008-12-15
 
 * 2 major enhancement:
