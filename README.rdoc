@@ -37,26 +37,29 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
     --noweight: calculate substitution counts with no weights
     --smooth (-s) INTEGER:
-        0 for parial smoothing (default)
+        0 for partial smoothing (default)
         1 for full smoothing
+    --p1smooth: perform smoothing for p1 probability calculation when partial smoothing
     --nosmooth: perform no smoothing operation
     --cys (-y) INTEGER:
         0 for using C and J only for structure (default)
         1 for both structure and sequence
-        2 for using only C for both
+        2 for using only C for both (must be set when you have no 'disulphide' or 'disulfide' annotation in templates)
     --output INTEGER:
-        0 for raw counts (no-smoothing performed)
+        0 for raw counts (no smoothing performed)
         1 for probabilities
         2 for log-odds (default)
+    --noround: do not round off log odds ratio
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
-    --sigma DOUBLE: change the sigma value for smoothing (default 5)
-    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/=classes)
+    --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
+    --autosigma: automatically adjust the sigma value for smoothing
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
     --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
-        0 for ERROR level (default)
-        1 for WARN or above level
+        0 for ERROR level
+        1 for WARN or above level (default)
         2 for INFO or above level
         3 for DEBUG or above level
     --version: print version
