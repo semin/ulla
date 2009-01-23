@@ -2,8 +2,8 @@
 
 * 4 major enhancement:
   * Egor warns if your sigma value is too big for any amino acid count (minimum ratio of amino acid count to sigma value: 500.0)
-  * --augosigma option was added to avoid excessive influence of backgournd frequencies
-  * a bug in p2 probabilty calculation of the partial smoothing procedure was fixed
+  * --augosigma option was added to avoid excessive influence of background frequencies
+  * a bug in p2 probability calculation of the partial smoothing procedure was fixed
   * a bug in total probability/log odds ratio calculation was fixed
 
 * 4 minor enhancement:
