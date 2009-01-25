@@ -121,7 +121,7 @@ Options:
         # aa: weighted amino acid
         # tot: total
         # rel: relative
-        # obs: observation
+        # jnt: joint
         # cnt: count
         # mut: mutation
         # mutb: mutability
@@ -184,7 +184,7 @@ Options:
         $tot_smooth_prob = {}
 
         # minimum ratio of amino acid count to sigma value
-        $min_obs_sigma_ratio = 500.0
+        $min_cnt_sigma_ratio = 500.0
 
         #
         # Part 1 END
@@ -316,8 +316,6 @@ Options:
         # Reading Environment Class Definition File
         #
 
-        $logger.info "Egor START."
-
         # check --cys option and modify amino_acids set if necessary
         if $cys == 2
           $amino_acids = 'ACDEFGHIKLMNPQRSTVWY'.split('')
@@ -402,7 +400,7 @@ Options:
           end
 
           if ali.size < 2
-            $logger.warn "Skipped #{tem_file}, there is only one unique entry."
+            $logger.warn "Skipped #{tem_file} which has only one unique entry."
             next
           end
 
@@ -574,7 +572,7 @@ Options:
             end while(continue)
 
             if clusters.size < 2
-              $logger.debug "Skipped #{tem_file} because there is only one cluster at the #{$weight} PID level."
+              $logger.debug "Skipped #{tem_file} which has only one cluster at the #{$weight} PID level."
               next
             end
 
@@ -610,16 +608,16 @@ Options:
 
                     aa1   = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C')) ? 'J' : aa1
                     aa2   = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C')) ? 'J' : aa2
-                    obs1  = 1.0 / cluster1.size
-                    obs2  = 1.0 / cluster2.size
-                    obs_cnt = obs1 * obs2
+                    cnt1  = 1.0 / cluster1.size
+                    cnt2  = 1.0 / cluster2.size
+                    jnt_cnt = cnt1 * cnt2
 
                     if $cst_features.empty?
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, obs_cnt)
-                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, obs_cnt)
+                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, jnt_cnt)
+                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, jnt_cnt)
                     elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, obs_cnt)
-                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, obs_cnt)
+                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, jnt_cnt)
+                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, jnt_cnt)
                     else
                       $logger.debug "#{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other."
                       next
@@ -630,53 +628,53 @@ Options:
 
                     if $aa_env_cnt.has_key? grp_label1
                       if $aa_env_cnt[grp_label1].has_key? aa1
-                        $aa_env_cnt[grp_label1][aa1] += obs1
+                        $aa_env_cnt[grp_label1][aa1] += cnt1
                       else
-                        $aa_env_cnt[grp_label1][aa1] = obs1
+                        $aa_env_cnt[grp_label1][aa1] = cnt1
                       end
                     else
                       $aa_env_cnt[grp_label1] = Hash.new(0.0)
-                      $aa_env_cnt[grp_label1][aa1] = obs1
+                      $aa_env_cnt[grp_label1][aa1] = cnt1
                     end
 
                     if $aa_env_cnt.has_key? grp_label2
                       if $aa_env_cnt[grp_label2].has_key? aa2
-                        $aa_env_cnt[grp_label2][aa2] += obs2
+                        $aa_env_cnt[grp_label2][aa2] += cnt2
                       else
-                        $aa_env_cnt[grp_label2][aa2] = obs2
+                        $aa_env_cnt[grp_label2][aa2] = cnt2
                       end
                     else
                       $aa_env_cnt[grp_label2] = Hash.new(0.0)
-                      $aa_env_cnt[grp_label2][aa2] = obs2
+                      $aa_env_cnt[grp_label2][aa2] = cnt2
                     end
 
                     if $aa_tot_cnt.has_key? aa1
-                      $aa_tot_cnt[aa1] += obs1
+                      $aa_tot_cnt[aa1] += cnt1
                     else
-                      $aa_tot_cnt[aa1] = obs1
+                      $aa_tot_cnt[aa1] = cnt1
                     end
 
                     if $aa_tot_cnt.has_key? aa2
-                      $aa_tot_cnt[aa2] += obs2
+                      $aa_tot_cnt[aa2] += cnt2
                     else
-                      $aa_tot_cnt[aa2] = obs2
+                      $aa_tot_cnt[aa2] = cnt2
                     end
 
                     if aa1 != aa2
                       if $aa_mut_cnt.has_key? aa1
-                        $aa_mut_cnt[aa1] += obs1
+                        $aa_mut_cnt[aa1] += cnt1
                       else
-                        $aa_mut_cnt[aa1] = obs1
+                        $aa_mut_cnt[aa1] = cnt1
                       end
                       if $aa_mut_cnt.has_key? aa2
-                        $aa_mut_cnt[aa2] += obs2
+                        $aa_mut_cnt[aa2] += cnt2
                       else
-                        $aa_mut_cnt[aa2] = obs2
+                        $aa_mut_cnt[aa2] = cnt2
                       end
                     end
 
-                    $logger.debug "#{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution count (#{"%.2f" % obs_cnt}) was added to the environments class, #{env_labels[id1][pos]}."
-                    $logger.debug "#{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substitution count (#{"%.2f" % obs_cnt}) was added to the environments class, #{env_labels[id2][pos]}."
+                    $logger.debug "#{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_labels[id1][pos]}."
+                    $logger.debug "#{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_labels[id2][pos]}."
                   end
                 end
               end
@@ -739,20 +737,20 @@ HEADER
         $outfh.puts "# Total amino acid frequencies:\n"
         $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FREQ]
 
-        min_obs = -1
+        min_cnt = -1
         min_sigma = nil
 
         $amino_acids.each do |res|
-          if ($aa_tot_cnt[res] / $sigma) < $min_obs_sigma_ratio
-            if min_obs < 0
-              min_obs = $aa_tot_cnt[res]
-              min_sigma = min_obs / $min_obs_sigma_ratio
-            elsif (min_obs > 0) && (min_obs > $aa_tot_cnt[res])
-              min_obs = $aa_tot_cnt[res]
-              min_sigma = min_obs / $min_obs_sigma_ratio
+          if ($aa_tot_cnt[res] / $sigma) < $min_cnt_sigma_ratio
+            if min_cnt < 0
+              min_cnt = $aa_tot_cnt[res]
+              min_sigma = min_cnt / $min_cnt_sigma_ratio
+            elsif (min_cnt > 0) && (min_cnt > $aa_tot_cnt[res])
+              min_cnt = $aa_tot_cnt[res]
+              min_sigma = min_cnt / $min_cnt_sigma_ratio
             end
 
-            $logger.warn "The current sigma value, #{$sigma} seems to be too big for the total observation (#{"%.2f" % $aa_tot_cnt[res]}) of amino acid, #{res}."
+            $logger.warn "The current sigma value, #{$sigma} seems to be too big for the total count (#{"%.2f" % $aa_tot_cnt[res]}) of amino acid, #{res}."
           end
 
           $aa_mutb[res]     = ($aa_tot_cnt[res] == 0) ? 1.0 : ($aa_mut_cnt[res] / $aa_tot_cnt[res].to_f)
@@ -770,7 +768,7 @@ HEADER
           end
         end
 
-        if min_obs > -1
+        if min_cnt > -1
           $logger.warn "We recommend you to use a sigma value equal to or smaller than #{min_sigma}."
           if $autosigma
             $logger.warn "The sigma value has been changed from #{$sigma} to #{min_sigma}."
@@ -780,10 +778,10 @@ HEADER
 
         $outfh.puts '#'
         $outfh.puts '# RES: Amino acid one letter code'
-        $outfh.puts '# TOT_OBS: Total observations of incidence'
-        $outfh.puts '# MUT_OBS: Total observations of mutation'
+        $outfh.puts '# TOT_OBS: Total count of incidence'
+        $outfh.puts '# MUT_OBS: Total count of mutation'
         $outfh.puts '# MUTB: Mutability (MUT_OBS / TOT_OBS)'
-        $outfh.puts '# REL_MUTB: Relative mutability (ALA=100)'
+        $outfh.puts '# REL_MUTB: Relative mutability (ALA = 100)'
         $outfh.puts '# REL_FREQ: Relative frequency'
         $outfh.puts '#'
         #
@@ -826,11 +824,10 @@ HEADER
         if $output == 0
           $outfh.puts '>Total'
           $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-          $logger.info 'Egor END.'
           exit 0
         end
 
-        $logger.info "Counting substitutions is done."
+        $logger.info "Counting substitutions done."
 
         #
         # Part 5. END
@@ -892,13 +889,12 @@ HEADER
             0.upto($amino_acids.size - 1) { |i| $tot_prob_mat[aj, i] = 100.0 * $tot_cnt_mat[aj, i] / col_sum }
           end
 
-          $logger.info 'Calculating substitution probabilities is done (no smoothing)'
+          $logger.info 'Calculating substitution probabilities (no smoothing) done.'
 
           if ($output == 1)
             $outfh.puts '>Total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             $outfh.close
-            $logger.info 'Egor END.'
             exit 0
           end
         end
@@ -1081,7 +1077,7 @@ HEADER
                 end
               end
             end
-            $logger.info 'Calculating substitution probabilities is done (partial smoothing).'
+            $logger.info 'Calculating substitution probabilities (partial smoothing) done.'
           else
             $outfh.puts <<HEADER
 #
@@ -1167,7 +1163,7 @@ HEADER
                 end
               end
             end
-            $logger.info 'Calculating substitution probabilities is done (full smoothing).'
+            $logger.info 'Calculating substitution probabilities (full smoothing) done.'
           end
 
           # updating smoothed probability array for each envrionment
@@ -1204,7 +1200,6 @@ HEADER
             $outfh.puts '>Total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             $outfh.close
-            $logger.info 'Egor END.'
             exit 0
           end
         end
@@ -1354,7 +1349,7 @@ HEADER
             $outfh.puts $tot_logo_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
           end
 
-          $logger.info "Calculating log odds ratio is done."
+          $logger.info "Calculating log odds ratios done."
 
           #
           # Part 7. END
@@ -1362,7 +1357,6 @@ HEADER
         end
 
         $outfh.close
-        $logger.info "Egor END."
         exit 0
       end
     end
