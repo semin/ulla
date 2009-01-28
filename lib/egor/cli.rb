@@ -7,10 +7,12 @@ require 'set'
 require 'facets'
 require 'simple_memoize'
 
+require 'math_extensions'
+require 'string_extensions'
 require 'narray_extensions'
 require 'nmatrix_extensions'
 require 'enumerable_extensions'
-require 'math_extensions'
+
 require 'environment'
 require 'environment_class_hash'
 require 'environment_feature'
@@ -395,7 +397,7 @@ Options:
 
           ff.each_entry do |pir|
             if (pir.definition == 'sequence') || (pir.definition == 'structure')
-              ali.add_seq(pir.data.gsub("\n", ''), pir.entry_id)
+              ali.add_seq(pir.data.remove_internal_spaces, pir.entry_id)
             end
           end
 
@@ -413,7 +415,7 @@ Options:
             ff.rewind
             ff.each_entry do |pir|
               if (pir.entry_id == key) && ((pir.definition == "disulphide") || (pir.definition == "disulfide"))
-                disulphide[key] = pir.data.gsub("\n", '').split('')
+                disulphide[key] = pir.data.remove_internal_spaces.split('')
               end
             end
 
@@ -423,7 +425,7 @@ Options:
               ff.rewind
               ff.each_entry do |pir|
                 if (pir.entry_id == key) && (pir.definition == ec.name)
-                  labels = pir.data.gsub("\n", '').split('').map_with_index do |sym, pos|
+                  labels = pir.data.remove_internal_spaces.split('').map_with_index do |sym, pos|
                     if sym == '-'
                       '-'
                     elsif sym == 'X' || sym == 'x'
