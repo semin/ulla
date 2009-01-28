@@ -1,7 +1,3 @@
-require "rubygems"
-require "facets"
-require "narray"
-
 module NMatrixExtensions
   def pretty_string(opts={})
     { :col_header   => nil,

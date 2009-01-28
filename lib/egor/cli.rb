@@ -978,7 +978,7 @@ HEADER
               end
 
               env_labels.combination(ci) do |c1|
-                Enumerable.cart_prod(*c1).each do |labels|
+                c1[0].product(*c1[1..-1]).each do |labels|
                   pattern = '.' * $env_features.size
 
                   labels.each do |label|
@@ -1114,7 +1114,7 @@ HEADER
             # full smooting
             1.upto($env_features.size) do |ci|
               env_labels.combination(ci) do |c1|
-                Enumerable.cart_prod(*c1).each do |labels|
+                c1[0].product(*c1[1..-1]).each do |labels|
                   pattern = '.' * $env_features.size
                   labels.each do |label|
                     j = label[0].chr.to_i

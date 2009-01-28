@@ -1,8 +1,3 @@
-require "rubygems"
-require "set"
-require "narray"
-require "facets"
-
 module Egor
   class Environment
 
@@ -33,28 +28,7 @@ module Egor
     end
 
     def to_s
-    "#{number}-#{label}"
-    end
-  end
-
-  if $0 == __FILE__
-
-    require "test/unit"
-
-    class TestEnvironment < Test::Unit::TestCase
-
-      def setup
-        @env = Environment.new(1, "AHaSon")
-      end
-
-      def test_label_set
-        assert_equal(%w[0A 1H 2a 3S 4o 5n].to_set, @env.label_set)
-      end
-
-      def test_to_s
-        assert_equal("1-AHaSon", @env.to_s)
-      end
-
+      "#{number}-#{label}"
     end
   end
 end

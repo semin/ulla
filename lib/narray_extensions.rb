@@ -1,6 +1,3 @@
-require "rubygems"
-require "facets"
-
 module NArrayExtensions
 
   def pretty_string(opts={})
