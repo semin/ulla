@@ -3,6 +3,7 @@ require 'narray'
 require 'facets'
 
 module NMatrixExtensions
+
   def pretty_string(opts={})
     { :col_header   => nil,
       :row_header   => nil }.merge!(opts)
