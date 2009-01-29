@@ -1,3 +1,10 @@
+== Current version
+
+*  major enhancement:
+
+*  minor enhancement:
+  * --noround option has been renamed to --noroundoff
+
 == 0.0.5 2009-1-23
 
 * 4 major enhancement:
