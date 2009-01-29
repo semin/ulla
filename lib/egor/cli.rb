@@ -27,7 +27,7 @@ module Egor
 
       # :nodoc:
       def print_version
-        puts Egor::VERSION
+        puts VERSION
       end
 
       # Print Egor's Usage on the screen
@@ -89,12 +89,12 @@ Options:
       #   Egor::CLI::calculate_pid(seq1, seq2) -> Float
       #
       def calculate_pid(seq1, seq2)
-        s1    = seq1.split('')
-        s2    = seq2.split('')
-        cols  = s1.zip(s2)
-        align = 0
-        ident = 0
-        intgp = 0
+        aas1  = seq1.split('')
+        aas2  = seq2.split('')
+        cols  = aas1.zip(aas2)
+        align = 0 # no. of aligned columns
+        ident = 0 # no. of identical columns
+        intgp = 0 # no. of internal gaps
 
         cols.each do |col|
           if (col[0] != '-') && (col[1] != '-')
@@ -306,7 +306,6 @@ Options:
           warn "Cannot find environment class definition file, #{$classdef}"
           exit 1
         end
-
 
         #
         # Part 2 END
@@ -786,6 +785,7 @@ HEADER
         $outfh.puts '# REL_MUTB: Relative mutability (ALA = 100)'
         $outfh.puts '# REL_FREQ: Relative frequency'
         $outfh.puts '#'
+
         #
         # Part 4. END
         #
@@ -1243,7 +1243,7 @@ HEADER
 
             $amino_acids.each_with_index do |aa, aj|
               env             = grp_envs.detect { |e| e.label.start_with?(aa) }
-              #paj            = env.send($nosmooth ? 'prob_array' : 'smooth_prob_array').sum / $tot_cnt_mat.sum
+              #paj             = $aa_env_cnt[grp_label][aa] / $aa_env_cnt[grp_label].values.sum
               env.logo_array  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
 
               env.send($nosmooth ? 'prob_array' : 'smooth_prob_array').to_a.each_with_index do |prob, ai|
@@ -1261,6 +1261,7 @@ HEADER
                                                       env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('J')]
                 #odds                                = prob == 0.0 ? 0.000001 / pai : prob / pai
                 odds                                = prob / pai
+                #odds                                = prob / pai / paj
                 env.logo_array[$amino_acids.size]   = factor * Math::log(odds)
                 grp_logo_mat[aj, $amino_acids.size] = env.logo_array[$amino_acids.size]
               end
@@ -1352,11 +1353,12 @@ HEADER
           end
 
           $logger.info "Calculating log odds ratios done."
-
-          #
-          # Part 7. END
-          #
         end
+
+        #
+        # Part 7. END
+        #
+
 
         $outfh.close
         exit 0

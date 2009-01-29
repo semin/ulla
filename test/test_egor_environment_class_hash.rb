@@ -1,4 +1,4 @@
-$:.unshift File.join(File.dirname(__FILE__), "..", "lib/egor")
+$:.unshift File.join(File.dirname(__FILE__), '..', 'lib', 'egor')
 
 require 'test/unit'
 require 'environment_class_hash'
