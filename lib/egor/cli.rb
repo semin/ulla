@@ -64,7 +64,7 @@ Options:
         0 for raw counts (no smoothing performed)
         1 for probabilities
         2 for log-odds (default)
-    --noround: do not round off log odds ratio
+    --noroundoff: do not round off log odds ratio
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
@@ -163,7 +163,7 @@ Options:
         $noweight     = false
         $smooth       = :partial
         $nosmooth     = false
-        $noround      = false
+        $noroundoff      = false
         $p1smooth     = false
         $scale        = 3
         $pidmin       = nil
@@ -207,7 +207,7 @@ Options:
           [ '--p1smooth',       GetoptLong::NO_ARGUMENT ],
           [ '--weight',   '-w', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--noweight',       GetoptLong::NO_ARGUMENT ],
-          [ '--noround',        GetoptLong::NO_ARGUMENT ],
+          [ '--noroundoff',        GetoptLong::NO_ARGUMENT ],
           [ '--sigma',          GetoptLong::REQUIRED_ARGUMENT ],
           [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
           #[ '--heatmap',        GetoptLong::NO_ARGUMENT ],
@@ -249,8 +249,8 @@ Options:
               $pidmax       = arg.to_f
             when '--noweight'
               $noweight     = true
-            when '--noround'
-              $noround      = true
+            when '--noroundoff'
+              $noroundoff      = true
             when '--smooth'
               $smooth       = (arg.to_i == 1) ? :full : :partial
             when '--nosmooth'
@@ -1313,7 +1313,7 @@ HEADER
 # 
 # Shown here are logarithms of these values multiplied by #{$scale}/log(2) 
 HEADER
-          unless $noround
+          unless $noroundoff
             $outfh.puts <<HEADER
 # rounded to the nearest integer (log-odds scores in 1/#{$scale} bit units).
 HEADER
@@ -1328,7 +1328,7 @@ HEADER
             grp_label     = arr[0]
             grp_logo_mat  = arr[1]
 
-            unless $noround
+            unless $noroundoff
               grp_logo_mat = grp_logo_mat.round
             end
 
@@ -1342,7 +1342,7 @@ HEADER
 
           $outfh.puts ">Total #{grp_logo_mats.size}"
 
-          unless $noround
+          unless $noroundoff
             $tot_logo_mat = $tot_logo_mat.round
           end
 
