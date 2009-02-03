@@ -5,12 +5,14 @@ require 'environment_feature'
 
 class TestEgorEnvironmentFeature < Test::Unit::TestCase
 
+  include Egor
+
   def setup
-    @env_ftr = Egor::EnvironmentFeature.new('Secondary Structure',
-                                            'HEPC'.split(''),
-                                            'HEPC'.split(''),
-                                            'T',
-                                            'F')
+    @env_ftr = EnvironmentFeature.new('Secondary Structure',
+                                      'HEPC'.split(''),
+                                      'HEPC'.split(''),
+                                      'T',
+                                      'F')
   end
 
   def test_to_s

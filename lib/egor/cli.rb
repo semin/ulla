@@ -207,7 +207,7 @@ Options:
           [ '--p1smooth',       GetoptLong::NO_ARGUMENT ],
           [ '--weight',   '-w', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--noweight',       GetoptLong::NO_ARGUMENT ],
-          [ '--noroundoff',        GetoptLong::NO_ARGUMENT ],
+          [ '--noroundoff',     GetoptLong::NO_ARGUMENT ],
           [ '--sigma',          GetoptLong::REQUIRED_ARGUMENT ],
           [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
           #[ '--heatmap',        GetoptLong::NO_ARGUMENT ],
@@ -250,7 +250,7 @@ Options:
             when '--noweight'
               $noweight     = true
             when '--noroundoff'
-              $noroundoff      = true
+              $noroundoff   = true
             when '--smooth'
               $smooth       = (arg.to_i == 1) ? :full : :partial
             when '--nosmooth'
