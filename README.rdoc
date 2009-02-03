@@ -10,16 +10,28 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 
 == FEATURES/PROBLEMS:
 
-* No more segmentation fault
-* Fast enough not to leave your place
-* Slow enough to check your emails or have some chats with your colleagues next you
-* Full smoothing supported
-* In theory, infinite number of environment features can be handled
+* Environment-specific substitution table generation based on user providing environmental class definition
+* Entropy-based smoothing procedures to cope with sparse data problem
+* BLOSUM-like weighting procedures using PID threshold
+* Both unidirectional and bidirectional substitution matirces can be generated (NOT IMPLEMENTED YET!!!)
 
 
 == INSTALL:
 
     $ sudo gem install egor
+
+
+== REQUIREMENTS:
+
+* ruby 1.8.7 or above (http://www.ruby-lang.org)
+* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
+
+Following RubyGems will be automatically installed if you have rubygems installed on your machine
+
+* narray (http://narray.rubyforge.org/)
+* facets (http://facets.rubyforge.org/)
+* bio (http://bioruby.open-bio.org/)
+* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
 
 
 == BASIC USAGE:
@@ -66,17 +78,78 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
     --help (-h): show help
 
 
-== REQUIREMENTS:
+== USAGE
+1. Prepare an environmental class definition file as below
 
-* ruby 1.8.7 or above (http://www.ruby-lang.org)
-* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
+    ~user $ cat classdef.dat
+    #
+    # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
+    # constrained or not (T or F); silent (used as masks)? (T or F)
+    #
+    secondary structure and phi angle;HEPC;HEPC;T;F
+    solvent accessibility;TF;Aa;F;F
+    hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
+    hydrogen bond to mainchain CO;TF;Oo;F;F
+    hydrogen bond to mainchain NH;TF;Nn;F;F
 
-Following RubyGems will be automatically installed if you have rubygems installed on your machine
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format as blow
 
-* narray (http://narray.rubyforge.org/)
-* facets (http://facets.rubyforge.org/)
-* bio (http://bioruby.open-bio.org/)
-* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
+    ~user $ cat sample1.tem
+    >P1;1mnma
+    sequence
+    QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
+    IQACLNAPDD*
+    >P1;1egwa
+    sequence
+    --GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
+    ----------*
+    >P1;1mnma
+    secondary structure and phi angle
+    CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
+    HHHHHCCCCP*
+    >P1;1egwa
+    secondary structure and phi angle
+    --CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
+    ----------*
+    >P1;1mnma
+    solvent accessibility
+    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
+    TTTTTTTTTT*
+    >P1;1egwa
+    solvent accessibility
+    --TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
+    ----------*
+    ... 
+
+3. When you have two or more alignment files, you should make a list file for them.
+
+    ~user $ cat -1 *.tem > TEMLIST
+    ~user $ cat TEMLIST
+    sample1.tem
+    sample2.tem
+    ...
+
+4. To produce raw count of substitutions, type
+
+    ~user $ egor -l TEMLIST --output 0 -o rawcount.mat
+
+5. To produce substitution probability matrices, type
+
+    ~user $ egor -l TEMLIST --output 1 -o substprob.mat
+
+6. To produce log odds ratio matrices, type
+
+    ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
+
+7. To produce substitution data only from the sequence paris within a given PID range, type
+
+    ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+
+8. To change the clustering level (default 60), type
+
+    ~user $ egor -l TEMLIST --weight 80 --output 2
+
+9. In the alignments listed in the file TEMLIST, any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
 
 
 == LICENSE:
