@@ -1,6 +1,6 @@
 = egor
 
-* http://egor.rubyforge.org
+* http://www-cryst.bioc.cam.ac.uk/egor
 
 
 == DESCRIPTION:
@@ -79,7 +79,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
 
 == USAGE
-1. Prepare an environmental class definition file as below
+1. Prepare an environmental class definition file.
 
     ~user $ cat classdef.dat
     #
@@ -92,7 +92,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
     hydrogen bond to mainchain CO;TF;Oo;F;F
     hydrogen bond to mainchain NH;TF;Nn;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format as blow
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
 
     ~user $ cat sample1.tem
     >P1;1mnma
@@ -121,7 +121,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
     ----------*
     ... 
 
-3. When you have two or more alignment files, you should make a list file for them.
+3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
 
     ~user $ cat -1 *.tem > TEMLIST
     ~user $ cat TEMLIST
@@ -129,7 +129,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
     sample2.tem
     ...
 
-4. To produce raw count of substitutions, type
+4. To produce substitution count matrices, type
 
     ~user $ egor -l TEMLIST --output 0 -o rawcount.mat
 
@@ -141,7 +141,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
     ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution data only from the sequence paris within a given PID range, type
+7. To produce substitution data only from the sequence paris within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
     ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
@@ -149,7 +149,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
     ~user $ egor -l TEMLIST --weight 80 --output 2
 
-9. In the alignments listed in the file TEMLIST, any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
+9. In case any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
 
 
 == LICENSE:
