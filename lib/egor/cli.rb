@@ -212,7 +212,7 @@ Options:
           [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
           #[ '--heatmap',        GetoptLong::NO_ARGUMENT ],
           [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--targetenv','-t'  GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--targetenv','-t', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--penv',           GetoptLong::NO_ARGUMENT ],
           [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
