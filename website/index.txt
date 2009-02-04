@@ -1,32 +1,155 @@
-h1. egor: Environment-specific substitution table GeneratOR
+h1.egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
 
+h2. Description
 
-h2. What
-
-'egor' is a program for calculating environment-specific substitution tables
+'egor' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.
 
 
 h2. Features
 
-* No more segmentation fault
-* Fast enough not to leave your place
-* Slow enough to check your emails or have some chats with your colleagues next you
-* Full smoothing supported
-* In theory, infinite number of environment features can be handled
+* Environment-specific substitution table generation based on user providing environmental class definition
+* Entropy-based smoothing procedures to cope with sparse data problem
+* BLOSUM-like weighting procedures using PID threshold
+* Both unidirectional and bidirectional substitution matirces can be generated (NOT IMPLEMENTED YET!!!)
 
 
 h2. Installation
 
-<pre syntax="ruby">$ sudo gem install egor</pre>
+<pre syntax="ruby">~user $ sudo gem install egor</pre>
 
 
-h2. Demonstration of usage
+h2. Requirements
 
-It's pretty much the same as Kenji's subst, so in most cases, you can swap 'subst' with 'egor'.
+* ruby 1.8.7 or above (http://www.ruby-lang.org)
+* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
 
-<pre>$ egor -l TEMLIST-file -c classdef.dat</pre>
+Following RubyGems will be automatically installed if you have rubygems installed on your machine
+
+* narray (http://narray.rubyforge.org/)
+* facets (http://facets.rubyforge.org/)
+* bio (http://bioruby.open-bio.org/)
+* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
+
+
+h2. Basin Usage
+
+It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'egor'.
+
+<pre>~user $ egor -l TEMLIST-file -c classdef.dat</pre>
     or
-<pre>$ egor -l TEM-file -c classdef.dat</pre>
+<pre>~user $ egor -l TEM-file -c classdef.dat</pre>
+
+
+h2. Options
+    --tem-file (-f) FILE: a tem file
+    --tem-list (-l) FILE: a list for tem files
+    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --outfile (-o) FILE: output filename (default 'allmat.dat')
+    --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
+    --noweight: calculate substitution count with no weights
+    --smooth (-s) INTEGER:
+        0 for partial smoothing (default)
+        1 for full smoothing
+    --p1smooth: perform smoothing for p1 probability calculation when partial smoothing
+    --nosmooth: perform no smoothing operation
+    --cys (-y) INTEGER:
+        0 for using C and J only for structure (default)
+        1 for both structure and sequence
+        2 for using only C for both (must be set when you have no 'disulphide' or 'disulfide' annotation in templates)
+    --output INTEGER:
+        0 for raw count (no smoothing performed)
+        1 for probabilities
+        2 for log odds ratios (default)
+    --noroundoff: do not round off log odds ratio
+    --scale INTEGER: log odds ratio matrices in 1/n bit units (default 3)
+    --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
+    --autosigma: automatically adjust the sigma value for smoothing
+    --add DOUBLE: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)
+    --penv: use environment-dependent frequencies for log odds ratio calculation (default false) (NOT implemented yet!!!)
+    --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
+    --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+    --verbose (-v) INTEGER
+        0 for ERROR level
+        1 for WARN or above level (default)
+        2 for INFO or above level
+        3 for DEBUG or above level
+    --version: print version
+    --help (-h): show help
+
+
+h2. Usage
+
+h3. 1. Prepare an environmental class definition file.
+
+    ~user $ cat classdef.dat
+    #
+    # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
+    # constrained or not (T or F); silent (used as masks)? (T or F)
+    #
+    secondary structure and phi angle;HEPC;HEPC;T;F
+    solvent accessibility;TF;Aa;F;F
+    hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
+    hydrogen bond to mainchain CO;TF;Oo;F;F
+    hydrogen bond to mainchain NH;TF;Nn;F;F
+
+h3. 2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
+
+    ~user $ cat sample1.tem
+    >P1;1mnma
+    sequence
+    QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
+    IQACLNAPDD*
+    >P1;1egwa
+    sequence
+    --GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
+    ----------*
+    >P1;1mnma
+    secondary structure and phi angle
+    CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
+    HHHHHCCCCP*
+    >P1;1egwa
+    secondary structure and phi angle
+    --CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
+    ----------*
+    >P1;1mnma
+    solvent accessibility
+    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
+    TTTTTTTTTT*
+    >P1;1egwa
+    solvent accessibility
+    --TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
+    ----------*
+    ... 
+
+h3. 3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
+
+    ~user $ cat -1 *.tem > TEMLIST
+    ~user $ cat TEMLIST
+    sample1.tem
+    sample2.tem
+    ...
+
+h3. 4. To produce substitution count matrices, type
+
+    ~user $ egor -l TEMLIST --output 0 -o substcount.mat
+
+h3. 5. To produce substitution probability matrices, type
+
+    ~user $ egor -l TEMLIST --output 1 -o substprob.mat
+
+h3. 6. To produce log odds ratio matrices, type
+
+    ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
+
+h3. 7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+
+    ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+
+h3. 8. To change the clustering level (default 60), type
+
+    ~user $ egor -l TEMLIST --weight 80 --output 2
+
+h3. 9. In case any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
 
 
 h2. Repository
@@ -39,14 +162,33 @@ or, You can fetch the source from
 
 * github: "http://github.com/semin/egor/tree/master":http://github.com/semin/egor/tree/master
 
-<pre>$ git clone git://github.com/semin/egor.git</pre>
-
-
-h2. License
-
-This code is free to use under the terms of the MIT license. 
-
 
 h2. Contact
 
 Comments are welcome, please send an email to me (seminlee at gmail dot com). 
+
+
+h2. License
+
+(The MIT License)
+
+Copyright (c) 2008 Semin Lee
+
+Permission is hereby granted, free of charge, to any person obtaining
+a copy of this software and associated documentation files (the
+'Software'), to deal in the Software without restriction, including
+without limitation the rights to use, copy, modify, merge, publish,
+distribute, sublicense, and/or sell copies of the Software, and to
+permit persons to whom the Software is furnished to do so, subject to
+the following conditions:
+
+The above copyright notice and this permission notice shall be
+included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED 'AS IS', WITHOUT WARRANTY OF ANY KIND,
+EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF
+MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.
+IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY
+CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE
+SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.

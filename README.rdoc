@@ -3,12 +3,12 @@
 * http://www-cryst.bioc.cam.ac.uk/egor
 
 
-== Description:
+== Description
 
-egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
+'egor' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.
 
 
-== Features:
+== Features
 
 * Environment-specific substitution table generation based on user providing environmental class definition
 * Entropy-based smoothing procedures to cope with sparse data problem
@@ -16,12 +16,12 @@ egor: Esst GeneratOR, a program for calculating environment-specific substitutio
 * Both unidirectional and bidirectional substitution matirces can be generated (NOT IMPLEMENTED YET!!!)
 
 
-== Installation:
+== Installation
 
     ~user $ sudo gem install egor
 
 
-== Requirements:
+== Requirements
 
 * ruby 1.8.7 or above (http://www.ruby-lang.org)
 * rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
@@ -36,12 +36,14 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
 == Basic Usage:
 
+It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'egor'.
+
     ~user $ egor -l TEMLIST-file -c classdef.dat
                 or
     ~user $ egor -f TEM-file -c classdef.dat
 
 
-== Options:
+== Options
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
@@ -132,7 +134,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
 4. To produce substitution count matrices, type
 
-    ~user $ egor -l TEMLIST --output 0 -o rawcount.mat
+    ~user $ egor -l TEMLIST --output 0 -o substcount.mat
 
 5. To produce substitution probability matrices, type
 
@@ -142,7 +144,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
     ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution data only from the sequence paris within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
     ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
@@ -153,7 +155,23 @@ Following RubyGems will be automatically installed if you have rubygems installe
 9. In case any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
 
 
-== License:
+== Repository
+
+You can download a pre-built RubyGems package from
+
+* rubyforge: http://rubyforge.org/projects/egor
+
+or, You can fetch the source from
+
+* github: http://github.com/semin/egor/tree/master
+
+
+== Contact
+
+Comments are welcome, please send an email to me (seminlee at gmail dot com). 
+
+
+== License
 
 (The MIT License)
 
