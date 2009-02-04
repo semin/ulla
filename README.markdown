@@ -13,7 +13,7 @@
 * Environment-specific substitution table generation based on user providing environmental class definition
 * Entropy-based smoothing procedures to cope with sparse data problem
 * BLOSUM-like weighting procedures using PID threshold
-* Both unidirectional and bidirectional substitution matirces can be generated (NOT IMPLEMENTED YET!!!)
+* Both unidirectional and bidirectional substitution matirces can be generated
 
 
 ## Installation
@@ -68,7 +68,6 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
     --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
     --add DOUBLE: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log odds ratio calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
@@ -82,11 +81,11 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 ## Usage
 
-1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+1. Prepare an environmental class definition file. For more details, please check this [notes](http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES "Kenji's NOTES").
 
         ~user $ cat classdef.dat
         #
-        # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
+        # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);
         # constrained or not (T or F); silent (used as masks)? (T or F)
         #
         secondary structure and phi angle;HEPC;HEPC;T;F
@@ -95,7 +94,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         hydrogen bond to mainchain CO;TF;Oo;F;F
         hydrogen bond to mainchain NH;TF;Nn;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
+2. Prepare structural alignments and their annotations of above environmental classes in [PIR format](http://caps.ncbs.res.in/gendis/pir.html "PIR Format").
 
         ~user $ cat sample1.tem
         >P1;1mnma
@@ -138,7 +137,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 5. To produce substitution probability matrices, type
 
-       ~user $ egor -l TEMLIST --output 1 -o substprob.mat
+        ~user $ egor -l TEMLIST --output 1 -o substprob.mat
 
 6. To produce log odds ratio matrices, type
 
@@ -154,7 +153,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
 
-10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this [notes](http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES "Kenji's NOTES").
 
         #
         # Environment-specific amino acid substitution matrices
@@ -217,11 +216,11 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 You can download a pre-built RubyGems package from
 
-* rubyforge: http://rubyforge.org/projects/egor
+* rubyforge: [http://rubyforge.org/projects/egor](http://rubyforge.org/projects/egor "RubyForge")
 
 or, You can fetch the source from
 
-* github: http://github.com/semin/egor/tree/master
+* github: [http://github.com/semin/egor/tree/master](http://github.com/semin/egor/tree/master "GitHub")
 
 
 ## Contact
