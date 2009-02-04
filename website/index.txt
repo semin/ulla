@@ -1,4 +1,4 @@
-h1.egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
+h1. egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
 
 h2. Description
 
@@ -31,7 +31,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 * simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
 
 
-h2. Basin Usage
+h2. Basic Usage
 
 It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'egor'.
 
@@ -41,6 +41,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 
 h2. Options
+<pre>
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
@@ -75,6 +76,7 @@ h2. Options
         3 for DEBUG or above level
     --version: print version
     --help (-h): show help
+</pre>
 
 
 h2. Usage
@@ -123,7 +125,7 @@ h3. 2. Prepare structural alignments and their annotations of above environmenta
 
 h3. 3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
 
-    ~user $ cat -1 *.tem > TEMLIST
+    ~user $ ls -1 *.tem > TEMLIST
     ~user $ cat TEMLIST
     sample1.tem
     sample2.tem
@@ -149,7 +151,7 @@ h3. 8. To change the clustering level (default 60), type
 
     ~user $ egor -l TEMLIST --weight 80 --output 2
 
-h3. 9. In case any positions masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
+h3. 9. In case any positions are masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
 
 
 h2. Repository
