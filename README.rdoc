@@ -156,7 +156,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
-    #
+    \#
     # Environment-specific amino acid substitution matrices
     # Creator: egor version 0.0.4
     # Creation Date: 20/01/2009 14:45
