@@ -69,7 +69,6 @@ Options:
     --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
-    --penv: use environment-dependent frequencies for log-odds calculation (default false) (NOT implemented yet!!!)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --verbose (-v) INTEGER
@@ -163,7 +162,7 @@ Options:
         $noweight     = false
         $smooth       = :partial
         $nosmooth     = false
-        $noroundoff      = false
+        $noroundoff   = false
         $p1smooth     = false
         $scale        = 3
         $pidmin       = nil
@@ -171,6 +170,7 @@ Options:
         $scale        = 3
         $add          = nil
         $cys          = 0
+        $targetenv    = false
         $penv         = false
 
         $aa_tot_cnt   = Hash.new(0)
@@ -212,6 +212,7 @@ Options:
           [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
           #[ '--heatmap',        GetoptLong::NO_ARGUMENT ],
           [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--targetenv','-t'  GetoptLong::REQUIRED_ARGUMENT ],
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--penv',           GetoptLong::NO_ARGUMENT ],
           [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
@@ -237,6 +238,8 @@ Options:
               $outfile      = arg
             when '--cys'
               $cys          = arg.to_i
+            when '--targetenv'
+              $targetenv    = (arg.to_i == 1) ? true : false
             when '--weight'
               $weight       = arg.to_i
             when '--sigma'
