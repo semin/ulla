@@ -1,8 +1,7 @@
-.README.rdoc.swp
 History.txt
 Manifest.txt
 PostInstall.txt
-README.rdoc
+README.markdown
 Rakefile
 bin/egor
 config/website.yml
@@ -31,7 +30,6 @@ test/test_math_extensions.rb
 test/test_narray_extensions.rb
 test/test_nmatrix_extensions.rb
 test/test_string_extensions.rb
-website/.index.txt.swp
 website/index.html
 website/index.txt
 website/javascripts/rounded_corners_lite.inc.js
