@@ -82,7 +82,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 ## Usage
 
-- Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
         ~user $ cat classdef.dat
         #
@@ -95,7 +95,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         hydrogen bond to mainchain CO;TF;Oo;F;F
         hydrogen bond to mainchain NH;TF;Nn;F;F
 
-- Prepare structural alignments and their annotations of above environmental classes in PIR format.
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
 
         ~user $ cat sample1.tem
         >P1;1mnma
@@ -124,7 +124,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         ----------*
         ... 
 
-- When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
+3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
 
         ~user $ ls -1 *.tem > TEMLIST
         ~user $ cat TEMLIST
@@ -132,29 +132,29 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         sample2.tem
         ...
 
-- To produce substitution count matrices, type
+4. To produce substitution count matrices, type
 
         ~user $ egor -l TEMLIST --output 0 -o substcount.mat
 
-- To produce substitution probability matrices, type
+5. To produce substitution probability matrices, type
 
        ~user $ egor -l TEMLIST --output 1 -o substprob.mat
 
-- To produce log odds ratio matrices, type
+6. To produce log odds ratio matrices, type
 
         ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
 
-- To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
         ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
-- To change the clustering level (default 60), type
+8. To change the clustering level (default 60), type
 
         ~user $ egor -l TEMLIST --weight 80 --output 2
 
-- In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
+9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
 
-- Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
         #
         # Environment-specific amino acid substitution matrices
