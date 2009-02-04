@@ -1,6 +1,6 @@
 # egor
 
-* http://www-cryst.bioc.cam.ac.uk/egor
+[http://www-cryst.bioc.cam.ac.uk/egor](http://www-cryst.bioc.cam.ac.uk/egor "Egor Homepage")
 
 
 ## Description
@@ -82,139 +82,136 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 ## Usage
 
-1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+- Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
-    ~user $ cat classdef.dat
-    #
-    # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
-    # constrained or not (T or F); silent (used as masks)? (T or F)
-    #
-    secondary structure and phi angle;HEPC;HEPC;T;F
-    solvent accessibility;TF;Aa;F;F
-    hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
-    hydrogen bond to mainchain CO;TF;Oo;F;F
-    hydrogen bond to mainchain NH;TF;Nn;F;F
+        ~user $ cat classdef.dat
+        #
+        # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
+        # constrained or not (T or F); silent (used as masks)? (T or F)
+        #
+        secondary structure and phi angle;HEPC;HEPC;T;F
+        solvent accessibility;TF;Aa;F;F
+        hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
+        hydrogen bond to mainchain CO;TF;Oo;F;F
+        hydrogen bond to mainchain NH;TF;Nn;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
+- Prepare structural alignments and their annotations of above environmental classes in PIR format.
 
-    ~user $ cat sample1.tem
-    >P1;1mnma
-    sequence
-    QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
-    IQACLNAPDD*
-    >P1;1egwa
-    sequence
-    --GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
-    ----------*
-    >P1;1mnma
-    secondary structure and phi angle
-    CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
-    HHHHHCCCCP*
-    >P1;1egwa
-    secondary structure and phi angle
-    --CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
-    ----------*
-    >P1;1mnma
-    solvent accessibility
-    TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
-    TTTTTTTTTT*
-    >P1;1egwa
-    solvent accessibility
-    --TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
-    ----------*
-    ... 
+        ~user $ cat sample1.tem
+        >P1;1mnma
+        sequence
+        QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
+        IQACLNAPDD*
+        >P1;1egwa
+        sequence
+        --GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
+        ----------*
+        >P1;1mnma
+        secondary structure and phi angle
+        CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
+        HHHHHCCCCP*
+        >P1;1egwa
+        secondary structure and phi angle
+        --CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
+        ----------*
+        >P1;1mnma
+        solvent accessibility
+        TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
+        TTTTTTTTTT*
+        >P1;1egwa
+        solvent accessibility
+        --TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
+        ----------*
+        ... 
 
-3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
+- When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.
 
-    ~user $ ls -1 *.tem > TEMLIST
-    ~user $ cat TEMLIST
-    sample1.tem
-    sample2.tem
-    ...
+        ~user $ ls -1 *.tem > TEMLIST
+        ~user $ cat TEMLIST
+        sample1.tem
+        sample2.tem
+        ...
 
-4. To produce substitution count matrices, type
+- To produce substitution count matrices, type
 
-    ~user $ egor -l TEMLIST --output 0 -o substcount.mat
+        ~user $ egor -l TEMLIST --output 0 -o substcount.mat
 
-5. To produce substitution probability matrices, type
+- To produce substitution probability matrices, type
 
-    ~user $ egor -l TEMLIST --output 1 -o substprob.mat
+       ~user $ egor -l TEMLIST --output 1 -o substprob.mat
 
-6. To produce log odds ratio matrices, type
+- To produce log odds ratio matrices, type
 
-    ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
+        ~user $ egor -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+- To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
-    ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+        ~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
-8. To change the clustering level (default 60), type
+- To change the clustering level (default 60), type
 
-    ~user $ egor -l TEMLIST --weight 80 --output 2
+        ~user $ egor -l TEMLIST --weight 80 --output 2
 
-9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
+- In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
 
-10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+- Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
-#begin html
-    #
-    # Environment-specific amino acid substitution matrices
-    # Creator: egor version 0.0.4
-    # Creation Date: 20/01/2009 14:45
-    #
-    # Definitions for structural environments:
-    # 5 features used
-    #
-    # secondary structure and phi angle;HEPC;HEPC;F;F
-    # solvent accessibility;TF;Aa;F;F
-    # hydrogen bond to DNA;TF;Hh;F;F
-    # water-mediated hydrogen bond to DNA;TF;Ww;F;F
-    # van der Waals contact to DNA;TF;Vv;F;F
-    #
-    # (read in from classdef.dat)
-    #
-    # Number of alignments: 86
-    # (list of .tem files read in from TEMLIST)
-    #
-    # Total number of environments: 64
-    #
-    # There are 21 amino acids considered.
-    # ACDEFGHIKLMNPQRSTVWYJ
-    # 
-    # C: Cystine (the disulfide-bonded form)
-    # J: Cysteine (the free thiol form)
-    #
-    # Weighting scheme: clustering at PID 60 level
-    #
-    # ...
-    #
-    >HAHWV 0
-    #        A      C      D      E      F      G      H      I      K      L      M      N      P      Q      R      S      T      V      W      Y      J
-    A        5     -6      0      0     -2      0     -2     -1     -1     -1      1     -1     -1      0     -1      1      0      0     -2     -2     -2
-    C       -7     28     -8    -49     -3    -49     -2     -1    -11     -5     -1    -49     -6    -49    -49     -4     -6     -4    -49      3      9
-    D        0     -7      7      2     -3      0      0     -4      0     -3     -3      2      0      0     -2      1      0     -3     -5     -3     -6
-    E        0    -68      2      5     -3     -1     -1     -3      0     -3     -1      0      0      1     -1      0      0     -3     -3     -2     -7
-    F       -2     -3     -3     -4      8     -4     -1      2     -4      1      0     -4     -4     -4     -4     -4     -2      1      2      3     -5
-    G        0    -67      0     -1     -4      9     -3     -4     -2     -3     -4      1     -1     -2     -3      0     -2     -3     -3     -3     -2
-    H       -2     -2      0     -1     -1     -3     11     -3     -2     -3     -2      0     -2     -1     -1     -1     -1     -3     -2      0     -4
-    I       -1     -1     -4     -3      2     -4     -3      6     -3      2      2     -4     -2     -2     -4     -3     -1      3     -1      0     -4
-    K       -1    -10      0      0     -4     -2     -1     -3      5     -3     -2      0      0      1      2     -1     -1     -3     -4     -2     -5
-    L       -1     -5     -3     -3      1     -3     -3      2     -3      5      2     -4     -1     -2     -2     -3     -1      1      0     -1     -4
-    M        1     -1     -3     -1      0     -4     -2      2     -3      2      8     -2     -2     -1     -2     -2     -1      1     -1     -1     -4
-    N       -1    -66      2      0     -4      1      0     -4      0     -4     -2      8     -1      0     -1      1      0     -3     -5     -4     -5
-    P       -1     -6      0      0     -3     -1     -2     -2     -1     -1     -2     -1      9     -1     -2      0      0     -2     -4     -3     -7
-    Q        0    -66      0      1     -4     -2     -1     -2      1     -2     -1      0     -1      6      0      0     -1     -2     -2     -2     -6
-    R       -1    -69     -1      0     -4     -3     -1     -3      2     -2     -1     -1     -2      0      6     -1     -1     -3     -3     -2     -6
-    S        1     -4      1      0     -3      0     -1     -3     -1     -3     -2      1      0      0     -1      5      2     -2     -3     -1     -3
-    T        0     -5     -1     -1     -2     -2     -1     -1     -1     -1     -1      0      0     -1     -1      2      5     -1     -3     -2     -3
-    V        0     -4     -3     -3      1     -4     -3      3     -3      1      1     -3     -2     -2     -3     -2     -1      6      0     -1     -2
-    W       -2    -61     -5     -3      2     -3     -2     -1     -4      0     -1     -5     -4     -2     -3     -3     -3      0     14      3     -6
-    Y       -2      3     -3     -2      4     -3      0      0     -2      0      0     -4     -3     -2     -2     -1     -2      0      3      9     -3
-    J       -3      9     -7     -8     -5     -2     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
-    U       -3     15     -7     -8     -5     -3     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
-    ... 
-#end
-
+        #
+        # Environment-specific amino acid substitution matrices
+        # Creator: egor version 0.0.4
+        # Creation Date: 20/01/2009 14:45
+        #
+        # Definitions for structural environments:
+        # 5 features used
+        #
+        # secondary structure and phi angle;HEPC;HEPC;F;F
+        # solvent accessibility;TF;Aa;F;F
+        # hydrogen bond to DNA;TF;Hh;F;F
+        # water-mediated hydrogen bond to DNA;TF;Ww;F;F
+        # van der Waals contact to DNA;TF;Vv;F;F
+        #
+        # (read in from classdef.dat)
+        #
+        # Number of alignments: 86
+        # (list of .tem files read in from TEMLIST)
+        #
+        # Total number of environments: 64
+        #
+        # There are 21 amino acids considered.
+        # ACDEFGHIKLMNPQRSTVWYJ
+        # 
+        # C: Cystine (the disulfide-bonded form)
+        # J: Cysteine (the free thiol form)
+        #
+        # Weighting scheme: clustering at PID 60 level
+        #
+        # ...
+        #
+        >HAHWV 0
+        #        A      C      D      E      F      G      H      I      K      L      M      N      P      Q      R      S      T      V      W      Y      J
+        A        5     -6      0      0     -2      0     -2     -1     -1     -1      1     -1     -1      0     -1      1      0      0     -2     -2     -2
+        C       -7     28     -8    -49     -3    -49     -2     -1    -11     -5     -1    -49     -6    -49    -49     -4     -6     -4    -49      3      9
+        D        0     -7      7      2     -3      0      0     -4      0     -3     -3      2      0      0     -2      1      0     -3     -5     -3     -6
+        E        0    -68      2      5     -3     -1     -1     -3      0     -3     -1      0      0      1     -1      0      0     -3     -3     -2     -7
+        F       -2     -3     -3     -4      8     -4     -1      2     -4      1      0     -4     -4     -4     -4     -4     -2      1      2      3     -5
+        G        0    -67      0     -1     -4      9     -3     -4     -2     -3     -4      1     -1     -2     -3      0     -2     -3     -3     -3     -2
+        H       -2     -2      0     -1     -1     -3     11     -3     -2     -3     -2      0     -2     -1     -1     -1     -1     -3     -2      0     -4
+        I       -1     -1     -4     -3      2     -4     -3      6     -3      2      2     -4     -2     -2     -4     -3     -1      3     -1      0     -4
+        K       -1    -10      0      0     -4     -2     -1     -3      5     -3     -2      0      0      1      2     -1     -1     -3     -4     -2     -5
+        L       -1     -5     -3     -3      1     -3     -3      2     -3      5      2     -4     -1     -2     -2     -3     -1      1      0     -1     -4
+        M        1     -1     -3     -1      0     -4     -2      2     -3      2      8     -2     -2     -1     -2     -2     -1      1     -1     -1     -4
+        N       -1    -66      2      0     -4      1      0     -4      0     -4     -2      8     -1      0     -1      1      0     -3     -5     -4     -5
+        P       -1     -6      0      0     -3     -1     -2     -2     -1     -1     -2     -1      9     -1     -2      0      0     -2     -4     -3     -7
+        Q        0    -66      0      1     -4     -2     -1     -2      1     -2     -1      0     -1      6      0      0     -1     -2     -2     -2     -6
+        R       -1    -69     -1      0     -4     -3     -1     -3      2     -2     -1     -1     -2      0      6     -1     -1     -3     -3     -2     -6
+        S        1     -4      1      0     -3      0     -1     -3     -1     -3     -2      1      0      0     -1      5      2     -2     -3     -1     -3
+        T        0     -5     -1     -1     -2     -2     -1     -1     -1     -1     -1      0      0     -1     -1      2      5     -1     -3     -2     -3
+        V        0     -4     -3     -3      1     -4     -3      3     -3      1      1     -3     -2     -2     -3     -2     -1      6      0     -1     -2
+        W       -2    -61     -5     -3      2     -3     -2     -1     -4      0     -1     -5     -4     -2     -3     -3     -3      0     14      3     -6
+        Y       -2      3     -3     -2      4     -3      0      0     -2      0      0     -4     -3     -2     -2     -1     -2      0      3      9     -3
+        J       -3      9     -7     -8     -5     -2     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
+        U       -3     15     -7     -8     -5     -3     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
+        ... 
 
 ## Repository
 
