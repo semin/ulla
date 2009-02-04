@@ -5,7 +5,7 @@
   <link rel="stylesheet" href="stylesheets/screen.css" type="text/css" media="screen" />
   <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>
-      h1.egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
+      egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
   </title>
   <script src="javascripts/rounded_corners_lite.inc.js" type="text/javascript"></script>
 <style>
@@ -30,7 +30,7 @@
 <body>
 <div id="main">
 
-    <h1>h1.egor: Esst GeneratOR, a program for calculating environment-specific substitution tables</h1>
+    <h1>egor: Esst GeneratOR, a program for calculating environment-specific substitution tables</h1>
     <div class="sidebar">
       <div id="version" class="clickable" onclick='document.location = "http://rubyforge.org/projects/egor"; return false'>
         <p>Get Version</p>
@@ -44,10 +44,12 @@
 	<li>Environment-specific substitution table generation based on user providing environmental class definition</li>
 	<li>Entropy-based smoothing procedures to cope with sparse data problem</li>
 	<li><span class="caps">BLOSUM</span>-like weighting procedures using <span class="caps">PID</span> threshold</li>
-	<li>Both unidirectional and bidirectional substitution matirces can be generated (<span class="caps">NOT</span> <span class="caps">IMPLEMENTED</span> <span class="caps">YET</span>!!!)</li>
+	<li>Both unidirectional and bidirectional substitution matirces can be generated</li>
 </ul>
 <h2>Installation</h2>
-<p><pre class='syntax'>~<span class="ident">user</span> <span class="global">$ </span><span class="ident">sudo</span> <span class="ident">gem</span> <span class="ident">install</span> <span class="ident">egor</span></pre></p>
+<pre>
+~user $ sudo gem install egor
+</pre>
 <h2>Requirements</h2>
 <ul>
 	<li>ruby 1.8.7 or above (http://www.ruby-lang.org)</li>
@@ -60,102 +62,122 @@
 	<li>bio (http://bioruby.open-bio.org/)</li>
 	<li>simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)</li>
 </ul>
-<h2>Basin Usage</h2>
+<h2>Basic Usage</h2>
 <p>It&#8217;s pretty much the same as Kenji&#8217;s subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap &#8216;subst&#8217; with &#8216;egor&#8217;.</p>
-<pre>~user $ egor -l TEMLIST-file -c classdef.dat</pre>
-or
-<pre>~user $ egor -l TEM-file -c classdef.dat</pre>
-<h2>Options<br />
-    &#8212;tem-file (-f) <span class="caps">FILE</span>: a tem file<br />
-    &#8212;tem-list (-l) <span class="caps">FILE</span>: a list for tem files<br />
-    &#8212;classdef (-c) <span class="caps">FILE</span>: a file for the defintion of environments (default: &#8216;classdef.dat&#8217;)<br />
-    &#8212;outfile (-o) <span class="caps">FILE</span>: output filename (default &#8216;allmat.dat&#8217;)<br />
-    &#8212;weight (-w) <span class="caps">INTEGER</span>: clustering level (<span class="caps">PID</span>) for the <span class="caps">BLOSUM</span>-like weighting (default: 60)<br />
-    &#8212;noweight: calculate substitution count with no weights<br />
-    &#8212;smooth (-s) <span class="caps">INTEGER</span>:<br />
-        0 for partial smoothing (default)<br />
-        1 for full smoothing<br />
-    &#8212;p1smooth: perform smoothing for p1 probability calculation when partial smoothing<br />
-    &#8212;nosmooth: perform no smoothing operation<br />
-    &#8212;cys (-y) <span class="caps">INTEGER</span>:<br />
-        0 for using C and J only for structure (default)<br />
-        1 for both structure and sequence<br />
-        2 for using only C for both (must be set when you have no &#8216;disulphide&#8217; or &#8216;disulfide&#8217; annotation in templates)<br />
-    &#8212;output <span class="caps">INTEGER</span>:<br />
-        0 for raw count (no smoothing performed)<br />
-        1 for probabilities<br />
-        2 for log odds ratios (default)<br />
-    &#8212;noroundoff: do not round off log odds ratio<br />
-    &#8212;scale <span class="caps">INTEGER</span>: log odds ratio matrices in 1/n bit units (default 3)<br />
-    &#8212;sigma <span class="caps">DOUBLE</span>: change the sigma value for smoothing (default 5.0)<br />
-    &#8212;autosigma: automatically adjust the sigma value for smoothing<br />
-    &#8212;add <span class="caps">DOUBLE</span>: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)<br />
-    &#8212;penv: use environment-dependent frequencies for log odds ratio calculation (default false) (<span class="caps">NOT</span> implemented yet!!!)<br />
-    &#8212;pidmin <span class="caps">DOUBLE</span>: count substitutions only for pairs with <span class="caps">PID</span> equal to or greater than this value (default none)<br />
-    &#8212;pidmax <span class="caps">DOUBLE</span>: count substitutions only for pairs with <span class="caps">PID</span> smaller than this value (default none)<br />
-    &#8212;verbose (-v) <span class="caps">INTEGER</span><br />
-        0 for <span class="caps">ERROR</span> level<br />
-        1 for <span class="caps">WARN</span> or above level (default)<br />
-        2 for <span class="caps">INFO</span> or above level<br />
-        3 for <span class="caps">DEBUG</span> or above level<br />
-    &#8212;version: print version<br />
-    &#8212;help (-h): show help</h2>
+<pre>
+~user $ egor -l TEMLIST-file -c classdef.dat
+    or
+~user $ egor -l TEM-file -c classdef.dat
+</pre>
+<h2>Options</h2>
+<pre>
+--tem-file (-f) FILE: a tem file
+--tem-list (-l) FILE: a list for tem files
+--classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+--outfile (-o) FILE: output filename (default 'allmat.dat')
+--weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
+--noweight: calculate substitution count with no weights
+--smooth (-s) INTEGER:
+    0 for partial smoothing (default)
+    1 for full smoothing
+--p1smooth: perform smoothing for p1 probability calculation when partial smoothing
+--nosmooth: perform no smoothing operation
+--cys (-y) INTEGER:
+    0 for using C and J only for structure (default)
+    1 for both structure and sequence
+    2 for using only C for both (must be set when you have no 'disulphide' or 'disulfide' annotation in templates)
+--output INTEGER:
+    0 for raw count (no smoothing performed)
+    1 for probabilities
+    2 for log odds ratios (default)
+--noroundoff: do not round off log odds ratio
+--scale INTEGER: log odds ratio matrices in 1/n bit units (default 3)
+--sigma DOUBLE: change the sigma value for smoothing (default 5.0)
+--autosigma: automatically adjust the sigma value for smoothing
+--add DOUBLE: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)
+--penv: use environment-dependent frequencies for log odds ratio calculation (default false) (NOT implemented yet!!!)
+--pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
+--pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+--verbose (-v) INTEGER
+    0 for ERROR level
+    1 for WARN or above level (default)
+    2 for INFO or above level
+    3 for DEBUG or above level
+--version: print version
+--help (-h): show help
+</pre>
 <h2>Usage</h2>
-<h3>1. Prepare an environmental class definition file.</h3>
+<h4>1. Prepare an environmental class definition file.</h4>
+<pre>
 ~user $ cat classdef.dat
 #
 # name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);\
 # constrained or not (T or F); silent (used as masks)? (T or F)
 #
-secondary structure and phi angle;<span class="caps">HEPC</span>;<span class="caps">HEPC</span>;T;F
+secondary structure and phi angle;HEPC;HEPC;T;F
 solvent accessibility;TF;Aa;F;F
 hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
 hydrogen bond to mainchain CO;TF;Oo;F;F
 hydrogen bond to mainchain NH;TF;Nn;F;F
-<h3>2. Prepare structural alignments and their annotations of above environmental classes in <span class="caps">PIR</span> format.</h3>
+</pre>
+<h4>2. Prepare structural alignments and their annotations of above environmental classes in <span class="caps">PIR</span> format.</h4>
+<pre>
 ~user $ cat sample1.tem
 &gt;P1;1mnma
 sequence
-<span class="caps">QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL</span>
+QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
 IQACLNAPDD*
 &gt;P1;1egwa
 sequence
-&#8212;<span class="caps">GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY</span>&#8212;
-&#8212;&#8212;&#8212;&#8212;&#8212;*
+--GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
+----------*
 &gt;P1;1mnma
 secondary structure and phi angle
-<span class="caps">CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH</span>
+CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
 HHHHHCCCCP*
 &gt;P1;1egwa
 secondary structure and phi angle
-&#8212;<span class="caps">CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC</span>&#8212;
-&#8212;&#8212;&#8212;&#8212;&#8212;*
+--CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
+----------*
 &gt;P1;1mnma
 solvent accessibility
-<span class="caps">TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT</span>
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
 TTTTTTTTTT*
 &gt;P1;1egwa
 solvent accessibility
-&#8212;<span class="caps">TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT</span>&#8212;
-&#8212;&#8212;&#8212;&#8212;&#8212;*
-&#8230;
-<h3>3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.</h3>
-~user $ cat -1 *.tem &gt; <span class="caps">TEMLIST</span>
-~user $ cat <span class="caps">TEMLIST</span>
+--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
+----------*
+... 
+</pre>
+<h4>3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.</h4>
+<pre>
+~user $ ls -1 *.tem &gt; TEMLIST
+~user $ cat TEMLIST
 sample1.tem
 sample2.tem
-&#8230;
-<h3>4. To produce substitution count matrices, type</h3>
-~user $ egor -l <span class="caps">TEMLIST</span> &#8212;output 0 -o substcount.mat
-<h3>5. To produce substitution probability matrices, type</h3>
-~user $ egor -l <span class="caps">TEMLIST</span> &#8212;output 1 -o substprob.mat
-<h3>6. To produce log odds ratio matrices, type</h3>
-~user $ egor -l <span class="caps">TEMLIST</span> &#8212;output 2 -o substlogo.mat
-<h3>7. To produce substitution data only from the sequence pairs within a given <span class="caps">PID</span> range, type (if you don&#8217;t provide any name for output, &#8216;allmat.dat&#8217; will be used.)</h3>
-~user $ egor -l <span class="caps">TEMLIST</span> &#8212;pidmin 60 &#8212;pidmax 80 &#8212;output 1
-<h3>8. To change the clustering level (default 60), type</h3>
-~user $ egor -l <span class="caps">TEMLIST</span> &#8212;weight 80 &#8212;output 2
-<h3>9. In case any positions masked with the character &#8216;X&#8217; in any environmental feature will be excluded from the calculation of substitution counts.</h3>
+...
+</pre>
+<h4>4. To produce substitution count matrices, type</h4>
+<pre>
+~user $ egor -l TEMLIST --output 0 -o substcount.mat
+</pre>
+<h4>5. To produce substitution probability matrices, type</h4>
+<pre>
+~user $ egor -l TEMLIST --output 1 -o substprob.mat
+</pre>
+<h4>6. To produce log odds ratio matrices, type</h4>
+<pre>
+~user $ egor -l TEMLIST --output 2 -o substlogo.mat
+</pre>
+<h4>7. To produce substitution data only from the sequence pairs within a given <span class="caps">PID</span> range, type (if you don&#8217;t provide any name for output, &#8216;allmat.dat&#8217; will be used.)</h4>
+<pre>
+~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+</pre>
+<h4>8. To change the clustering level (default 60), type</h4>
+<pre>
+~user $ egor -l TEMLIST --weight 80 --output 2
+</pre>
+<h4>9. In case any positions are masked with the character &#8216;X&#8217; in any environmental feature will be excluded from the calculation of substitution counts.</h4>
 <h2>Repository</h2>
 <p>You can download a pre-built RubyGems package from</p>
 <ul>
