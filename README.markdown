@@ -13,7 +13,6 @@
 * Environment-specific substitution table generation based on user providing environmental class definition
 * Entropy-based smoothing procedures to cope with sparse data problem
 * BLOSUM-like weighting procedures using PID threshold
-* Both unidirectional and bidirectional substitution matirces can be generated
 
 
 ## Installation
