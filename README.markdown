@@ -15,11 +15,6 @@
 * BLOSUM-like weighting procedures using PID threshold
 
 
-## Installation
-
-    ~user $ sudo gem install egor
-
-
 ## Requirements
 
 * ruby 1.8.7 or above (http://www.ruby-lang.org)
@@ -31,6 +26,11 @@ Following RubyGems will be automatically installed if you have rubygems installe
 * facets (http://facets.rubyforge.org/)
 * bio (http://bioruby.open-bio.org/)
 * simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
+
+
+## Installation
+
+    ~user $ sudo gem install egor
 
 
 ## Basic Usage
