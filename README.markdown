@@ -89,9 +89,6 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         #
         secondary structure and phi angle;HEPC;HEPC;T;F
         solvent accessibility;TF;Aa;F;F
-        hydrogen bond to other sidechain/heterogen;TF;Ss;F;F
-        hydrogen bond to mainchain CO;TF;Oo;F;F
-        hydrogen bond to mainchain NH;TF;Nn;F;F
 
 2. Prepare structural alignments and their annotations of above environmental classes in [PIR format](http://caps.ncbs.res.in/gendis/pir.html "PIR Format").
 
