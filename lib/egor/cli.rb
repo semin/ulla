@@ -70,6 +70,10 @@ Options:
     --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+    --heatmap INTEGER:
+        0 print a heatmap for each table in a seperate file using table's environment classes as a file name
+        1 print heatmaps for all tables in a single file, 'heatmap.gif'
+        2 for both 0 and 1
     --verbose (-v) INTEGER
         0 for ERROR level
         1 for WARN or above level (default)
@@ -170,6 +174,7 @@ Options:
         $cys          = 0
         $targetenv    = false
         $penv         = false
+        $heatmap      = 0
 
         $aa_tot_cnt   = Hash.new(0)
         $aa_mut_cnt   = Hash.new(0)
@@ -214,6 +219,7 @@ Options:
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--penv',           GetoptLong::NO_ARGUMENT ],
           [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap',        GetoptLong::REQUIRED_ARGUMENT ],
           [ '--verbose',  '-v', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--version',        GetoptLong::NO_ARGUMENT ]
         )
@@ -266,8 +272,8 @@ Options:
               warn "--penv option is not supported yet."
               exit 1
               $penv         = true
-#            when '--heatmap'
-#              $heatmap      = true
+            when '--heatmap'
+              $heatmap      = arg.to_i
             when '--verbose'
               $logger.level = case arg.to_i
                               when 0 then Logger::ERROR
@@ -821,6 +827,16 @@ HEADER
           if $output == 0
             $outfh.puts ">#{group[0]} #{group_no}"
             $outfh.puts grp_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+          end
+
+          if ($heatmap == 0) || ($heatmap == 2)
+            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}.#{group[0]}")
+
+            if heatmap
+              #$logger.info "Generating a heatmap for #{group[0]} table is done."
+            else
+              $logger.info "Generating a heatmap for #{group[0]} table is failed."
+            end
           end
         end
 

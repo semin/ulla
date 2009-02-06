@@ -7,7 +7,9 @@ bin/egor
 config/website.yml
 config/website.yml.sample
 egor.gemspec
+lib/.nmatrix_extensions.rb.swp
 lib/egor.rb
+lib/egor/.cli.rb.swp
 lib/egor/cli.rb
 lib/egor/environment.rb
 lib/egor/environment_class_hash.rb
