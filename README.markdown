@@ -18,7 +18,7 @@
 ## Requirements
 
 * ruby 1.8.7 or above ([http://www.ruby-lang.org](http://www.ruby-lang.org "Ruby"))
-* rubygems 1.2.0 or above ([http://rubyforge.org/projects/rubygems/](http://rubyforge.org/projects/rubygems/ "RubyGems"))
+* rubygems 1.2.0 or above ([http://rubyforge.org/projects/rubygems/](http://rubyforge.org/projects/rubygems "RubyGems"))
 
 Following RubyGems will be automatically installed if you have rubygems installed on your machine
 
