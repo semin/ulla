@@ -12,7 +12,6 @@ $hoe = Hoe.new('egor', Egor::VERSION) do |p|
     ['narray','>= 0.5.9.5'],
     ['bio',   '>= 1.2.1'],
     ['facets','>= 2.4.5'],
-    ['simple_memoize', '>= 1.0.0'],
   ]
 
   p.extra_dev_deps = [

@@ -5,7 +5,6 @@ require 'narray'
 require 'bio'
 require 'set'
 require 'facets'
-require 'simple_memoize'
 
 require 'math_extensions'
 require 'string_extensions'
@@ -108,7 +107,6 @@ Options:
 
         pid = 100.0 * ident.to_f / (align + intgp)
       end
-      memoize :calculate_pid
 
       # :nodoc:
       def execute(arguments=[])

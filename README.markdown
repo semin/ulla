@@ -17,15 +17,14 @@
 
 ## Requirements
 
-* ruby 1.8.7 or above (http://www.ruby-lang.org)
-* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems/)
+* ruby 1.8.7 or above ([http://www.ruby-lang.org](http://www.ruby-lang.org "Ruby"))
+* rubygems 1.2.0 or above ([http://rubyforge.org/projects/rubygems/](http://rubyforge.org/projects/rubygems/ "RubyGems"))
 
 Following RubyGems will be automatically installed if you have rubygems installed on your machine
 
-* narray (http://narray.rubyforge.org/)
-* facets (http://facets.rubyforge.org/)
-* bio (http://bioruby.open-bio.org/)
-* simple_memoize (http://github.com/JackDanger/simple_memoize/tree/master)
+* narray ([http://narray.rubyforge.org](http://narray.rubyforge.org "NArray"))
+* facets ([http://facets.rubyforge.org](http://facets.rubyforge.org "Ruby Facets"))
+* bio ([http://bioruby.open-bio.org](http://bioruby.open-bio.org "BioRuby"))
 
 
 ## Installation
