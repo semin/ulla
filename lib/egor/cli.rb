@@ -827,15 +827,16 @@ HEADER
           if $output == 0
             $outfh.puts ">#{group[0]} #{group_no}"
             $outfh.puts grp_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-          end
 
-          if ($heatmap == 0) || ($heatmap == 2)
-            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}.#{group[0]}")
+            # for heat map generation
+            if ($heatmap == 0) || ($heatmap == 2)
+              heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}. #{group[0]}")
 
-            if heatmap
-              #$logger.info "Generating a heatmap for #{group[0]} table is done."
-            else
-              $logger.info "Generating a heatmap for #{group[0]} table is failed."
+              if heatmap
+                #$logger.info "Generating a heat map for #{group[0]} table is done."
+              else
+                $logger.info "Generating a heat map for #{group[0]} table is failed."
+              end
             end
           end
         end
@@ -843,6 +844,18 @@ HEADER
         if $output == 0
           $outfh.puts '>Total'
           $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+
+          # for heat map generation
+          if ($heatmap == 0) || ($heatmap == 2)
+            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}. #{group[0]}")
+
+            if heatmap
+              #$logger.info "Generating a heat map for #{group[0]} table is done."
+            else
+              $logger.info "Generating a heat map for #{group[0]} table is failed."
+            end
+          end
+
           exit 0
         end
 
@@ -898,6 +911,21 @@ HEADER
             if ($output == 1)
               $outfh.puts ">#{group[0]} #{group_no}"
               $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+
+              # for heat map generation
+              if ($heatmap == 0) || ($heatmap == 2)
+                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
+                                                     :row_header  => $amino_acids,
+                                                     :max_val     => 100,
+                                                     :min_val     => 0,
+                                                     :title => "#{group_no}. #{group[0]}")
+
+                if heatmap
+                  #$logger.info "Generating a heat map for #{group[0]} table is done."
+                else
+                  $logger.info "Generating a heat map for #{group[0]} table is failed."
+                end
+              end
             end
           end
 
@@ -914,6 +942,21 @@ HEADER
             $outfh.puts '>Total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             $outfh.close
+
+            # for heat map generation
+            if ($heatmap == 0) || ($heatmap == 2)
+              heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
+                                                    :row_header => $amino_acids,
+                                                    :max_val    => 100,
+                                                    :min_val    => 0,
+                                                    :title => "#{group_no}. #{group[0]}")
+
+              if heatmap
+                #$logger.info "Generating a heat map for #{group[0]} table is done."
+              else
+                $logger.info "Generating a heat map for #{group[0]} table is failed."
+              end
+            end
             exit 0
           end
         end
@@ -1203,6 +1246,21 @@ HEADER
             if $output == 1
               $outfh.puts ">#{group[0]} #{group_no}"
               $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+
+              # for heat map generation
+              if ($heatmap == 0) || ($heatmap == 2)
+                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
+                                                     :row_header  => $amino_acids,
+                                                     :max_val     => 100,
+                                                     :min_val     => 0,
+                                                     :title       => "#{group_no}. #{group[0]}")
+
+                if heatmap
+                  #$logger.info "Generating a heat map for #{group[0]} table is done."
+                else
+                  $logger.info "Generating a heat map for #{group[0]} table is failed."
+                end
+              end
             end
           end
 
@@ -1219,6 +1277,21 @@ HEADER
             $outfh.puts '>Total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
             $outfh.close
+
+            # for heat map generation
+            if ($heatmap == 0) || ($heatmap == 2)
+              heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
+                                                    :row_header => $amino_acids,
+                                                    :max_val    => 100,
+                                                    :min_val    => 0,
+                                                    :title      => "#{group_no}. #{group[0]}")
+
+              if heatmap
+                #$logger.info "Generating a heat map for #{group[0]} table is done."
+              else
+                $logger.info "Generating a heat map for #{group[0]} table is failed."
+              end
+            end
             exit 0
           end
         end
