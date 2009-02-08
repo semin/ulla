@@ -51,24 +51,25 @@ module NMatrixExtensions
             :footer_height        => 100,
             :gradient_width       => 600,
             :gradient_height      => 60,
-#            :gradient_start_color => '#FFF',
-#            :gradient_end_color   => '#F00',
-            :gradient_start_color => 'green',
-            :gradient_end_color   => 'red',
+            :gradient_start_color => '#FFF',
+            :gradient_mid_color   => nil,
+            :gradient_end_color   => '#F00',
             :font_scale           => 0.9,
             :font_family          => 'san serif',
             :delta                => 4,
             :title?               => true,
             :title                => '',
             :title_font_size      => 50,
+            :print_values?        => true,
             :key_font_size        => 30,
+            :value_font_size      => 20,
             :background           => 'white',
             :ext                  => 'gif' }.merge(options)
 
     RVG::dpi = opts[:dpi]
 
     rvg = RVG.new(opts[:rvg_width], opts[:rvg_height]) do |canvas|
-      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.5) / 2
+      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.6) / 2
       title_y = opts[:title_font_size]
 
       canvas.viewbox(0, 0, opts[:canvas_width], opts[:canvas_height])
@@ -83,7 +84,8 @@ module NMatrixExtensions
       canvas.rect(self.shape[0] * opts[:cell_width],
                   self.shape[1] * opts[:cell_height],
                   opts[:cell_width],
-                  opts[:cell_height] + opts[:header_height]).styles(:stroke => 'black', :stroke_width => 4)
+                  opts[:cell_height] + opts[:header_height]).styles(:stroke => 'black',
+                                                                    :stroke_width => 4)
 
       # drawing column and row labels
       0.upto(self.shape[0] - 1) do |col|
@@ -101,38 +103,79 @@ module NMatrixExtensions
       end
 
       # drawing cells
-      color_unit = opts[:max_val] == 0 ? 50.0 : 50.0 / (opts[:max_val] - opts[:min_val])
+      light_unit = opts[:max_val] == 0 ? 50.0 : 50.0 / (opts[:max_val] - opts[:min_val])
 
       0.upto(self.shape[0] - 1) do |col|
         0.upto(self.shape[1] - 1) do |row|
           canvas.rect(opts[:cell_width],
                       opts[:cell_height],
                       (col + 1) * opts[:cell_width],
-                      (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => "hsl(0, 100, #{100 - self[col, row] * color_unit})",
+                      (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => "hsl(0, 100, #{100 - self[col, row] * light_unit})",
                                                                                     :stroke       => 'white',
                                                                                     :stroke_width => opts[:cell_border])
+          if opts[:print_values?]
+            canvas.text((col + 1) * opts[:cell_width],
+                        (row + 2) * opts[:cell_height] + opts[:header_height],
+                     "#{'%.1f' % self[col, row]}").styles(:font_size => opts[:value_font_size])
+          end
         end
       end
 
       # gradient key
-      img = Image.new(opts[:gradient_height],
-                      opts[:gradient_width],
-                      GradientFill.new(0,
-                                       opts[:gradient_width],
-                                       opts[:gradient_height],
-                                       opts[:gradient_width],
-                                       opts[:gradient_start_color],
-                                       opts[:gradient_end_color])).rotate(90)
-      img.border!(2, 2, 'black')
+      if opts[:gradient_mid_color]
+        img1 = Image.new(opts[:gradient_height],
+                         opts[:gradient_width] / 2,
+                         GradientFill.new(0,
+                                          opts[:gradient_width] / 2,
+                                          opts[:gradient_height],
+                                          opts[:gradient_width] / 2,
+                                          opts[:gradient_start_color],
+                                          opts[:gradient_mid_color])).rotate(90)
 
-      gradient_x = (opts[:canvas_width] - opts[:gradient_width]) / 2
-      gradient_y = opts[:header_height] + opts[:cell_height] * opts[:row_header].count + opts[:margin]
+        img2 = Image.new(opts[:gradient_height],
+                         opts[:gradient_width] / 2,
+                         GradientFill.new(0,
+                                          opts[:gradient_width] / 2,
+                                          opts[:gradient_height],
+                                          opts[:gradient_width] / 2,
+                                          opts[:gradient_mid_color],
+                                          opts[:gradient_end_color])).rotate(90)
+        img3 = ImageList.new
 
-      canvas.image(img,
-                   opts[:gradient_width],
-                   opts[:gradient_height] + opts[:margin],
-                   gradient_x,
-                   gradient_y)
+        img3 << img1 << img2
+
+        img = img3.coalesce
+
+        img.border!(2, 2, 'black')
+
+        gradient_x = (opts[:canvas_width] - opts[:gradient_width]) / 2
+        gradient_y = opts[:header_height] + opts[:cell_height] * opts[:row_header].count + opts[:margin]
+
+        canvas.image(img,
+                    opts[:gradient_width],
+                    opts[:gradient_height] + opts[:margin],
+                    gradient_x,
+                    gradient_y)
+      else
+        img = Image.new(opts[:gradient_height],
+                        opts[:gradient_width],
+                        GradientFill.new(0,
+                                        opts[:gradient_width],
+                                        opts[:gradient_height],
+                                        opts[:gradient_width],
+                                        opts[:gradient_start_color],
+                                        opts[:gradient_end_color])).rotate(90)
+        img.border!(2, 2, 'black')
+
+        gradient_x = (opts[:canvas_width] - opts[:gradient_width]) / 2
+        gradient_y = opts[:header_height] + opts[:cell_height] * opts[:row_header].count + opts[:margin]
+
+        canvas.image(img,
+                    opts[:gradient_width],
+                    opts[:gradient_height] + opts[:margin],
+                    gradient_x,
+                    gradient_y)
+      end
 
       canvas.text(gradient_x,
                   gradient_y + opts[:gradient_height] + opts[:margin],

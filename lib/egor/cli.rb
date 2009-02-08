@@ -174,7 +174,7 @@ Options:
         $cys          = 0
         $targetenv    = false
         $penv         = false
-        $heatmap      = 0
+        $heatmap      = nil
 
         $aa_tot_cnt   = Hash.new(0)
         $aa_mut_cnt   = Hash.new(0)
@@ -293,7 +293,9 @@ Options:
         end
 
         # when arguments are nonsense, print usage
-        if ((ARGV.length != 0) || (!$tem_list && !$tem_file) || ($tem_list && $tem_file))
+        if ((ARGV.length != 0) ||
+            (!$tem_list && !$tem_file) ||
+            ($tem_list && $tem_file))
           print_usage
           exit 1
         end
@@ -329,16 +331,23 @@ Options:
           $amino_acids = 'ACDEFGHIKLMNPQRSTVWY'.split('')
         end
 
-        # create an EnvironmentFeatureList object for storing all environment features
+        # create an EnvironmentFeatureList object for storing all environment
+        # features
         $env_features = EnvironmentFeatureArray.new
 
         # an array for storing indexes of constrained environment features
         $cst_features = []
 
-        # add substituted amino acid (aa1) in a substitution to the environment feature list
-        $env_features << EnvironmentFeature.new('sequence', $amino_acids, $amino_acids, 'F', 'F')
+        # add substituted amino acid (aa1) in a substitution to the environment
+        # feature list
+        $env_features << EnvironmentFeature.new('sequence',
+                                                $amino_acids,
+                                                $amino_acids,
+                                                'F',
+                                                'F')
 
-        # read environment class definiton file and store them into the hash prepared above
+        # read environment class definiton file and store them into
+        # the hash prepared above
         env_index = 1
 
         IO.foreach($classdef) do |line|
@@ -356,10 +365,15 @@ Options:
               $cst_features << env_index
               $logger.warn "The environment feature, #{line} constrained."
             end
-            $env_features << EnvironmentFeature.new(env_ftr[0], env_ftr[1].split(''), env_ftr[2].split(''), env_ftr[3], env_ftr[4])
+            $env_features << EnvironmentFeature.new(env_ftr[0],
+                                                    env_ftr[1].split(''),
+                                                    env_ftr[2].split(''),
+                                                    env_ftr[3],
+                                                    env_ftr[4])
             env_index += 1
           else
-            $logger.error "\"#{line}\" doesn't seem to be a proper format for a environment class definition."
+            $logger.error "\"#{line}\" doesn't seem to be a proper format for" +
+                          "a environment class definition."
             exit 1
           end
         end
@@ -367,9 +381,13 @@ Options:
         # a hash for storing all environment classes
         $env_classes = EnvironmentClassHash.new
 
-        # generate all possible combinations of environment labels, and store every environment class into the hash prepared above with the label as a key
+        # generate all possible combinations of environment labels, and store
+        # every environment class into the hash prepared above with the label
+        # as a key
         $env_features.label_combinations.each_with_index { |e, i|
-          $env_classes[e.flatten.join] = Environment.new(i, e.flatten.join, $amino_acids)
+          $env_classes[e.flatten.join] = Environment.new(i,
+                                                         e.flatten.join,
+                                                         $amino_acids)
         }
 
         #
@@ -420,7 +438,9 @@ Options:
             # check disulphide bond environment first!
             ff.rewind
             ff.each_entry do |pir|
-              if (pir.entry_id == key) && ((pir.definition == "disulphide") || (pir.definition == "disulfide"))
+              if ((pir.entry_id == key) &&
+                  ((pir.definition == "disulphide") ||
+                   (pir.definition == "disulfide")))
                 disulphide[key] = pir.data.remove_internal_spaces.split('')
               end
             end
@@ -438,7 +458,9 @@ Options:
                       'X'
                     else
                       if ei == 0 # Amino Acid Environment Feature
-                        (disulphide.has_key?(key) && (disulphide[key][pos] == 'F') && (sym == 'C')) ? 'J' : sym
+                        (disulphide.has_key?(key) &&
+                         (disulphide[key][pos] == 'F') &&
+                         (sym == 'C')) ? 'J' : sym
                       else
                         ec.labels[ec.symbols.index(sym)]
                       end
@@ -448,7 +470,9 @@ Options:
                   if env_labels[key].empty?
                     env_labels[key] = labels
                   else
-                    env_labels[key].each_with_index { |e, i| env_labels[key][i] = e + labels[i] }
+                    env_labels[key].each_with_index { |e, i|
+                      env_labels[key][i] = e + labels[i]
+                    }
                   end
                 end
               end
@@ -465,13 +489,15 @@ Options:
 
                   # check PID_MIN
                   if $pidmin && (pid < $pidmin)
-                    $logger.info "Skip alignment between #{id1} and #{id2} having PID, #{pid}% less than PID_MIN, #{$pidmin}."
+                    $logger.info  "Skip alignment between #{id1} and #{id2} " +
+                                  "having PID, #{pid}% less than PID_MIN, #{$pidmin}."
                     next
                   end
 
                   # check PID_MAX
                   if $pidmax && (pid > $pidmax)
-                    $logger.info "Skip alignment between #{id1} and #{id2} having PID, #{pid}% greater than PID_MAX, #{$pidmax}."
+                    $logger.info  "Skip alignment between #{id1} and #{id2} " +
+                                  "having PID, #{pid}% greater than PID_MAX, #{$pidmax}."
                     next
                   end
 
@@ -896,6 +922,8 @@ HEADER
           # re-calculate probability vector for each environment class
           $env_classes.values.each { |e| e.prob_array = 100.0 * e.freq_array / e.freq_array.sum }
 
+          group_matrices = []
+
           $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
             grp_cnt_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
             grp_prob_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
@@ -907,23 +935,49 @@ HEADER
             end
 
             $tot_cnt_mat += grp_cnt_mat
+            group_matrices << [group[0], grp_prob_mat]
 
-            if ($output == 1)
-              $outfh.puts ">#{group[0]} #{group_no}"
-              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+#            if ($output == 1)
+#              $outfh.puts ">#{group[0]} #{group_no}"
+#              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+#
+#              # for heat map generation
+#              if ($heatmap == 0) || ($heatmap == 2)
+#                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
+#                                                     :row_header  => $amino_acids,
+#                                                     :max_val     => 50,
+#                                                     :min_val     => 0,
+#                                                     :title => "#{group_no}. #{group[0]}")
+#
+#                if heatmap
+#                  #$logger.info "Generating a heat map for #{group[0]} table is done."
+#                else
+#                  $logger.info "Generating a heat map for #{group[0]} table is failed."
+#                end
+#              end
+#            end
+          end
+
+          if $output == 1
+            grp_max_val = group_matrices.map { |l, m, n| m }.map { |m| m.max }.max || 100
+
+            group_matrices.each_with_index do |(grp_label, grp_prob_mat), grp_no|
+              $outfh.puts ">#{grp_label} #{grp_no}"
+              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids,
+                                                     :row_header => $amino_acids)
 
               # for heat map generation
               if ($heatmap == 0) || ($heatmap == 2)
                 heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
                                                      :row_header  => $amino_acids,
-                                                     :max_val     => 100,
+                                                     :max_val     => grp_max_val.ceil,
                                                      :min_val     => 0,
-                                                     :title => "#{group_no}. #{group[0]}")
+                                                     :title       => "#{grp_no}. #{grp_label}")
 
                 if heatmap
-                  #$logger.info "Generating a heat map for #{group[0]} table is done."
+                  #$logger.info "Generating a heat map for #{grp_label} table is done."
                 else
-                  $logger.info "Generating a heat map for #{group[0]} table is failed."
+                  $logger.info "Generating a heat map for #{grp_label} table is failed."
                 end
               end
             end
@@ -936,18 +990,17 @@ HEADER
             0.upto($amino_acids.size - 1) { |i| $tot_prob_mat[aj, i] = 100.0 * $tot_cnt_mat[aj, i] / col_sum }
           end
 
-          $logger.info 'Calculating substitution probabilities (no smoothing) done.'
-
           if ($output == 1)
             $outfh.puts '>Total'
-            $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+            $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids,
+                                                    :row_header => $amino_acids)
             $outfh.close
 
             # for heat map generation
             if ($heatmap == 0) || ($heatmap == 2)
               heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
                                                     :row_header => $amino_acids,
-                                                    :max_val    => 100,
+                                                    :max_val    => $tot_prob_mat.max.ceil,
                                                     :min_val    => 0,
                                                     :title => "#{group_no}. #{group[0]}")
 
@@ -959,6 +1012,8 @@ HEADER
             end
             exit 0
           end
+
+          $logger.info 'Calculating substitution probabilities (no smoothing) done.'
         end
 
         # when smoothing!!!
@@ -1234,7 +1289,9 @@ HEADER
           end
 
           # sorting environments and build 21X21 substitution matrices
-          $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
+          group_matrices = []
+
+          $env_classes.groups_sorted_by_residue_labels.each do |group|
             # calculating 21X21 substitution probability matrix for each envrionment
             grp_prob_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
 
@@ -1243,22 +1300,29 @@ HEADER
               0.upto($amino_acids.size - 1) { |j| grp_prob_mat[ai, j] = smooth_prob_arr[j] }
             end
 
-            if $output == 1
-              $outfh.puts ">#{group[0]} #{group_no}"
-              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+            group_matrices << [group[0], grp_prob_mat]
+          end
+
+          if $output == 1
+            grp_max_val = group_matrices.map { |l, m, n| m }.map { |m| m.max }.max || 100
+
+            group_matrices.each_with_index do |(grp_label, grp_prob_mat), grp_no|
+              $outfh.puts ">#{grp_label} #{grp_no}"
+              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids,
+                                                     :row_header => $amino_acids)
 
               # for heat map generation
               if ($heatmap == 0) || ($heatmap == 2)
                 heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
                                                      :row_header  => $amino_acids,
-                                                     :max_val     => 100,
+                                                     :max_val     => grp_max_val.ceil,
                                                      :min_val     => 0,
-                                                     :title       => "#{group_no}. #{group[0]}")
+                                                     :title       => "#{grp_no}. #{grp_label}")
 
                 if heatmap
-                  #$logger.info "Generating a heat map for #{group[0]} table is done."
+                  #$logger.info "Generating a heat map for #{grp_label} table is done."
                 else
-                  $logger.info "Generating a heat map for #{group[0]} table is failed."
+                  $logger.info "Generating a heat map for #{grp_label} table is failed."
                 end
               end
             end
@@ -1275,21 +1339,22 @@ HEADER
 
           if $output == 1
             $outfh.puts '>Total'
-            $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+            $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids,
+                                                    :row_header => $amino_acids)
             $outfh.close
 
             # for heat map generation
             if ($heatmap == 0) || ($heatmap == 2)
               heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
                                                     :row_header => $amino_acids,
-                                                    :max_val    => 100,
+                                                    :max_val    => $tot_prob_mat.max.ceil,
                                                     :min_val    => 0,
-                                                    :title      => "#{group_no}. #{group[0]}")
+                                                    :title      => "#{group_matrices.size}. TOTAL")
 
               if heatmap
-                #$logger.info "Generating a heat map for #{group[0]} table is done."
+                #$logger.info "Generating a heat map for TOTAL table is done."
               else
-                $logger.info "Generating a heat map for #{group[0]} table is failed."
+                $logger.info "Generating a heat map for TOTAL table is failed."
               end
             end
             exit 0
@@ -1333,12 +1398,10 @@ HEADER
 
             $amino_acids.each_with_index do |aa, aj|
               env             = grp_envs.detect { |e| e.label.start_with?(aa) }
-              #paj             = $aa_env_cnt[grp_label][aa] / $aa_env_cnt[grp_label].values.sum
               env.logo_array  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
 
               env.send($nosmooth ? 'prob_array' : 'smooth_prob_array').to_a.each_with_index do |prob, ai|
                 pai                   = 100.0 * $aa_tot_freq[$amino_acids[ai]]
-                #odds                  = prob == 0.0 ? 0.000001 / pai : prob / pai
                 odds                  = prob / pai
                 env.logo_array[ai]    = factor * Math::log(odds)
                 grp_logo_mat[aj, ai]  = env.logo_array[ai]
@@ -1349,9 +1412,7 @@ HEADER
                 pai                                 = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
                 prob                                = env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('C')] +
                                                       env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('J')]
-                #odds                                = prob == 0.0 ? 0.000001 / pai : prob / pai
                 odds                                = prob / pai
-                #odds                                = prob / pai / paj
                 env.logo_array[$amino_acids.size]   = factor * Math::log(odds)
                 grp_logo_mat[aj, $amino_acids.size] = env.logo_array[$amino_acids.size]
               end
@@ -1414,6 +1475,9 @@ HEADER
 #
 HEADER
 
+          grp_max_val = grp_logo_mats.map { |l, m| m }.map { |m| m.max }.max
+          grp_min_val = grp_logo_mats.map { |l, m| m }.map { |m| m.min }.min
+
           grp_logo_mats.each_with_index do |arr, grp_no|
             grp_label     = arr[0]
             grp_logo_mat  = arr[1]
@@ -1423,10 +1487,47 @@ HEADER
             end
 
             $outfh.puts ">#{grp_label} #{grp_no}"
+
             if $cys
-              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
+              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids,
+                                                     :row_header => $amino_acids + %w[U])
+              # for heat map generation
+              if ($heatmap == 0) || ($heatmap == 2)
+                heatmap = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
+                                                     :row_header  => $amino_acids + %w[U],
+                                                     :gradient_start_color  => '#0F0',
+                                                     :gradient_mid_color    => '#000',
+                                                     :gradient_end_color    => '#F00',
+                                                     :max_val     => grp_max_val.ceil,
+                                                     :min_val     => grp_min_val.floor,
+                                                     :title       => "#{grp_no}. #{grp_label}")
+
+                if heatmap
+                  #$logger.info "Generating a heat map for #{grp_label} table is done."
+                else
+                  $logger.info "Generating a heat map for #{grp_label} table is failed."
+                end
+              end
             else
-              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids,
+                                                     :row_header => $amino_acids)
+              # for heat map generation
+              if ($heatmap == 0) || ($heatmap == 2)
+                heatmap = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
+                                                     :row_header  => $amino_acids,
+                                                     :gradient_start_color  => '#0F0',
+                                                     :gradient_mid_color    => '#000',
+                                                     :gradient_end_color    => '#F00',
+                                                     :max_val     => grp_max_val.ceil,
+                                                     :min_val     => grp_min_val.floor,
+                                                     :title       => "#{grp_no}. #{grp_label}")
+
+                if heatmap
+                  #$logger.info "Generating a heat map for #{grp_label} table is done."
+                else
+                  $logger.info "Generating a heat map for #{grp_label} table is failed."
+                end
+              end
             end
           end
 
