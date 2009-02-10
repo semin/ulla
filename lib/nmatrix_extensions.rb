@@ -140,11 +140,12 @@ module NMatrixExtensions
                                           opts[:gradient_width] / 2,
                                           opts[:gradient_mid_color],
                                           opts[:gradient_end_color])).rotate(90)
-        img3 = ImageList.new
+#        img3 = ImageList.new
+#
+#        img3 << img1 << img2
 
-        img3 << img1 << img2
-
-        img = img3.coalesce
+        #img = img3.coalesce
+        img = img1.append(img2)
 
         img.border!(2, 2, 'black')
 
