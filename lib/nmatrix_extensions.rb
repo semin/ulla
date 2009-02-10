@@ -37,6 +37,7 @@ module NMatrixExtensions
     opts = {:col_header           => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
             :row_header           => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
             :max_val              => self.max,
+            :mid_val              => (self.max - self.min) / 2.0,
             :min_val              => self.min,
             :dpi                  => 100,
             :margin               => 70,
@@ -103,16 +104,36 @@ module NMatrixExtensions
       end
 
       # drawing cells
-      light_unit = opts[:max_val] == 0 ? 50.0 : 50.0 / (opts[:max_val] - opts[:min_val])
+      if opts[:gradient_mid_color]
+        light_unit = opts[:max_val] == 0 ? 100.0 : 100.0 / (opts[:max_val] / 2.0)
+      else
+        light_unit = opts[:max_val] == 0 ? 50.0 : 50.0 / (opts[:max_val] - opts[:min_val])
+      end
 
       0.upto(self.shape[0] - 1) do |col|
         0.upto(self.shape[1] - 1) do |row|
-          canvas.rect(opts[:cell_width],
-                      opts[:cell_height],
-                      (col + 1) * opts[:cell_width],
-                      (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => "hsl(0, 100, #{100 - self[col, row] * light_unit})",
-                                                                                    :stroke       => 'white',
-                                                                                    :stroke_width => opts[:cell_border])
+          # for log odds ratios
+          if opts[:gradient_mid_color]
+            if self[col, row] < 0
+              color_fill = "hsl(120, 100, #{100 - self[col, row].abs * light_unit})"
+            else
+              color_fill = "hsl(0, 100, #{100 - self[col, row] * light_unit})"
+            end
+            canvas.rect(opts[:cell_width],
+                        opts[:cell_height],
+                        (col + 1) * opts[:cell_width],
+                        (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => color_fill,
+                                                                                      :stroke       => 'white',
+                                                                                      :stroke_width => opts[:cell_border])
+
+          else
+            canvas.rect(opts[:cell_width],
+                        opts[:cell_height],
+                        (col + 1) * opts[:cell_width],
+                        (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => "hsl(0, 100, #{100 - self[col, row] * light_unit})",
+                                                                                      :stroke       => 'white',
+                                                                                      :stroke_width => opts[:cell_border])
+          end
           if opts[:print_values?]
             canvas.text((col + 1) * opts[:cell_width],
                         (row + 2) * opts[:cell_height] + opts[:header_height],
@@ -140,12 +161,9 @@ module NMatrixExtensions
                                           opts[:gradient_width] / 2,
                                           opts[:gradient_mid_color],
                                           opts[:gradient_end_color])).rotate(90)
-#        img3 = ImageList.new
-#
-#        img3 << img1 << img2
-
-        #img = img3.coalesce
-        img = img1.append(img2)
+        img3 = ImageList.new
+        img3 << img1 << img2
+        img = img3.append(false)
 
         img.border!(2, 2, 'black')
 

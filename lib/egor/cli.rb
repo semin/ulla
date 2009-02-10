@@ -1493,14 +1493,16 @@ HEADER
                                                      :row_header => $amino_acids + %w[U])
               # for heat map generation
               if ($heatmap == 0) || ($heatmap == 2)
-                heatmap = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
-                                                     :row_header  => $amino_acids + %w[U],
-                                                     :gradient_start_color  => '#0F0',
-                                                     :gradient_mid_color    => '#000',
-                                                     :gradient_end_color    => '#F00',
-                                                     :max_val     => grp_max_val.ceil,
-                                                     :min_val     => grp_min_val.floor,
-                                                     :title       => "#{grp_no}. #{grp_label}")
+                abs_max_val = [grp_max_val.abs, grp_min_val.abs].max
+                heatmap     = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
+                                                         :row_header  => $amino_acids + %w[U],
+                                                         :gradient_start_color  => '#0F0',
+                                                         :gradient_mid_color    => '#FFF',
+                                                         :gradient_end_color    => '#F00',
+                                                         :max_val     => abs_max_val.ceil,
+                                                         :mid_val     => 0,
+                                                         :min_val     => -1 * abs_max_val.ceil,
+                                                         :title       => "#{grp_no}. #{grp_label}")
 
                 if heatmap
                   #$logger.info "Generating a heat map for #{grp_label} table is done."
@@ -1516,12 +1518,12 @@ HEADER
                 heatmap = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
                                                      :row_header  => $amino_acids,
                                                      :gradient_start_color  => '#0F0',
-                                                     :gradient_mid_color    => '#000',
+                                                     :gradient_mid_color    => '#FFF',
                                                      :gradient_end_color    => '#F00',
-                                                     :max_val     => grp_max_val.ceil,
-                                                     :min_val     => grp_min_val.floor,
+                                                     :max_val     => abs_max_val.ceil,
+                                                     :mid_val     => 0,
+                                                     :min_val     => -1 * abs_max_val.floor,
                                                      :title       => "#{grp_no}. #{grp_label}")
-
                 if heatmap
                   #$logger.info "Generating a heat map for #{grp_label} table is done."
                 else
