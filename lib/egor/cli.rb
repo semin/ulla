@@ -12,10 +12,11 @@ require 'narray_extensions'
 require 'nmatrix_extensions'
 require 'enumerable_extensions'
 
-require 'environment'
-require 'environment_class_hash'
-require 'environment_feature'
-require 'environment_feature_array'
+require 'egor/environment'
+require 'egor/environment_class_hash'
+require 'egor/environment_feature'
+require 'egor/environment_feature_array'
+require 'egor/heatmap_array'
 
 # This is a module for an actual command line interpreter for Egor
 # ---
@@ -71,9 +72,15 @@ Options:
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --heatmap INTEGER:
-        0 print a heatmap for each table in a seperate file using table's environment classes as a file name
-        1 print heatmaps for all tables in a single file, 'heatmap.gif'
-        2 for both 0 and 1
+        0 print a heatmap for each table in a seperate file using environment classes as a name
+        1 print heatmaps for all tables in a single image file, 'heatmap.png'
+    --heatmapext STRING:
+        png for Portable Network Graphics Format (default)
+        gif for Graphics Interchange Format
+        jpg for Joint Photographic Experts Group (JPEG) Format
+        svg for Scalable Vector Graphics Format
+    --heatmapcol INTEGER: number of tables to print in a row when --heatmap 1 or 2 set
+    --printvalue: print values in the cells when generating heat maps
     --verbose (-v) INTEGER
         0 for ERROR level
         1 for WARN or above level (default)
@@ -148,33 +155,41 @@ Options:
         $logger.level = Logger::WARN
 
         # default set of 21 amino acids including J (Cysteine, the free thiol form)
-        $amino_acids  = 'ACDEFGHIKLMNPQRSTVWYJ'.split('')
-
-        $tem_list     = nil
-        $tem_file     = nil
-        $classdef     = 'classdef.dat'
-        $outfile      = 'allmat.dat'
-        $outfh        = nil # file hanfle for outfile
-        $output       = 2 # default: log odds matrix
-        $ali_size     = 0
-        $tot_aa       = 0
-        $sigma        = 5.0
-        $autosigma    = false
-        $weight       = 60
-        $noweight     = false
-        $smooth       = :partial
-        $nosmooth     = false
-        $noroundoff   = false
-        $p1smooth     = false
-        $scale        = 3
-        $pidmin       = nil
-        $pidmax       = nil
-        $scale        = 3
-        $add          = nil
-        $cys          = 0
-        $targetenv    = false
-        $penv         = false
-        $heatmap      = nil
+        $amino_acids    = 'ACDEFGHIKLMNPQRSTVWYJ'.split('')
+        $tem_list       = nil
+        $tem_file       = nil
+        $classdef       = 'classdef.dat'
+        $outfile        = 'allmat.dat'
+        $outfh          = nil # file hanfle for outfile
+        $output         = 2 # default: log odds matrix
+        $ali_size       = 0
+        $tot_aa         = 0
+        $sigma          = 5.0
+        $autosigma      = false
+        $weight         = 60
+        $noweight       = false
+        $smooth         = :partial
+        $nosmooth       = false
+        $noroundoff     = false
+        $p1smooth       = false
+        $scale          = 3
+        $pidmin         = nil
+        $pidmax         = nil
+        $scale          = 3
+        $add            = nil
+        $cys            = 0
+        $targetenv      = false
+        $penv           = false
+        $heatmap        = nil
+        $heatmapcol     = nil
+        $heatmapext     = 'png'
+        $printvalue     = false
+        $rvg_width      = 600
+        $rvg_height     = 700
+        $canvas_width   = 450
+        $canvas_height  = 600
+        $cell_width     = 20
+        $cell_height    = 20
 
         $aa_tot_cnt   = Hash.new(0)
         $aa_mut_cnt   = Hash.new(0)
@@ -213,13 +228,15 @@ Options:
           [ '--noroundoff',     GetoptLong::NO_ARGUMENT ],
           [ '--sigma',          GetoptLong::REQUIRED_ARGUMENT ],
           [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
-          #[ '--heatmap',        GetoptLong::NO_ARGUMENT ],
+          [ '--heatmap',        GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmapext',     GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmapcol',     GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--printvalue',     GetoptLong::NO_ARGUMENT ],
           [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
           [ '--targetenv','-t', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--penv',           GetoptLong::NO_ARGUMENT ],
           [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap',        GetoptLong::REQUIRED_ARGUMENT ],
           [ '--verbose',  '-v', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--version',        GetoptLong::NO_ARGUMENT ]
         )
@@ -274,6 +291,20 @@ Options:
               $penv         = true
             when '--heatmap'
               $heatmap      = arg.to_i
+            when '--heatmapcol'
+              $heatmapcol   = arg.to_i
+            when '--heatmapext'
+              $heatmapext   = case arg.to_s
+                              when /^gif$/i then 'gif'
+                              when /^svg$/i then 'svg'
+                              when /^png$/i then 'png'
+                              when /^jpg$/i then 'jpg'
+                              else
+                                warn "#{arg.to_s} is not supported."
+                                exit 1
+                              end
+            when '--printvalue'
+              $printvalue   = true
             when '--verbose'
               $logger.level = case arg.to_i
                               when 0 then Logger::ERROR
@@ -413,8 +444,6 @@ Options:
 
         $tem_list_io.each_line do |tem_file|
           tem_file.chomp!
-
-          $logger.info "Analysing #{tem_file} ..."
 
           ali = Bio::Alignment::OriginalAlignment.new
           ff  = Bio::FlatFile.auto(tem_file)
@@ -714,6 +743,7 @@ Options:
               end
             end
           end
+          $logger.info "Analysing #{tem_file} done."
         end
 
         # print out default header
@@ -837,7 +867,8 @@ HEADER
         end
 
         # count raw frequencies
-        $tot_cnt_mat = NMatrix.send($noweight ? 'int' : 'float', $amino_acids.size, $amino_acids.size)
+        $tot_cnt_mat    = NMatrix.send($noweight ? 'int' : 'float', $amino_acids.size, $amino_acids.size)
+        group_matrices  = []
 
         # for each combination of environment features
         $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
@@ -849,41 +880,91 @@ HEADER
           end
 
           $tot_cnt_mat += grp_cnt_mat
-
-          if $output == 0
-            $outfh.puts ">#{group[0]} #{group_no}"
-            $outfh.puts grp_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-
-            # for heat map generation
-            if ($heatmap == 0) || ($heatmap == 2)
-              heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}. #{group[0]}")
-
-              if heatmap
-                #$logger.info "Generating a heat map for #{group[0]} table is done."
-              else
-                $logger.info "Generating a heat map for #{group[0]} table is failed."
-              end
-            end
-          end
+          group_matrices << [group[0], grp_cnt_mat]
         end
 
+        $logger.info "Counting substitutions done."
+
         if $output == 0
+          heatmaps    = HeatmapArray.new if $heatmap == 1 or $heatmap == 2
+          grp_max_val = group_matrices.map { |l, m, n| m }.map { |m| m.max }.max
+
+          group_matrices.each_with_index do |(grp_label, grp_cnt_mat), grp_no|
+            $outfh.puts ">#{grp_label} #{grp_no}"
+            $outfh.puts grp_cnt_mat.pretty_string(:col_header => $amino_acids,
+                                                  :row_header => $amino_acids)
+
+            stem = "#{grp_no}. #{grp_label}"
+
+            # for heat map generation
+            if $heatmap == 0 or $heatmap == 2
+              heatmap = grp_cnt_mat.heatmap(:col_header   => $amino_acids,
+                                            :row_header   => $amino_acids,
+                                            :max_val      => grp_max_val.ceil,
+                                            :min_val      => 0,
+                                            :print_value  => $printvalue,
+                                            :title        => stem)
+
+              if heatmap
+                heatmap.write("#{stem}.#{$heatmapext}")
+                heatmaps << heatmap if $heatmap == 1 or $heatmap == 2
+                $logger.info "Generating a heat map for #{stem} table done."
+              else
+                $logger.warn "Generating a heat map for #{stem} table failed."
+              end
+            end
+
+            if $heatmap == 1 or $heatmap == 2
+              heatmap = grp_cnt_mat.heatmap(:col_header     => $amino_acids,
+                                            :row_header     => $amino_acids,
+                                            :max_val        => grp_max_val.ceil,
+                                            :min_val        => 0,
+                                            :print_value    => $printvalue,
+                                            :print_gradient => false,
+                                            :title          => stem)
+
+              heatmaps << heatmap if $heatmap == 1 or $heatmap == 2
+            end
+          end
+
+          if $heatmap == 1 or $heatmap == 2
+            $heatmapcol ||= Math::sqrt(group_matrices.size).round
+            heatmap = heatmaps.heatmap(:columns   => $heatmapcol,
+                                       :rvg_width => $rvg_width,
+                                       :max_val   => grp_max_val.ceil,
+                                       :min_val   => 0)
+
+            if heatmap
+              heatmap.write("heatmap.#{$heatmapext}")
+              $logger.info "Generating heat maps in a file, heatmap.#{$heatmapext} done."
+            else
+              $logger.info "Generating heat maps in a file, heatmap.#{$heatmapext} failed."
+            end
+          end
+
+          # total
           $outfh.puts '>Total'
           $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids,
                                                  :row_header => $amino_acids)
 
-          # for heat map generation
-          if ($heatmap == 0) || ($heatmap == 2)
-            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids,
-                                                :row_header => $amino_acids,
-                                                :title      => "#{group_no}. #{group[0]}")
+          if $heatmap == 0 or $heatmap == 2
+            stem    = "#{group_matrices.size}. TITLE"
+            heatmap = $tot_cnt_mat.heatmap(:col_header  => $amino_acids,
+                                           :row_header  => $amino_acids,
+                                           :max_val     => $tot_cnt_mat.max.ceil,
+                                           :min_val     => 0,
+                                           :print_value => $printvalue,
+                                           :title       => stem)
 
-            $logger.info "Generating a heat map for #{group[0]} table is failed." unless heatmap
+            if heatmap
+              heatmap.write("#{stem}.#{$heatmapext}")
+              $logger.info "Generating a heat map for #{stem} table done."
+            else
+              $logger.warn "Generating a heat map for #{stem} table failed."
+            end
           end
           exit 0
         end
-
-        $logger.info "Counting substitutions done."
 
         #
         # Part 5. END
@@ -937,6 +1018,7 @@ HEADER
           end
 
           if $output == 1
+            heatmaps    = HeatmapArray.new if $heatmap == 1 or $heatmap == 2
             grp_max_val = group_matrices.map { |l, m, n| m }.map { |m| m.max }.max || 100
 
             group_matrices.each_with_index do |(grp_label, grp_prob_mat), grp_no|
@@ -944,15 +1026,51 @@ HEADER
               $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids,
                                                      :row_header => $amino_acids)
 
-              # for heat map generation
-              if ($heatmap == 0) || ($heatmap == 2)
-                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
-                                                     :row_header  => $amino_acids,
-                                                     :max_val     => grp_max_val.ceil,
-                                                     :min_val     => 0,
-                                                     :title       => "#{grp_no}. #{grp_label}")
+              stem = "#{grp_no}. #{grp_label}"
 
-                $logger.info "Generating a heat map for #{grp_label} table is failed." unless heatmap
+              # for heat map generation
+              if $heatmap == 0 or $heatmap == 2
+                heatmap = grp_prob_mat.heatmap(:col_header  => $amino_acids,
+                                               :row_header  => $amino_acids,
+                                               :max_val     => grp_max_val.ceil,
+                                               :min_val     => 0,
+                                               :print_value => $printvalue,
+                                               :title       => stem)
+
+                if heatmap
+                  heatmap.write("#{stem}.#{$heatmapext}")
+                  heatmaps << heatmap if $heatmap == 1 or $heatmap == 2
+                  $logger.info "Generating a heat map for #{stem} table done."
+                else
+                  $logger.warn "Generating a heat map for #{stem} table failed."
+                end
+              end
+
+              if $heatmap == 1 or $heatmap == 2
+                heatmap = grp_prob_mat.heatmap(:col_header     => $amino_acids,
+                                               :row_header     => $amino_acids,
+                                               :max_val        => grp_max_val.ceil,
+                                               :min_val        => 0,
+                                               :print_value    => $printvalue,
+                                               :print_gradient => false,
+                                               :title          => stem)
+
+                heatmaps << heatmap if $heatmap == 1 or $heatmap == 2
+              end
+            end
+
+            if $heatmap == 1 or $heatmap == 2
+              $heatmapcol ||= Math::sqrt(group_matrices.size).round
+              heatmap = heatmaps.heatmap(:columns   => $heatmapcol,
+                                         :rvg_width => $rvg_width,
+                                         :max_val   => grp_max_val.ceil,
+                                         :min_val   => 0)
+
+              if heatmap
+                heatmap.write("heatmap.#{$heatmapext}")
+                $logger.info "Generating heat maps in a file, heatmap.#{$heatmapext} done."
+              else
+                $logger.info "Generating heat maps in a file, heatmap.#{$heatmapext} failed."
               end
             end
           end
@@ -972,11 +1090,12 @@ HEADER
 
             # for heat map generation
             if ($heatmap == 0) || ($heatmap == 2)
-              heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
-                                                    :row_header => $amino_acids,
-                                                    :max_val    => $tot_prob_mat.max.ceil,
-                                                    :min_val    => 0,
-                                                    :title => "#{group_no}. #{group[0]}")
+              heatmap = $tot_prob_mat.heatmap(:col_header   => $amino_acids,
+                                              :row_header   => $amino_acids,
+                                              :max_val      => $tot_prob_mat.max.ceil,
+                                              :min_val      => 0,
+                                              :print_value  => $printvalue,
+                                              :title        => "#{group_no}. #{group[0]}")
 
               $logger.info "Generating a heat map for #{group[0]} table is failed." unless heatmap
             end
@@ -1283,10 +1402,11 @@ HEADER
 
               # for heat map generation
               if ($heatmap == 0) || ($heatmap == 2)
-                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
+                heatmap = grp_prob_mat.heatmap(:col_header  => $amino_acids,
                                                      :row_header  => $amino_acids,
                                                      :max_val     => grp_max_val.ceil,
                                                      :min_val     => 0,
+                                                     :print_value => $printvalue,
                                                      :title       => "#{grp_no}. #{grp_label}")
 
                 $logger.info "Generating a heat map for #{grp_label} table is failed." unless heatmap
@@ -1311,11 +1431,12 @@ HEADER
 
             # for heat map generation
             if ($heatmap == 0) || ($heatmap == 2)
-              heatmap = $tot_prob_mat.print_heatmap(:col_header => $amino_acids,
-                                                    :row_header => $amino_acids,
-                                                    :max_val    => $tot_prob_mat.max.ceil,
-                                                    :min_val    => 0,
-                                                    :title      => "#{group_matrices.size}. TOTAL")
+              heatmap = $tot_prob_mat.heatmap(:col_header   => $amino_acids,
+                                                    :row_header   => $amino_acids,
+                                                    :max_val      => $tot_prob_mat.max.ceil,
+                                                    :min_val      => 0,
+                                                    :print_value  => $printvalue,
+                                                    :title        => "#{group_matrices.size}. TOTAL")
 
               $logger.info "Generating a heat map for TOTAL table is failed." unless heatmap
             end
@@ -1460,7 +1581,7 @@ HEADER
             # for heat map generation
             if ($heatmap == 0) || ($heatmap == 2)
               abs_max_val = [grp_max_val.abs, grp_min_val.abs].max
-              heatmap     = grp_logo_mat.print_heatmap(:col_header          => $amino_acids,
+              heatmap     = grp_logo_mat.heatmap(:col_header          => $amino_acids,
                                                        :row_header          => row_header,
                                                        :gradient_beg_color  => '#0000FF',
                                                        :gradient_mid_color  => '#FFFFFF',
@@ -1468,6 +1589,7 @@ HEADER
                                                        :max_val             => abs_max_val.ceil,
                                                        :mid_val             => 0,
                                                        :min_val             => -1 * abs_max_val.ceil,
+                                                       :print_value         => $printvalue,
                                                        :title               => "#{grp_no}. #{grp_label}")
 
               $logger.warn "Generating a heat map for #{grp_label} table is failed." unless heatmap

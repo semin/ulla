@@ -29,46 +29,48 @@ module NMatrixExtensions
     }.join("\n")
   end
 
-  def print_heatmap(options={})
+  def heatmap(options={})
     if $no_rmagick
       return nil
     end
 
-    opts = {:col_header           => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
-            :row_header           => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
-            :max_val              => self.max,
-            :mid_val              => (self.max - self.min) / 2.0,
-            :min_val              => self.min,
-            :dpi                  => 100,
-            :margin_width         => 70,
-            :rvg_width            => 1200,
-            :rvg_height           => 1400,
-            :canvas_width         => 900,
-            :canvas_height        => 1200,
-            :cell_width           => 40,
-            :cell_height          => 40,
-            :cell_border_color    => '#FFFFFF',
-            :cell_border_width    => 1,
-            :table_border_color   => '#000000',
-            :table_border_width   => 4,
-            :header_height        => 100,
-            :footer_height        => 100,
-            :gradient_width       => 600,
-            :gradient_height      => 60,
-            :gradient_beg_color => '#FFFFFF',
-            :gradient_mid_color   => nil,
-            :gradient_end_color   => '#FF0000',
-            :font_scale           => 0.9,
-            :font_family          => 'san serif',
-            :small_gap_width      => 4,
-            :title?               => true,
-            :title                => '',
-            :title_font_size      => 50,
-            :print_values?        => true,
-            :key_font_size        => 30,
-            :value_font_size      => 15,
-            :background           => '#FFFFFF',
-            :ext                  => 'gif' }.merge(options)
+    opts = {:col_header             => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
+            :row_header             => 'ACDEFGHIKLMNPQRSTVWYJ'.split(''),
+            :max_val                => self.max,
+            :mid_val                => (self.max - self.min) / 2.0,
+            :min_val                => self.min,
+            :dpi                    => 100,
+            :margin_width           => 35,
+            :rvg_width              => 600,
+            :rvg_height             => 700,
+            :canvas_width           => 450,
+            :canvas_height          => 600,
+            :cell_width             => 20,
+            :cell_height            => 20,
+            :cell_border_color      => '#888888',
+            :cell_border_width      => 1,
+            :table_border_color     => '#000000',
+            :table_border_width     => 2,
+            :header_height          => 50,
+            :footer_height          => 50,
+            :print_gradient         => true,
+            :gradient_width         => 300,
+            :gradient_height        => 30,
+            :gradient_beg_color     => '#FFFFFF',
+            :gradient_mid_color     => nil,
+            :gradient_end_color     => '#FF0000',
+            :gradient_border_width  => 1,
+            :gradient_border_color  => '#000000',
+            :font_scale             => 0.9,
+            :font_family            => 'san serif',
+            :small_gap_width        => 2,
+            :title?                 => true,
+            :title                  => '',
+            :title_font_size        => 25,
+            :print_value            => false,
+            :key_font_size          => 15,
+            :value_font_size        => 8,
+            :background             => '#FFFFFF'}.merge(options)
 
     RVG::dpi = opts[:dpi]
 
@@ -152,7 +154,7 @@ module NMatrixExtensions
                                                                                     :stroke       => opts[:cell_border_color],
                                                                                     :stroke_width => opts[:cell_border_width])
 
-          if opts[:print_values?]
+          if opts[:print_value]
             canvas.text((col + 1) * opts[:cell_width] + opts[:cell_border_width],
                         (row + 2) * opts[:cell_height] + opts[:header_height],
                         "#{'%.1f' % self[col, row]}").styles(:font_size => opts[:value_font_size])
@@ -161,79 +163,78 @@ module NMatrixExtensions
       end
 
       # gradient key
-      if opts[:gradient_mid_color]
-        img1 = Image.new(opts[:gradient_height],
-                         opts[:gradient_width] / 2,
-                         GradientFill.new(0,
-                                          opts[:gradient_width] / 2,
+      if opts[:print_gradient]
+        if opts[:gradient_mid_color]
+          img1 = Image.new(opts[:gradient_height],
+                          opts[:gradient_width] / 2,
+                          GradientFill.new(0,
+                                            opts[:gradient_width] / 2,
+                                            opts[:gradient_height],
+                                            opts[:gradient_width] / 2,
+                                            opts[:gradient_beg_color],
+                                            opts[:gradient_mid_color])).rotate(90)
+
+          img2 = Image.new(opts[:gradient_height],
+                          opts[:gradient_width] / 2,
+                          GradientFill.new(0,
+                                            opts[:gradient_width] / 2,
+                                            opts[:gradient_height],
+                                            opts[:gradient_width] / 2,
+                                            opts[:gradient_mid_color],
+                                            opts[:gradient_end_color])).rotate(90)
+          img3 = ImageList.new
+          img3 << img1 << img2
+          img = img3.append(false)
+        else
+          img = Image.new(opts[:gradient_height],
+                          opts[:gradient_width],
+                          GradientFill.new(0,
+                                          opts[:gradient_width],
                                           opts[:gradient_height],
-                                          opts[:gradient_width] / 2,
+                                          opts[:gradient_width],
                                           opts[:gradient_beg_color],
-                                          opts[:gradient_mid_color])).rotate(90)
-
-        img2 = Image.new(opts[:gradient_height],
-                         opts[:gradient_width] / 2,
-                         GradientFill.new(0,
-                                          opts[:gradient_width] / 2,
-                                          opts[:gradient_height],
-                                          opts[:gradient_width] / 2,
-                                          opts[:gradient_mid_color],
                                           opts[:gradient_end_color])).rotate(90)
-        img3 = ImageList.new
-        img3 << img1 << img2
-        img = img3.append(false)
-      else
-        img = Image.new(opts[:gradient_height],
-                        opts[:gradient_width],
-                        GradientFill.new(0,
-                                        opts[:gradient_width],
-                                        opts[:gradient_height],
-                                        opts[:gradient_width],
-                                        opts[:gradient_beg_color],
-                                        opts[:gradient_end_color])).rotate(90)
+        end
+
+        img.border!(opts[:gradient_border_width],
+                    opts[:gradient_border_width],
+                    opts[:gradient_border_color])
+
+        gradient_x = (opts[:canvas_width] - opts[:gradient_width]) / 2
+        gradient_y = opts[:header_height] + opts[:cell_height] * opts[:row_header].count + opts[:margin_width]
+
+        canvas.image(img,
+                    opts[:gradient_width],
+                    opts[:gradient_height] + opts[:margin_width],
+                    gradient_x,
+                    gradient_y)
+
+        canvas.text(gradient_x,
+                    gradient_y + opts[:gradient_height] + opts[:margin_width],
+                    "#{'%.1f' % opts[:min_val]}").styles(:font_size => opts[:key_font_size])
+
+        canvas.text(gradient_x + opts[:gradient_width],
+                    gradient_y + opts[:gradient_height] + opts[:margin_width],
+                    "#{'%.1f' % opts[:max_val]}").styles(:font_size => opts[:key_font_size])
       end
-
-      img.border!(2, 2, 'black')
-
-      gradient_x = (opts[:canvas_width] - opts[:gradient_width]) / 2
-      gradient_y = opts[:header_height] + opts[:cell_height] * opts[:row_header].count + opts[:margin_width]
-
-      canvas.image(img,
-                   opts[:gradient_width],
-                   opts[:gradient_height] + opts[:margin_width],
-                   gradient_x,
-                   gradient_y)
-
-      canvas.text(gradient_x,
-                  gradient_y + opts[:gradient_height] + opts[:margin_width],
-                  "#{'%.1f' % opts[:min_val]}").styles(:font_size => opts[:key_font_size])
-
-      canvas.text(gradient_x + opts[:gradient_width],
-                  gradient_y + opts[:gradient_height] + opts[:margin_width],
-                  "#{'%.1f' % opts[:max_val]}").styles(:font_size => opts[:key_font_size])
     end
 
-    unless opts[:title].empty?
-      $logger.info "Generating a heat map for #{opts[:title]} ..."
-      rvg.draw.write("#{opts[:title]}.#{opts[:ext]}")
-    else
-      $logger.warn "A title for your matrix is not provided, so a object id, #{self.id} will be used for a file name."
-      $logger.info "Generating a heat map for #{opts[:title]} ..."
-      rvg.draw.write("#{self.id}.#{opts[:ext]}")
-    end
-
-    return true
+    rvg.draw
   end
 
 
   private
 
   def interpolate(start_val, end_val, step, no_steps)
-    if (start_val < end_val)
-      ((end_val - start_val) / no_steps.to_f) * step + start_val
-    else
-      start_val - ((start_val - end_val) / no_steps.to_f) * step
-    end.round
+    begin
+      if (start_val < end_val)
+        ((end_val - start_val) / no_steps.to_f) * step + start_val
+      else
+        start_val - ((start_val - end_val) / no_steps.to_f) * step
+      end.round
+    rescue FloatDomainError
+      start_val
+    end
   end
 
 end
