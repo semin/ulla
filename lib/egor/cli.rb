@@ -869,19 +869,17 @@ HEADER
 
         if $output == 0
           $outfh.puts '>Total'
-          $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
+          $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids,
+                                                 :row_header => $amino_acids)
 
           # for heat map generation
           if ($heatmap == 0) || ($heatmap == 2)
-            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids, :row_header => $amino_acids, :title => "#{group_no}. #{group[0]}")
+            heatmap = grp_cnt_mat.print_heatmap(:col_header => $amino_acids,
+                                                :row_header => $amino_acids,
+                                                :title      => "#{group_no}. #{group[0]}")
 
-            if heatmap
-              #$logger.info "Generating a heat map for #{group[0]} table is done."
-            else
-              $logger.info "Generating a heat map for #{group[0]} table is failed."
-            end
+            $logger.info "Generating a heat map for #{group[0]} table is failed." unless heatmap
           end
-
           exit 0
         end
 
@@ -936,26 +934,6 @@ HEADER
 
             $tot_cnt_mat += grp_cnt_mat
             group_matrices << [group[0], grp_prob_mat]
-
-#            if ($output == 1)
-#              $outfh.puts ">#{group[0]} #{group_no}"
-#              $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-#
-#              # for heat map generation
-#              if ($heatmap == 0) || ($heatmap == 2)
-#                heatmap = grp_prob_mat.print_heatmap(:col_header  => $amino_acids,
-#                                                     :row_header  => $amino_acids,
-#                                                     :max_val     => 50,
-#                                                     :min_val     => 0,
-#                                                     :title => "#{group_no}. #{group[0]}")
-#
-#                if heatmap
-#                  #$logger.info "Generating a heat map for #{group[0]} table is done."
-#                else
-#                  $logger.info "Generating a heat map for #{group[0]} table is failed."
-#                end
-#              end
-#            end
           end
 
           if $output == 1
@@ -974,11 +952,7 @@ HEADER
                                                      :min_val     => 0,
                                                      :title       => "#{grp_no}. #{grp_label}")
 
-                if heatmap
-                  #$logger.info "Generating a heat map for #{grp_label} table is done."
-                else
-                  $logger.info "Generating a heat map for #{grp_label} table is failed."
-                end
+                $logger.info "Generating a heat map for #{grp_label} table is failed." unless heatmap
               end
             end
           end
@@ -1004,11 +978,7 @@ HEADER
                                                     :min_val    => 0,
                                                     :title => "#{group_no}. #{group[0]}")
 
-              if heatmap
-                #$logger.info "Generating a heat map for #{group[0]} table is done."
-              else
-                $logger.info "Generating a heat map for #{group[0]} table is failed."
-              end
+              $logger.info "Generating a heat map for #{group[0]} table is failed." unless heatmap
             end
             exit 0
           end
@@ -1319,11 +1289,7 @@ HEADER
                                                      :min_val     => 0,
                                                      :title       => "#{grp_no}. #{grp_label}")
 
-                if heatmap
-                  #$logger.info "Generating a heat map for #{grp_label} table is done."
-                else
-                  $logger.info "Generating a heat map for #{grp_label} table is failed."
-                end
+                $logger.info "Generating a heat map for #{grp_label} table is failed." unless heatmap
               end
             end
           end
@@ -1351,11 +1317,7 @@ HEADER
                                                     :min_val    => 0,
                                                     :title      => "#{group_matrices.size}. TOTAL")
 
-              if heatmap
-                #$logger.info "Generating a heat map for TOTAL table is done."
-              else
-                $logger.info "Generating a heat map for TOTAL table is failed."
-              end
+              $logger.info "Generating a heat map for TOTAL table is failed." unless heatmap
             end
             exit 0
           end
@@ -1394,11 +1356,15 @@ HEADER
             # calculating substitution probability matrix for each envrionment
             grp_label     = group[0]
             grp_envs      = group[1]
-            grp_logo_mat  = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
+            grp_logo_mat  = $cys == 0 ?
+                            NMatrix.float($amino_acids.size, $amino_acids.size + 1) :
+                            NMatrix.float($amino_acids.size, $amino_acids.size)
 
             $amino_acids.each_with_index do |aa, aj|
               env             = grp_envs.detect { |e| e.label.start_with?(aa) }
-              env.logo_array  = $cys == 0 ? NArray.float($amino_acids.size + 1) : NArray.float($amino_acids.size)
+              env.logo_array  = $cys == 0 ?
+                                NArray.float($amino_acids.size + 1) :
+                                NArray.float($amino_acids.size)
 
               env.send($nosmooth ? 'prob_array' : 'smooth_prob_array').to_a.each_with_index do |prob, ai|
                 pai                   = 100.0 * $aa_tot_freq[$amino_acids[ai]]
@@ -1421,13 +1387,14 @@ HEADER
             grp_logo_mats << [grp_label, grp_logo_mat]
           end
 
-          $tot_logo_mat = $cys == 0 ? NMatrix.float($amino_acids.size, $amino_acids.size + 1) : NMatrix.float($amino_acids.size, $amino_acids.size)
+          $tot_logo_mat = $cys == 0 ?
+                          NMatrix.float($amino_acids.size, $amino_acids.size + 1) :
+                          NMatrix.float($amino_acids.size, $amino_acids.size)
 
           $amino_acids.each_with_index do |aa1, aj|
             $amino_acids.each_with_index do |aa2, ai|
               prob  = $tot_prob_mat[aj, ai]
               pai   = 100.0 * $aa_tot_freq[$amino_acids[ai]]
-              #odds  = prob == 0.0 ? 0.000001 / pai : prob / pai
               odds  = prob / pai
               $tot_logo_mat[aj, ai] = factor * Math::log(odds)
             end
@@ -1436,7 +1403,6 @@ HEADER
             if $cys == 0
               pai   = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
               prob  = $tot_prob_mat[aj, $amino_acids.index('C')] + $tot_prob_mat[aj, $amino_acids.index('J')]
-              #odds  = prob == 0.0 ? 0.000001 / pai : prob / pai
               odds  = prob / pai
               $tot_logo_mat[aj, $amino_acids.size] = factor * Math::log(odds)
             end
@@ -1478,6 +1444,8 @@ HEADER
           grp_max_val = grp_logo_mats.map { |l, m| m }.map { |m| m.max }.max
           grp_min_val = grp_logo_mats.map { |l, m| m }.map { |m| m.min }.min
 
+          row_header = $cys ? $amino_acids + %w[U] : $amino_acids
+
           grp_logo_mats.each_with_index do |arr, grp_no|
             grp_label     = arr[0]
             grp_logo_mat  = arr[1]
@@ -1487,49 +1455,22 @@ HEADER
             end
 
             $outfh.puts ">#{grp_label} #{grp_no}"
+            $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids,
+                                                   :row_header => row_header)
+            # for heat map generation
+            if ($heatmap == 0) || ($heatmap == 2)
+              abs_max_val = [grp_max_val.abs, grp_min_val.abs].max
+              heatmap     = grp_logo_mat.print_heatmap(:col_header          => $amino_acids,
+                                                       :row_header          => row_header,
+                                                       :gradient_beg_color  => '#0000FF',
+                                                       :gradient_mid_color  => '#FFFFFF',
+                                                       :gradient_end_color  => '#FF0000',
+                                                       :max_val             => abs_max_val.ceil,
+                                                       :mid_val             => 0,
+                                                       :min_val             => -1 * abs_max_val.ceil,
+                                                       :title               => "#{grp_no}. #{grp_label}")
 
-            if $cys
-              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids,
-                                                     :row_header => $amino_acids + %w[U])
-              # for heat map generation
-              if ($heatmap == 0) || ($heatmap == 2)
-                abs_max_val = [grp_max_val.abs, grp_min_val.abs].max
-                heatmap     = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
-                                                         :row_header  => $amino_acids + %w[U],
-                                                         :gradient_start_color  => '#0F0',
-                                                         :gradient_mid_color    => '#FFF',
-                                                         :gradient_end_color    => '#F00',
-                                                         :max_val     => abs_max_val.ceil,
-                                                         :mid_val     => 0,
-                                                         :min_val     => -1 * abs_max_val.ceil,
-                                                         :title       => "#{grp_no}. #{grp_label}")
-
-                if heatmap
-                  #$logger.info "Generating a heat map for #{grp_label} table is done."
-                else
-                  $logger.info "Generating a heat map for #{grp_label} table is failed."
-                end
-              end
-            else
-              $outfh.puts grp_logo_mat.pretty_string(:col_header => $amino_acids,
-                                                     :row_header => $amino_acids)
-              # for heat map generation
-              if ($heatmap == 0) || ($heatmap == 2)
-                heatmap = grp_logo_mat.print_heatmap(:col_header  => $amino_acids,
-                                                     :row_header  => $amino_acids,
-                                                     :gradient_start_color  => '#0F0',
-                                                     :gradient_mid_color    => '#FFF',
-                                                     :gradient_end_color    => '#F00',
-                                                     :max_val     => abs_max_val.ceil,
-                                                     :mid_val     => 0,
-                                                     :min_val     => -1 * abs_max_val.floor,
-                                                     :title       => "#{grp_no}. #{grp_label}")
-                if heatmap
-                  #$logger.info "Generating a heat map for #{grp_label} table is done."
-                else
-                  $logger.info "Generating a heat map for #{grp_label} table is failed."
-                end
-              end
+              $logger.warn "Generating a heat map for #{grp_label} table is failed." unless heatmap
             end
           end
 
@@ -1539,11 +1480,8 @@ HEADER
             $tot_logo_mat = $tot_logo_mat.round
           end
 
-          if $cys == 0
-            $outfh.puts $tot_logo_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids + %w[U])
-          else
-            $outfh.puts $tot_logo_mat.pretty_string(:col_header => $amino_acids, :row_header => $amino_acids)
-          end
+          $outfh.puts $tot_logo_mat.pretty_string(:col_header => $amino_acids,
+                                                  :row_header => row_header)
 
           $logger.info "Calculating log odds ratios done."
         end
@@ -1551,7 +1489,6 @@ HEADER
         #
         # Part 7. END
         #
-
 
         $outfh.close
         exit 0
