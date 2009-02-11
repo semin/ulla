@@ -75,10 +75,9 @@ Options:
         0 print a heatmap for each table in a seperate file using environment classes as a name
         1 print heatmaps for all tables in a single image file, 'heatmap.png'
     --heatmapext STRING:
-        png for Portable Network Graphics Format (default)
-        gif for Graphics Interchange Format
-        jpg for Joint Photographic Experts Group (JPEG) Format
-        svg for Scalable Vector Graphics Format
+        0 for Portable Network Graphics Format (default)
+        1 for Graphics Interchange Format
+        2 for Joint Photographic Experts Group (JPEG) Format
     --heatmapcol INTEGER: number of tables to print in a row when --heatmap 1 or 2 set
     --printvalue: print values in the cells when generating heat maps
     --verbose (-v) INTEGER
@@ -294,13 +293,12 @@ Options:
             when '--heatmapcol'
               $heatmapcol   = arg.to_i
             when '--heatmapext'
-              $heatmapext   = case arg.to_s
-                              when /^gif$/i then 'gif'
-                              when /^svg$/i then 'svg'
-                              when /^png$/i then 'png'
-                              when /^jpg$/i then 'jpg'
+              $heatmapext   = case arg.to_i
+                              when 0 then 'png'
+                              when 1 then 'gif'
+                              when 2 then 'jpg'
                               else
-                                warn "#{arg.to_s} is not supported."
+                                warn "#{arg.to_i} is not supported."
                                 exit 1
                               end
             when '--printvalue'
@@ -311,7 +309,9 @@ Options:
                               when 1 then Logger::WARN
                               when 2 then Logger::INFO
                               when 3 then Logger::DEBUG
-                              else Logger::WARN
+                              else
+                                warn "#{arg.to_i} is not supported."
+                                exit 1
                               end
             when '--version'
               print_version
