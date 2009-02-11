@@ -115,9 +115,9 @@ module NMatrixExtensions
           # for log odds ratios
           if opts[:gradient_mid_color]
             if self[col, row] < 0
-              color_fill = "hsl(120, 100, #{100 - self[col, row].abs * light_unit})"
+              color_fill = "hsl(120, 0, #{100 - self[col, row].abs * light_unit})"
             else
-              color_fill = "hsl(0, 100, #{100 - self[col, row] * light_unit})"
+              color_fill = "hsl(0, 0, #{100 - self[col, row] * light_unit})"
             end
             canvas.rect(opts[:cell_width],
                         opts[:cell_height],
