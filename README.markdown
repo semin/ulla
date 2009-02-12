@@ -25,6 +25,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 * narray ([http://narray.rubyforge.org](http://narray.rubyforge.org "NArray"))
 * facets ([http://facets.rubyforge.org](http://facets.rubyforge.org "Ruby Facets"))
 * bio ([http://bioruby.open-bio.org](http://bioruby.open-bio.org "BioRuby"))
+* RMagick ([http://rmagick.rubyforge.org/](http://rmagick.rubyforge.org/ "RMagick"))
 
 
 ## Installation
@@ -68,6 +69,19 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
     --add DOUBLE: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+    --heatmap INTEGER:
+        0 create a heat map file for each substitution table
+        1 create one big file containing all substitution tables
+        2 do both 0 and 1
+    --heatmap-format INTEGER:
+        0 for Portable Network Graphics (PNG) Format (default)
+        1 for Graphics Interchange Format (GIF)
+        2 for Joint Photographic Experts Group (JPEG) Format
+        3 for Microsoft Windows bitmap (BMP) Format
+        4 for Portable Document Format (PDF)
+    --heatmap-columns INTEGER: number of tables to print in a row when --heatmap 1 or 2 set (default: sqrt(no. of tables))
+    --heatmap-stem STRING: stem for a file name when --heatmap 1 or 2 set (default: 'heatmap')
+    --heatmap-value: print values in the cells when generating heat maps
     --verbose (-v) INTEGER
         0 for ERROR level
         1 for WARN or above level (default)

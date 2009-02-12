@@ -40,18 +40,18 @@ module NMatrixExtensions
             :mid_val                => (self.max - self.min) / 2.0,
             :min_val                => self.min,
             :dpi                    => 100,
-            :margin_width           => 35,
-            :rvg_width              => 600,
-            :rvg_height             => 700,
-            :canvas_width           => 450,
-            :canvas_height          => 600,
+            :margin_width           => 30,
+            :rvg_width              => nil,
+            :rvg_height             => nil,
+            :canvas_width           => nil,
+            :canvas_height          => nil,
             :cell_width             => 20,
             :cell_height            => 20,
             :cell_border_color      => '#888888',
             :cell_border_width      => 1,
             :table_border_color     => '#000000',
             :table_border_width     => 2,
-            :header_height          => 50,
+            :header_height          => 100,
             :footer_height          => 50,
             :print_gradient         => true,
             :gradient_width         => 300,
@@ -66,7 +66,7 @@ module NMatrixExtensions
             :small_gap_width        => 2,
             :title?                 => true,
             :title                  => '',
-            :title_font_size        => 25,
+            :title_font_size        => 35,
             :print_value            => false,
             :key_font_size          => 15,
             :value_font_size        => 8,
@@ -75,8 +75,8 @@ module NMatrixExtensions
     RVG::dpi = opts[:dpi]
 
     rvg = RVG.new(opts[:rvg_width], opts[:rvg_height]) do |canvas|
-      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.6) / 2
-      title_y = opts[:title_font_size]
+      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.6) / 2.0
+      title_y = opts[:header_height] - opts[:title_font_size]
 
       canvas.viewbox(0, 0, opts[:canvas_width], opts[:canvas_height])
       canvas.background_fill = opts[:background]
@@ -87,23 +87,26 @@ module NMatrixExtensions
       end
 
       # border for whole matrix
+      table_x = (opts[:canvas_width] - opts[:cell_width] * self.shape[0]) / 2.0
+      table_y = opts[:header_height] + opts[:cell_height]
+
       canvas.rect(self.shape[0] * opts[:cell_width],
                   self.shape[1] * opts[:cell_height],
-                  opts[:cell_width],
-                  opts[:cell_height] + opts[:header_height]).styles(:stroke => opts[:table_border_color],
-                                                                    :stroke_width => opts[:table_border_width])
+                  table_x,
+                  table_y).styles(:stroke       => opts[:table_border_color],
+                                  :stroke_width => opts[:table_border_width])
 
       # drawing column and row labels
       0.upto(self.shape[0] - 1) do |col|
-        canvas.text((col + 1) * opts[:cell_width] + opts[:small_gap_width],
+        canvas.text(table_x + col * opts[:cell_width] + opts[:small_gap_width],
                     opts[:cell_height] + opts[:header_height] - opts[:small_gap_width],
                     opts[:col_header][col]).styles( :font_family  => opts[:font_family],
                                                     :font_size    => opts[:cell_width] * opts[:font_scale])
       end
 
       0.upto(self.shape[1] - 1) do |row|
-        canvas.text(0,
-                    (row + 2) * opts[:cell_height] + opts[:header_height],
+        canvas.text(table_x - opts[:cell_width],
+                    table_y + (row + 1) * opts[:cell_height],
                     opts[:row_header][row]).styles( :font_family  => opts[:font_family],
                                                     :font_size    => opts[:cell_height] * opts[:font_scale])
       end
@@ -149,14 +152,14 @@ module NMatrixExtensions
 
           canvas.rect(opts[:cell_width],
                       opts[:cell_height],
-                      (col + 1) * opts[:cell_width],
-                      (row + 1) * opts[:cell_height] + opts[:header_height]).styles(:fill         => color,
-                                                                                    :stroke       => opts[:cell_border_color],
-                                                                                    :stroke_width => opts[:cell_border_width])
+                      table_x + col * opts[:cell_width],
+                      table_y + row * opts[:cell_height]).styles( :fill         => color,
+                                                                  :stroke       => opts[:cell_border_color],
+                                                                  :stroke_width => opts[:cell_border_width])
 
           if opts[:print_value]
-            canvas.text((col + 1) * opts[:cell_width] + opts[:cell_border_width],
-                        (row + 2) * opts[:cell_height] + opts[:header_height],
+            canvas.text(table_x + col * opts[:cell_width] + opts[:cell_border_width],
+                        table_y + (row + 1) * opts[:cell_height],
                         "#{'%.1f' % self[col, row]}").styles(:font_size => opts[:value_font_size])
           end
         end
@@ -210,11 +213,11 @@ module NMatrixExtensions
                     gradient_y)
 
         canvas.text(gradient_x,
-                    gradient_y + opts[:gradient_height] + opts[:margin_width],
+                    gradient_y + opts[:gradient_height] + opts[:key_font_size] * 2,
                     "#{'%.1f' % opts[:min_val]}").styles(:font_size => opts[:key_font_size])
 
         canvas.text(gradient_x + opts[:gradient_width],
-                    gradient_y + opts[:gradient_height] + opts[:margin_width],
+                    gradient_y + opts[:gradient_height] + opts[:key_font_size] * 2,
                     "#{'%.1f' % opts[:max_val]}").styles(:font_size => opts[:key_font_size])
       end
     end

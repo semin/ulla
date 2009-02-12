@@ -1,43 +1,49 @@
 == Current version
 
-*  major enhancement:
+* 5 major enhancement:
+    * --heatmap option has been added to generate heat maps from substitution tables
+    * --heatmap-format option has been added for heat map figure format (PNG, GIF, JPG, BMP, and PDF)
+    * --heatmap-stem option has been added to set a file name for total heat maps figure when --heatmap 1 or 2 is set
+    * --heatmap-columns option has been added to set the number of tables in a row when --heatmap 1 or 2 is set
+    * --heatmap-value option has been added to print values in the cells of heat maps
 
-*  minor enhancement:
-  * --noround option has been renamed to --noroundoff
+* 2 minor enhancement:
+    * --noround option has been renamed to --noroundoff
+    * 'simple_memoize' RubyGem package is no longer required
 
 == 0.0.5 2009-1-23
 
 * 4 major enhancement:
-  * Egor warns if your sigma value is too big for any amino acid count (minimum ratio of amino acid count to sigma value: 500.0)
-  * --augosigma option was added to avoid excessive influence of background frequencies
-  * a bug in p2 probability calculation of the partial smoothing procedure was fixed
-  * a bug in total probability/log odds ratio calculation was fixed
+    * Egor warns if your sigma value is too big for any amino acid count (minimum ratio of amino acid count to sigma value: 500.0)
+    * --augosigma option was added to avoid excessive influence of background frequencies
+    * a bug in p2 probability calculation of the partial smoothing procedure was fixed
+    * a bug in total probability/log odds ratio calculation was fixed
 
 * 4 minor enhancement:
-  * --noround option was added to get original log odds ratios
-  * --p1smooth option was added to enable p1 probability smoothing when partial smoothing
-  * default verbosity has been changed from ERROR to WARN
-  * codes were refactored to be more human readable and DRY
+    * --noround option was added to get original log odds ratios
+    * --p1smooth option was added to enable p1 probability smoothing when partial smoothing
+    * default verbosity has been changed from ERROR to WARN
+    * codes were refactored to be more human readable and DRY
 
 == 0.0.4 2008-12-15
 
 * 2 major enhancement:
-  * log-odds ratio matrices can be generated with --nosmooth option
-  * safe handling for zero observations or mutations of amino acids
+    * log-odds ratio matrices can be generated with --nosmooth option
+    * safe handling for zero observations or mutations of amino acids
 
 == 0.0.3 2008-12-09
 
 * 2 major enhancement:
-  * An option '--cys (-j) 2' added not to distinguish J from C, so 'disulphide bond' environment feature is not prerequisite
-  * Masking works for target amino acid, too
+    * An option '--cys (-j) 2' added not to distinguish J from C, so 'disulphide bond' environment feature is not prerequisite
+    * Masking works for target amino acid, too
 
 == 0.0.2 2008-11-13
 
 * 2 major enhancement:
-  * Constrained environment features are properly handled
-  * Sane log-odds ratio matrices are produced
+    * Constrained environment features are properly handled
+    * Sane log-odds ratio matrices are produced
 
 == 0.0.1 2008-11-07
 
 * 1 major enhancement:
-  * Initial release
+    * Initial release
