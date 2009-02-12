@@ -1,4 +1,4 @@
-== Current version
+== 0.9.0 version
 
 * 5 major enhancement:
     * --heatmap option has been added to generate heat maps from substitution tables

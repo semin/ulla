@@ -10,7 +10,6 @@ require 'math_extensions'
 require 'string_extensions'
 require 'narray_extensions'
 require 'nmatrix_extensions'
-require 'enumerable_extensions'
 
 require 'egor/environment'
 require 'egor/environment_class_hash'
