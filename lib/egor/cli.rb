@@ -72,7 +72,7 @@ Options:
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --heatmap INTEGER:
         0 create a heat map file for each substitution table
-        1 create one big file containing all substitution tables
+        1 create one big file containing all heat maps from substitution tables
         2 do both 0 and 1
     --heatmap-format INTEGER:
         0 for Portable Network Graphics (PNG) Format (default)
