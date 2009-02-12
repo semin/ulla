@@ -1,6 +1,7 @@
 History.txt
 Manifest.txt
 PostInstall.txt
+README.markdown
 Rakefile
 bin/egor
 config/website.yml

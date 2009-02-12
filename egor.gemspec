@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{egor}
-  s.version = "0.9.0"
+  s.version = "0.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Semin Lee"]
@@ -18,7 +18,7 @@ Gem::Specification.new do |s|
   s.require_paths = ["lib"]
   s.rubyforge_project = %q{egor}
   s.rubygems_version = %q{1.3.1}
-  s.summary = "A new ESST generator"
+  s.summary = nil
   s.test_files = ["test/test_string_extensions.rb", "test/test_nmatrix_extensions.rb", "test/test_egor_cli.rb", "test/test_egor_environment_class_hash.rb", "test/test_math_extensions.rb", "test/test_helper.rb", "test/test_egor_environment_feature.rb", "test/test_narray_extensions.rb", "test/test_egor.rb"]
 
   if s.respond_to? :specification_version then
