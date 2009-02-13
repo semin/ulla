@@ -1,0 +1,38 @@
+== 0.9.0, released version
+
+* Added --heatmap option to generate heat maps from substitution tables
+* Added --heatmap-format option has been added for heat map figure format (PNG, GIF, JPG, BMP, and PDF)
+* Added --heatmap-stem option has been added to set a file name for total heat maps figure when --heatmap 1 or 2 is set
+* Added --heatmap-columns option has been added to set the number of tables in a row when --heatmap 1 or 2 is set
+* Added --heatmap-value option has been added to print values in the cells of heat maps
+* Added --noround option has been renamed to --noroundoff
+* 'simple_memoize' RubyGem package is no longer required
+
+== 0.0.5, released 2009-1-23
+
+* Warns if your sigma value is too big for any amino acid count (minimum ratio of amino acid count to sigma value: 500.0)
+* Added --augosigma option to avoid excessive influence of background frequencies
+* Added --noround option was added to get original log odds ratios
+* Added --p1smooth option was added to enable p1 probability smoothing when partial smoothing
+* Fixed a bug in p2 probability calculation of the partial smoothing procedure
+* Fixed a bug in total probability/log odds ratio calculation
+* Changed default verbosity from ERROR to WARN
+* Refactored codes to be more human readable and DRY
+
+== 0.0.4, released 2008-12-15
+
+* Fixed a bug to generated log-odds ratio matrices with --nosmooth option
+* Copes with no observations or mutations
+
+== 0.0.3 2008-12-09
+
+* Added --cys (-j) 2 not to distinguish J from C, so 'disulphide bond' environment feature is not prerequisite
+* Fixed a bug to make masking works for target amino acid, too
+
+== 0.0.2, released 2008-11-13
+
+* Supports user provided constrained environment features are properly handled
+
+== 0.0.1, released 2008-11-07
+
+* Initial release
