@@ -80,7 +80,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         2 for Joint Photographic Experts Group (JPEG) Format
         3 for Microsoft Windows bitmap (BMP) Format
         4 for Portable Document Format (PDF)
-    --heatmap-column INTEGER: number of tables to print in a row when --heatmap 1 or 2 set (default: sqrt(no. of tables))
+    --heatmap-columns INTEGER: number of tables to print in a row when --heatmap 1 or 2 set (default: sqrt(no. of tables))
     --heatmap-stem STRING: stem for a file name when --heatmap 1 or 2 set (default: 'heatmap')
     --heatmap-value: print values in the cells when generating heat maps
     --verbose (-v) INTEGER
@@ -226,7 +226,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps (4 maps in a row),
 
-        ~user $ egor -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1 --heatmap-column 4
+        ~user $ egor -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1 --heatmap-columns 4
 
     which will look like this,
 
