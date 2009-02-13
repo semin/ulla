@@ -1,7 +1,8 @@
+.README.rdoc.swp
 History.txt
 Manifest.txt
 PostInstall.txt
-README.markdown
+README.rdoc
 Rakefile
 bin/egor
 config/website.yml
