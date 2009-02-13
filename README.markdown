@@ -220,17 +220,17 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
         ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value
 
-which will look like this,
+    which will look like this,
 
-<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png">
+    <img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png">
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps,
 
         ~user $ egor -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1
 
-which will look like this,
+    which will look like this,
 
-<img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif">
+    <img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif">
 
 ## Repository
 
