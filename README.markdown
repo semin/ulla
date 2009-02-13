@@ -216,7 +216,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         U       -5     16     -7     -8     -3     -5     -4     -3     -6     -3     -3     -5     -9     -6     -5     -4     -4     -3     -4     -3      6
         ...
 
-11. To generate a heat map for each table with values,
+11. To generate a heat map for each table with values in it,
 
         ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value
 
