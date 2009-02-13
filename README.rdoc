@@ -1,14 +1,14 @@
-# egor
+= egor
 
-[http://www-cryst.bioc.cam.ac.uk/egor](http://www-cryst.bioc.cam.ac.uk/egor "Egor Homepage")
+http://www-cryst.bioc.cam.ac.uk/egor
 
 
-## Description
+== Description
 
 'egor' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.
 
 
-## Features
+== Features
 
 * Environment-specific substitution table generation based on user providing environmental class definition
 * Entropy-based smoothing procedures to cope with sparse data problem
@@ -16,25 +16,25 @@
 * Heat Map generation for substitution tables
 
 
-## Requirements
+== Requirements
 
-* ruby 1.8.7 or above ([http://www.ruby-lang.org](http://www.ruby-lang.org "Ruby"))
-* rubygems 1.2.0 or above ([http://rubyforge.org/projects/rubygems/](http://rubyforge.org/projects/rubygems "RubyGems"))
+* ruby 1.8.7 or above (http://www.ruby-lang.org)
+* rubygems 1.2.0 or above (http://rubyforge.org/projects/rubygems)
 
 Following RubyGems will be automatically installed if you have rubygems installed on your machine
 
-* narray ([http://narray.rubyforge.org](http://narray.rubyforge.org "NArray"))
-* facets ([http://facets.rubyforge.org](http://facets.rubyforge.org "Ruby Facets"))
-* bio ([http://bioruby.open-bio.org](http://bioruby.open-bio.org "BioRuby"))
-* RMagick ([http://rmagick.rubyforge.org/](http://rmagick.rubyforge.org/ "RMagick"))
+* narray (http://narray.rubyforge.org)
+* facets (http://facets.rubyforge.org)
+* bio (http://bioruby.open-bio.org)
+* RMagick (http://rmagick.rubyforge.org)
 
 
-## Installation
+== Installation
 
     ~user $ sudo gem install egor
 
 
-## Basic Usage
+== Basic Usage
 
 It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'egor'.
 
@@ -43,7 +43,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
     ~user $ egor -f TEM-file -c classdef.dat
 
 
-## Options
+== Options
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
@@ -92,7 +92,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
     --help (-h): show help
 
 
-## Usage
+== Usage
 
 1. Prepare an environmental class definition file. For more details, please check this [notes](http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES "Kenji's NOTES").
 
@@ -232,7 +232,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     <img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif">
 
-## Repository
+== Repository
 
 You can download a pre-built RubyGems package from
 
@@ -243,11 +243,11 @@ or, You can fetch the source from
 * github: [http://github.com/semin/egor/tree/master](http://github.com/semin/egor/tree/master "GitHub")
 
 
-## Contact
+== Contact
 
 Comments are welcome, please send an email to me (seminlee at gmail dot com). 
 
 
-## License
+== License
 
 <a rel="license" href="http://creativecommons.org/licenses/by-nc/2.0/uk/"><img alt="Creative Commons License" style="border-width:0" src="http://i.creativecommons.org/l/by-nc/2.0/uk/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-nc/2.0/uk/">Creative Commons Attribution-Noncommercial 2.0 UK: England &amp; Wales License</a>.
