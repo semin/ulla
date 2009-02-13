@@ -764,7 +764,7 @@ Options:
         # print out default header
         $outfh.puts <<HEADER
 # Environment-specific amino acid substitution matrices
-# Creator: egor version #{Egor::VERSION}
+# Creator: egor version #{VERSION}
 # Creation Date: #{Time.now.strftime("%d/%m/%Y %H:%M")}
 #
 # Definitions for structural environments:

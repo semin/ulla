@@ -1,9 +1,9 @@
-$:.unshift File.join(File.dirname(__FILE__), '..', 'lib', 'egor')
+$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib', 'egor')
 
 require 'test/unit'
 require 'environment_feature'
 
-class TestEgorEnvironmentFeature < Test::Unit::TestCase
+class TestEnvironmentFeature < Test::Unit::TestCase
 
   include Egor
 
