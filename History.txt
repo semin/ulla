@@ -3,7 +3,7 @@
 * Added --heatmap option for heat map generation from substitution tables
 * Added --heatmap-format option for heat map figure format (PNG, GIF, JPG, BMP, and PDF)
 * Added --heatmap-stem option to set a file name of total heat maps figure when --heatmap 1 or 2 is set
-* Added --heatmap-columns option to set the number of tables in a row when --heatmap 1 or 2 is set
+* Added --heatmap-column option to set the number of tables in a row when --heatmap 1 or 2 is set
 * Added --heatmap-value option to print values in the cells of heat maps
 * Renamed --noround option to --noroundoff
 * 'simple_memoize' RubyGem package is no longer required
