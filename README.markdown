@@ -222,6 +222,14 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         U       -3     15     -7     -8     -5     -3     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
         ... 
 
+11. To generate a heat map for each table with values in PDF format,
+
+    ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value --heatmap-format 4
+
+12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps,
+
+    ~user $ egor -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1
+
 ## Repository
 
 You can download a pre-built RubyGems package from
