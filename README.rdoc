@@ -250,5 +250,5 @@ Comments are welcome, please send an email to me (seminlee at gmail dot com).
 
 == License
 
-http://i.creativecommons.org/l/by-nc/2.0/uk/88x31.png[http://creativecommons.org/licenses/by-nc/2.0/uk/]
+http://i.creativecommons.org/l/by-nc/2.0/uk/88x31.png [http://creativecommons.org/licenses/by-nc/2.0/uk/]
 This work is licensed under a {Creative Commons Attribution-Noncommercial 2.0 UK: England & Wales License}[http://creativecommons.org/licenses/by-nc/2.0/uk/].
