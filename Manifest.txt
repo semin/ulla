@@ -6,6 +6,7 @@ Rakefile
 bin/egor
 config/website.yml
 config/website.yml.sample
+egor.gemspec
 lib/egor.rb
 lib/egor/cli.rb
 lib/egor/environment.rb
