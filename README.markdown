@@ -165,26 +165,21 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this [notes](http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES "Kenji's NOTES").
 
-        #
         # Environment-specific amino acid substitution matrices
-        # Creator: egor version 0.0.4
-        # Creation Date: 20/01/2009 14:45
+        # Creator: egor version 0.0.5
+        # Creation Date: 05/02/2009 17:29
         #
         # Definitions for structural environments:
-        # 5 features used
+        # 2 features used
         #
         # secondary structure and phi angle;HEPC;HEPC;F;F
         # solvent accessibility;TF;Aa;F;F
-        # hydrogen bond to DNA;TF;Hh;F;F
-        # water-mediated hydrogen bond to DNA;TF;Ww;F;F
-        # van der Waals contact to DNA;TF;Vv;F;F
-        #
         # (read in from classdef.dat)
         #
-        # Number of alignments: 86
+        # Number of alignments: 1187
         # (list of .tem files read in from TEMLIST)
         #
-        # Total number of environments: 64
+        # Total number of environments: 8
         #
         # There are 21 amino acids considered.
         # ACDEFGHIKLMNPQRSTVWYJ
@@ -193,38 +188,41 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         # J: Cysteine (the free thiol form)
         #
         # Weighting scheme: clustering at PID 60 level
-        #
         # ...
         #
-        >HAHWV 0
+        >HA 0
         #        A      C      D      E      F      G      H      I      K      L      M      N      P      Q      R      S      T      V      W      Y      J
-        A        5     -6      0      0     -2      0     -2     -1     -1     -1      1     -1     -1      0     -1      1      0      0     -2     -2     -2
-        C       -7     28     -8    -49     -3    -49     -2     -1    -11     -5     -1    -49     -6    -49    -49     -4     -6     -4    -49      3      9
-        D        0     -7      7      2     -3      0      0     -4      0     -3     -3      2      0      0     -2      1      0     -3     -5     -3     -6
-        E        0    -68      2      5     -3     -1     -1     -3      0     -3     -1      0      0      1     -1      0      0     -3     -3     -2     -7
-        F       -2     -3     -3     -4      8     -4     -1      2     -4      1      0     -4     -4     -4     -4     -4     -2      1      2      3     -5
-        G        0    -67      0     -1     -4      9     -3     -4     -2     -3     -4      1     -1     -2     -3      0     -2     -3     -3     -3     -2
-        H       -2     -2      0     -1     -1     -3     11     -3     -2     -3     -2      0     -2     -1     -1     -1     -1     -3     -2      0     -4
-        I       -1     -1     -4     -3      2     -4     -3      6     -3      2      2     -4     -2     -2     -4     -3     -1      3     -1      0     -4
-        K       -1    -10      0      0     -4     -2     -1     -3      5     -3     -2      0      0      1      2     -1     -1     -3     -4     -2     -5
-        L       -1     -5     -3     -3      1     -3     -3      2     -3      5      2     -4     -1     -2     -2     -3     -1      1      0     -1     -4
-        M        1     -1     -3     -1      0     -4     -2      2     -3      2      8     -2     -2     -1     -2     -2     -1      1     -1     -1     -4
-        N       -1    -66      2      0     -4      1      0     -4      0     -4     -2      8     -1      0     -1      1      0     -3     -5     -4     -5
-        P       -1     -6      0      0     -3     -1     -2     -2     -1     -1     -2     -1      9     -1     -2      0      0     -2     -4     -3     -7
-        Q        0    -66      0      1     -4     -2     -1     -2      1     -2     -1      0     -1      6      0      0     -1     -2     -2     -2     -6
-        R       -1    -69     -1      0     -4     -3     -1     -3      2     -2     -1     -1     -2      0      6     -1     -1     -3     -3     -2     -6
-        S        1     -4      1      0     -3      0     -1     -3     -1     -3     -2      1      0      0     -1      5      2     -2     -3     -1     -3
-        T        0     -5     -1     -1     -2     -2     -1     -1     -1     -1     -1      0      0     -1     -1      2      5     -1     -3     -2     -3
-        V        0     -4     -3     -3      1     -4     -3      3     -3      1      1     -3     -2     -2     -3     -2     -1      6      0     -1     -2
-        W       -2    -61     -5     -3      2     -3     -2     -1     -4      0     -1     -5     -4     -2     -3     -3     -3      0     14      3     -6
-        Y       -2      3     -3     -2      4     -3      0      0     -2      0      0     -4     -3     -2     -2     -1     -2      0      3      9     -3
-        J       -3      9     -7     -8     -5     -2     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
-        U       -3     15     -7     -8     -5     -3     -4     -4     -6     -4     -4     -5     -7     -6     -6     -3     -3     -2     -6     -3     15
-        ... 
+        A        3     -5      0      0     -1      2      0      0      1      0      0      0      1      1      0      1      1      1     -1      0      2
+        C      -16     19    -16    -18    -11    -14    -13    -13    -14    -14    -14    -11    -17    -16    -13    -16    -14    -12    -12    -10     -4
+        D        1     -7      6      3     -3      1      0     -3      1     -3     -2      2      1      2      0      1      0     -2     -3     -2     -2
+        E        3     -7      5      7     -1      2      2      0      3      0      0      3      2      4      3      3      2      1     -1      0     -1
+        F       -4     -4     -6     -6      7     -5     -1      0     -4      1      0     -5     -5     -4     -4     -4     -3     -1      3      3      0
+        G       -2     -6     -3     -4     -5      5     -4     -5     -4     -5     -4     -2     -3     -4     -4     -2     -3     -5     -6     -4     -3
+        H        0     -6      0      0      1      0      8     -1      0      0      0      1     -2      1      1      0      0      0      1      3      0
+        I       -3     -7     -6     -5      0     -5     -3      4     -4      1      1     -5     -4     -4     -3     -5     -2      2     -2     -1      0
+        K        2     -6      2      2     -1      1      2      0      5      1      1      2      0      3      4      2      2      0     -2      0     -1
+        L       -2     -6     -5     -4      1     -4     -2      2     -3      4      2     -3     -4     -3     -2     -4     -2      1      0      0      1
+        M       -2     -7     -4     -3      1     -2     -1      2     -2      2      6     -3     -4     -2     -1     -2     -1      1      0      0      1
+        N        0     -5      1      0     -3      1      1     -3      0     -2     -2      6     -2      0      0      1      1     -2     -3     -1     -1
+        P       -1     -7     -1     -2     -4     -1     -3     -3     -2     -3     -4     -2      9     -2     -3      0     -1     -2     -4     -4     -4
+        Q        2     -7      2      2     -1      1      2     -1      2      0      0      2      0      5      2      1      1      0     -2     -1      0
+        R        1     -6      1      1     -1      0      2      0      3      0      1      1     -1      2      6      1      1      0     -1      0      0
+        S        0     -6     -1     -1     -3      0     -2     -3     -1     -3     -3      0      0     -1     -1      3      1     -2     -4     -3      0
+        T       -1     -7     -2     -2     -3     -2     -2     -2     -2     -2     -2     -1     -2     -2     -2      0      3     -1     -3     -3      0
+        V       -3     -6     -6     -5     -1     -4     -3      1     -4      0      0     -5     -3     -4     -4     -4     -2      2     -2     -2      0
+        W       -4     -6     -6     -5      2     -6     -2     -2     -5     -1     -2     -5     -5     -4     -4     -5     -4     -2     12      2     -3
+        Y       -3     -5     -5     -5      3     -4      1     -1     -3     -1     -1     -3     -5     -3     -3     -4     -3     -2      3      7     -1
+        J       -2      0     -4     -5      0     -2     -1      0     -3      0      0     -3     -6     -2     -2     -1     -1      0     -1      0      9
+        U       -5     16     -7     -8     -3     -5     -4     -3     -6     -3     -3     -5     -9     -6     -5     -4     -4     -3     -4     -3      6
+        ...
 
 11. To generate a heat map for each table with values in PDF format,
 
         ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value --heatmap-format 4
+
+which will look like this,
+
+<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/sample_heatmap.png"></a>
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps,
 
