@@ -94,7 +94,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 == Usage
 
-1. Prepare an environmental class definition file. For more details, please check this ((<notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES>))
+1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
         ~user $ cat classdef.dat
         #
@@ -104,7 +104,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         secondary structure and phi angle;HEPC;HEPC;T;F
         solvent accessibility;TF;Aa;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in [PIR format](http://caps.ncbs.res.in/gendis/pir.html "PIR Format").
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format.
 
         ~user $ cat sample1.tem
         >P1;1mnma
@@ -163,7 +163,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
 
-10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this ((<notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES>))
+10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
         # Environment-specific amino acid substitution matrices
         # Creator: egor version 0.0.5
@@ -222,7 +222,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     which will look like this,
 
-    <img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png">
+    http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps (4 maps in a row),
 
@@ -230,7 +230,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     which will look like this,
 
-    <img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif">
+    http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif
 
 == Repository
 
