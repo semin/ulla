@@ -94,7 +94,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 == Usage
 
-1. Prepare an environmental class definition file. For more details, please check this ((notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES))
+1. Prepare an environmental class definition file. For more details, please check this ((<notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES>))
 
         ~user $ cat classdef.dat
         #
@@ -163,7 +163,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
 
-10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this ((notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES))
+10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this ((<notes|URL:http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES>))
 
         # Environment-specific amino acid substitution matrices
         # Creator: egor version 0.0.5
@@ -236,11 +236,11 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 You can download a pre-built RubyGems package from
 
-* rubyforge: [http://rubyforge.org/projects/egor](http://rubyforge.org/projects/egor "RubyForge")
+* rubyforge: http://rubyforge.org/projects/egor
 
 or, You can fetch the source from
 
-* github: [http://github.com/semin/egor/tree/master](http://github.com/semin/egor/tree/master "GitHub")
+* github: http://github.com/semin/egor/tree/master
 
 
 == Contact
