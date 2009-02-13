@@ -76,7 +76,7 @@ module NMatrixExtensions
 
     rvg = RVG.new(opts[:rvg_width], opts[:rvg_height]) do |canvas|
       title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.6) / 2.0
-      title_y = opts[:header_height] - opts[:title_font_size]
+      title_y = opts[:header_height] - opts[:title_font_size] * 0.7
 
       canvas.viewbox(0, 0, opts[:canvas_width], opts[:canvas_height])
       canvas.background_fill = opts[:background]

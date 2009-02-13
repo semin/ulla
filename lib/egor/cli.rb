@@ -929,6 +929,7 @@ HEADER
             end
 
             if $heatmap == 1 or $heatmap == 2
+              title_font_size = $rvg_width * $heatmapcol / 80.0
               heatmaps << grp_cnt_mat.heatmap(:col_header       => $amino_acids,
                                               :row_header       => $amino_acids,
                                               :rvg_width        => $rvg_width,
@@ -1058,6 +1059,7 @@ HEADER
               end
 
               if $heatmap == 1 or $heatmap == 2
+                title_font_size = $rvg_width * $heatmapcol / 80.0
                 heatmaps << grp_prob_mat.heatmap(:col_header      => $amino_acids,
                                                  :row_header      => $amino_acids,
                                                  :rvg_width       => $rvg_width,
@@ -1069,7 +1071,7 @@ HEADER
                                                  :print_value     => $heatmapvalues,
                                                  :print_gradient  => false,
                                                  :title           => stem,
-                                                 :title_font_size => $rvg_width * $heatmapcol / 100.0)
+                                                 :title_font_size => title_font_size)
               end
             end
 
@@ -1436,6 +1438,7 @@ HEADER
               end
 
               if $heatmap == 1 or $heatmap == 2
+                title_font_size = $rvg_width * $heatmapcol / 80.0
                 heatmaps << grp_prob_mat.heatmap(:col_header      => $amino_acids,
                                                  :row_header      => $amino_acids,
                                                  :rvg_width       => $rvg_width,
@@ -1447,7 +1450,7 @@ HEADER
                                                  :print_value     => $heatmapvalues,
                                                  :print_gradient  => false,
                                                  :title           => stem,
-                                                 :title_font_size => $rvg_width * $heatmapcol / 100.0)
+                                                 :title_font_size => title_font_size)
               end
             end
 
@@ -1657,6 +1660,7 @@ HEADER
             end
 
             if $heatmap == 1 or $heatmap == 2
+              title_font_size = $rvg_width * $heatmapcol / 80.0
               heatmaps << grp_logo_mat.heatmap(:col_header          => $amino_acids,
                                                :row_header          => row_header,
                                                :rvg_width           => $rvg_width,
@@ -1672,7 +1676,7 @@ HEADER
                                                :print_value         => $heatmapvalues,
                                                :print_gradient      => false,
                                                :title               => stem,
-                                               :title_font_size     => $rvg_width * $heatmapcol / 100.0)
+                                               :title_font_size     => title_font_size)
             end
           end
 
