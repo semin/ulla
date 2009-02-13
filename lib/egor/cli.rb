@@ -82,7 +82,7 @@ Options:
         4 for Portable Document Format (PDF)
     --heatmap-columns INTEGER: number of tables to print in a row when --heatmap 1 or 2 set (default: sqrt(no. of tables))
     --heatmap-stem STRING: stem for a file name when --heatmap 1 or 2 set (default: 'heatmap')
-    --heatmap-value: print values in the cells when generating heat maps
+    --heatmap-values: print values in the cells when generating heat maps
     --verbose (-v) INTEGER
         0 for ERROR level
         1 for WARN or above level (default)
@@ -187,7 +187,7 @@ Options:
         $heatmapcol     = nil
         $heatmapformat  = 'png'
         $heatmapstem    = 'heatmaps'
-        $heatmapvalue   = false
+        $heatmapvalues   = false
         $rvg_width      = 550
         $rvg_height     = 650
         $canvas_width   = 550
@@ -236,7 +236,7 @@ Options:
           [ '--heatmap-stem',   GetoptLong::REQUIRED_ARGUMENT ],
           [ '--heatmap-format', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--heatmap-columns',GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap-value',  GetoptLong::NO_ARGUMENT ],
+          [ '--heatmap-values', GetoptLong::NO_ARGUMENT ],
           [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
           [ '--targetenv','-t', GetoptLong::REQUIRED_ARGUMENT ],
           [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
@@ -316,8 +316,8 @@ Options:
                                 warn "--heatmap-format #{arg.to_i} is not supported."
                                 exit 1
                               end
-            when '--heatmap-value'
-              $heatmapvalue   = true
+            when '--heatmap-values'
+              $heatmapvalues   = true
             when '--verbose'
               $logger.level = case arg.to_i
                               when 0 then Logger::ERROR
@@ -922,7 +922,7 @@ HEADER
                                   :canvas_height  => $canvas_height,
                                   :max_val        => grp_max_val.ceil,
                                   :min_val        => 0,
-                                  :print_value    => $heatmapvalue,
+                                  :print_value    => $heatmapvalues,
                                   :title          => stem).write("#{stem}.#{$heatmapformat}")
 
               $logger.info "Generating a heat map for #{stem} table done."
@@ -937,7 +937,7 @@ HEADER
                                               :canvas_height    => $canvas_height - 50,
                                               :max_val          => grp_max_val.ceil,
                                               :min_val          => 0,
-                                              :print_value      => $heatmapvalue,
+                                              :print_value      => $heatmapvalues,
                                               :print_gradient   => false,
                                               :title            => stem,
                                               :title_font_size  => $rvg_width * $heatmapcol / 100.0)
@@ -969,7 +969,7 @@ HEADER
                                            :canvas_height => $canvas_height,
                                            :max_val       => $tot_cnt_mat.max.ceil,
                                            :min_val       => 0,
-                                           :print_value   => $heatmapvalue,
+                                           :print_value   => $heatmapvalues,
                                            :title         => stem).write("#{stem}.#{$heatmapformat}")
 
             $logger.info "Generating a heat map for #{stem} table done."
@@ -1051,7 +1051,7 @@ HEADER
                                      :canvas_height => $canvas_height,
                                      :max_val       => grp_max_val.ceil,
                                      :min_val       => 0,
-                                     :print_value   => $heatmapvalue,
+                                     :print_value   => $heatmapvalues,
                                      :title         => stem).write("#{stem}.#{$heatmapformat}")
 
                 $logger.info "Generating a heat map for #{stem} table done."
@@ -1066,7 +1066,7 @@ HEADER
                                                  :canvas_height   => $canvas_height - 50,
                                                  :max_val         => grp_max_val.ceil,
                                                  :min_val         => 0,
-                                                 :print_value     => $heatmapvalue,
+                                                 :print_value     => $heatmapvalues,
                                                  :print_gradient  => false,
                                                  :title           => stem,
                                                  :title_font_size => $rvg_width * $heatmapcol / 100.0)
@@ -1109,7 +1109,7 @@ HEADER
                                     :canvas_height  => $canvas_height,
                                     :max_val        => $tot_prob_mat.max.ceil,
                                     :min_val        => 0,
-                                    :print_value    => $heatmapvalue,
+                                    :print_value    => $heatmapvalues,
                                     :title          => stem).write("#{stem}.#{$heatmapformat}")
 
               $logger.info "Generating a heat map for #{stem} table done."
@@ -1429,7 +1429,7 @@ HEADER
                                      :canvas_height => $canvas_height,
                                      :max_val       => grp_max_val.ceil,
                                      :min_val       => 0,
-                                     :print_value   => $heatmapvalue,
+                                     :print_value   => $heatmapvalues,
                                      :title         => stem).write("#{stem}.#{$heatmapformat}")
 
                 $logger.info "Generating a heat map for #{stem} table done."
@@ -1444,7 +1444,7 @@ HEADER
                                                  :canvas_height   => $canvas_height - 50,
                                                  :max_val         => grp_max_val.ceil,
                                                  :min_val         => 0,
-                                                 :print_value     => $heatmapvalue,
+                                                 :print_value     => $heatmapvalues,
                                                  :print_gradient  => false,
                                                  :title           => stem,
                                                  :title_font_size => $rvg_width * $heatmapcol / 100.0)
@@ -1489,7 +1489,7 @@ HEADER
                                     :canvas_height  => $canvas_height,
                                     :max_val        => $tot_prob_mat.max.ceil,
                                     :min_val        => 0,
-                                    :print_value    => $heatmapvalue,
+                                    :print_value    => $heatmapvalues,
                                     :title          => stem).write("#{stem}.#{$heatmapformat}")
 
               $logger.info "Generating a heat map for #{stem} table done."
@@ -1650,7 +1650,7 @@ HEADER
                                    :max_val             => abs_max_val.ceil,
                                    :mid_val             => 0,
                                    :min_val             => -1 * abs_max_val.ceil,
-                                   :print_value         => $heatmapvalue,
+                                   :print_value         => $heatmapvalues,
                                    :title               => stem).write("#{stem}.#{$heatmapformat}")
 
               $logger.info "Generating a heat map for #{stem} table done."
@@ -1669,7 +1669,7 @@ HEADER
                                                :max_val             => abs_max_val.ceil,
                                                :mid_val             => 0,
                                                :min_val             => -1 * abs_max_val.ceil,
-                                               :print_value         => $heatmapvalue,
+                                               :print_value         => $heatmapvalues,
                                                :print_gradient      => false,
                                                :title               => stem,
                                                :title_font_size     => $rvg_width * $heatmapcol / 100.0)
@@ -1716,7 +1716,7 @@ HEADER
                                   :max_val             => tot_abs_max_val.ceil,
                                   :mid_val             => 0,
                                   :min_val             => -1 * tot_abs_max_val.ceil,
-                                  :print_value         => $heatmapvalue,
+                                  :print_value         => $heatmapvalues,
                                   :title               => stem).write("#{stem}.#{$heatmapformat}")
 
             $logger.info "Generating a heat map for #{stem} table done."
