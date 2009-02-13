@@ -216,17 +216,21 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         U       -5     16     -7     -8     -3     -5     -4     -3     -6     -3     -3     -5     -9     -6     -5     -4     -4     -3     -4     -3      6
         ...
 
-11. To generate a heat map for each table with values in PDF format,
+11. To generate a heat map for each table with values,
 
-        ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value --heatmap-format 4
+        ~user $ egor -l TEMLIST --heatmap 0 --heatmap-value
 
 which will look like this,
 
-<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/sample_heatmap.png"></a>
+<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0.\ HA.png"></a>
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps,
 
         ~user $ egor -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1
+
+which will look like this,
+
+<img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif"></a>
 
 ## Repository
 
