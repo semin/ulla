@@ -222,7 +222,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 which will look like this,
 
-<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png"></a>
+<img alt="Sample Heat Map" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/0. HA.png">
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps,
 
@@ -230,7 +230,7 @@ which will look like this,
 
 which will look like this,
 
-<img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif"></a>
+<img alt="Sample Heat Maps" style="border-width:0" src="http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif">
 
 ## Repository
 
