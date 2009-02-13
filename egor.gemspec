@@ -2,7 +2,7 @@
 
 Gem::Specification.new do |s|
   s.name = %q{egor}
-  s.version = "0.9.3"
+  s.version = "0.9.0"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Semin Lee"]
@@ -12,7 +12,7 @@ Gem::Specification.new do |s|
   s.email = ["seminlee@gmail.com"]
   s.executables = ["egor"]
   s.extra_rdoc_files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "website/index.txt"]
-  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "bin/egor", "config/website.yml", "config/website.yml.sample", "lib/egor.rb", "lib/egor/cli.rb", "lib/egor/environment.rb", "lib/egor/environment_class_hash.rb", "lib/egor/environment_feature.rb", "lib/egor/environment_feature_array.rb", "lib/egor/heatmap_array.rb", "lib/math_extensions.rb", "lib/narray_extensions.rb", "lib/nmatrix_extensions.rb", "lib/string_extensions.rb", "script/console", "script/destroy", "script/generate", "script/txt2html", "test/egor/test_cli.rb", "test/egor/test_environment_class_hash.rb", "test/egor/test_environment_feature.rb", "test/test_egor.rb", "test/test_helper.rb", "test/test_math_extensions.rb", "test/test_narray_extensions.rb", "test/test_nmatrix_extensions.rb", "test/test_string_extensions.rb", "website/index.html", "website/index.txt", "website/javascripts/rounded_corners_lite.inc.js", "website/stylesheets/screen.css", "website/template.html.erb"]
+  s.files = ["History.txt", "Manifest.txt", "PostInstall.txt", "README.rdoc", "Rakefile", "bin/egor", "config/website.yml", "config/website.yml.sample", "egor.gemspec", "lib/egor.rb", "lib/egor/cli.rb", "lib/egor/environment.rb", "lib/egor/environment_class_hash.rb", "lib/egor/environment_feature.rb", "lib/egor/environment_feature_array.rb", "lib/egor/heatmap_array.rb", "lib/math_extensions.rb", "lib/narray_extensions.rb", "lib/nmatrix_extensions.rb", "lib/string_extensions.rb", "script/console", "script/destroy", "script/generate", "script/txt2html", "test/egor/test_cli.rb", "test/egor/test_environment_class_hash.rb", "test/egor/test_environment_feature.rb", "test/test_egor.rb", "test/test_helper.rb", "test/test_math_extensions.rb", "test/test_narray_extensions.rb", "test/test_nmatrix_extensions.rb", "test/test_string_extensions.rb", "website/index.html", "website/index.txt", "website/javascripts/rounded_corners_lite.inc.js", "website/stylesheets/screen.css", "website/template.html.erb"]
   s.has_rdoc = true
   s.homepage = %q{http://www-cryst.bioc.cam.ac.uk/egor}
   s.post_install_message = %q{PostInstall.txt}
