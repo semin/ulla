@@ -161,7 +161,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
         ~user $ egor -l TEMLIST --weight 80 --output 2
 
-9. In case any positions are masked with the character 'X' in any environmental features will be excluded from the calculation of substitution counts.
+9. In case positions are masked with the character 'X' in any environmental features, all mutations from/to the position will be excluded from the calculation of substitution counts.
 
 10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
