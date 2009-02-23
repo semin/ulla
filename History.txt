@@ -1,3 +1,7 @@
+== 0.9.3 23/2/2009
+
+* Egor has been renamed to Ulla!
+
 == 0.9.0 13/2/2009
 
 * Added --heatmap option for heat map generation from substitution tables
