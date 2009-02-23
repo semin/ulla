@@ -1,11 +1,11 @@
-$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib', 'egor')
+$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib', 'ulla')
 
 require 'test/unit'
 require 'environment_class_hash'
 
 class TestEnvironmentClassHash < Test::Unit::TestCase
 
-  include Egor
+  include Ulla
 
   def setup
     @env_cls = EnvironmentClassHash.new

@@ -1,11 +1,11 @@
-$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib', 'egor')
+$:.unshift File.join(File.dirname(__FILE__), '..', '..', 'lib', 'ulla')
 
 require 'test/unit'
 require 'environment_feature'
 
 class TestEnvironmentFeature < Test::Unit::TestCase
 
-  include Egor
+  include Ulla
 
   def setup
     @env_ftr = EnvironmentFeature.new('Secondary Structure',

@@ -11,7 +11,7 @@ end
 
 
 
-module Egor
+module Ulla
   class HeatmapArray < Array
 
     def heatmap(options = {})

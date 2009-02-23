@@ -1,4 +1,4 @@
-module Egor
+module Ulla
   class Environment
 
     attr_accessor :amino_acids,

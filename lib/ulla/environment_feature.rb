@@ -1,4 +1,4 @@
-module Egor
+module Ulla
   class EnvironmentFeature
 
     attr_accessor :name, :symbols, :labels, :constrained, :silent

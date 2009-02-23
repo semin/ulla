@@ -1,4 +1,4 @@
-module Egor
+module Ulla
   class EnvironmentClassHash < Hash
 
     def group_by_non_residue_labels

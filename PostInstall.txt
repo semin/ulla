@@ -1,5 +1,5 @@
-HELP/OPTIONS: egor -h
+HELP/OPTIONS: ulla -h
 
-For more information on egor, see http://egor.rubyforge.org
+For more information on ulla, see http://ulla.rubyforge.org
 
 

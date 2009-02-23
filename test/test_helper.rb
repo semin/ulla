@@ -1,2 +1,2 @@
 require 'test/unit'
-require File.dirname(__FILE__) + '/../lib/egor'
+require File.dirname(__FILE__) + '/../lib/ulla'

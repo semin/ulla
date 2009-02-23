@@ -1,4 +1,4 @@
-module Egor
+module Ulla
   class EnvironmentFeatureArray < Array
 
     def label_combinations

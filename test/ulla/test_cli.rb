@@ -1,9 +1,9 @@
 require File.join(File.dirname(__FILE__), "..", "test_helper.rb")
-require 'egor/cli'
+require 'ulla/cli'
 
-class TestEgorCli < Test::Unit::TestCase
+class TestUllaCli < Test::Unit::TestCase
   def test_execute
-    #Egor::CLI.execute
+    #Ulla::CLI.execute
     assert(true)
   end
 end

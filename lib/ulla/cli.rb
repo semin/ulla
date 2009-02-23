@@ -11,16 +11,16 @@ require 'string_extensions'
 require 'narray_extensions'
 require 'nmatrix_extensions'
 
-require 'egor/environment'
-require 'egor/environment_class_hash'
-require 'egor/environment_feature'
-require 'egor/environment_feature_array'
-require 'egor/heatmap_array'
+require 'ulla/environment'
+require 'ulla/environment_class_hash'
+require 'ulla/environment_feature'
+require 'ulla/environment_feature_array'
+require 'ulla/heatmap_array'
 
-# This is a module for an actual command line interpreter for Egor
+# This is a module for an actual command line interpreter for Ulla
 # ---
 # Copyright (C) 2008-9 Semin Lee
-module Egor
+module Ulla
   class CLI
     class << self
 
@@ -29,19 +29,19 @@ module Egor
         puts VERSION
       end
 
-      # Print Egor's Usage on the screen
+      # Print Ulla's Usage on the screen
       #
       # :call-seq:
-      #   Egor::CLI::print_usage
+      #   Ulla::CLI::print_usage
       #
       def print_usage
         puts <<-USAGE
-egor: Esst GeneratOR, a program to calculate environment-specific amino acid substitution tables.
+ulla: a program to calculate environment-specific amino acid substitution tables.
 
 Usage:
-    egor [ options ] -l TEMLIST-file -c CLASSDEF-file
+    ulla [ options ] -l TEMLIST-file -c CLASSDEF-file
         or
-    egor [ options ] -f TEM-file -c CLASSDEF-file
+    ulla [ options ] -f TEM-file -c CLASSDEF-file
 
 Options:
     --tem-file (-f) FILE: a tem file
@@ -97,7 +97,7 @@ Options:
       # Calculate PID between two sequences
       #
       # :call-seq:
-      #   Egor::CLI::calculate_pid(seq1, seq2) -> Float
+      #   Ulla::CLI::calculate_pid(seq1, seq2) -> Float
       #
       def calculate_pid(seq1, seq2)
         aas1  = seq1.split('')
@@ -764,7 +764,7 @@ Options:
         # print out default header
         $outfh.puts <<HEADER
 # Environment-specific amino acid substitution matrices
-# Creator: egor version #{VERSION}
+# Creator: ulla version #{VERSION}
 # Creation Date: #{Time.now.strftime("%d/%m/%Y %H:%M")}
 #
 # Definitions for structural environments:
@@ -1739,4 +1739,4 @@ HEADER
     end
 
   end # class CLI
-end # module Egor
+end # module Ulla

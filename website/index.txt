@@ -1,8 +1,8 @@
-h1. egor: Esst GeneratOR, a program for calculating environment-specific substitution tables
+h1. ulla: a program for calculating environment-specific substitution tables
 
 h2. Description
 
-'egor' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.
+'ulla' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.
 
 
 h2. Features
@@ -16,7 +16,7 @@ h2. Features
 h2. Installation
 
 <pre>
-~user $ sudo gem install egor
+~user $ sudo gem install ulla
 </pre>
 
 
@@ -35,12 +35,12 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
 h2. Basic Usage
 
-It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'egor'.
+It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'ulla'.
 
 <pre>
-~user $ egor -l TEMLIST-file -c classdef.dat
+~user $ ulla -l TEMLIST-file -c classdef.dat
     or
-~user $ egor -l TEM-file -c classdef.dat
+~user $ ulla -l TEM-file -c classdef.dat
 </pre>
 
 
@@ -145,31 +145,31 @@ sample2.tem
 h4. 4. To produce substitution count matrices, type
 
 <pre>
-~user $ egor -l TEMLIST --output 0 -o substcount.mat
+~user $ ulla -l TEMLIST --output 0 -o substcount.mat
 </pre>
 
 h4. 5. To produce substitution probability matrices, type
 
 <pre>
-~user $ egor -l TEMLIST --output 1 -o substprob.mat
+~user $ ulla -l TEMLIST --output 1 -o substprob.mat
 </pre>
 
 h4. 6. To produce log odds ratio matrices, type
 
 <pre>
-~user $ egor -l TEMLIST --output 2 -o substlogo.mat
+~user $ ulla -l TEMLIST --output 2 -o substlogo.mat
 </pre>
 
 h4. 7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
 <pre>
-~user $ egor -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+~user $ ulla -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 </pre>
 
 h4. 8. To change the clustering level (default 60), type
 
 <pre>
-~user $ egor -l TEMLIST --weight 80 --output 2
+~user $ ulla -l TEMLIST --weight 80 --output 2
 </pre>
 
 h4. 9. In case any positions are masked with the character 'X' in any environmental feature will be excluded from the calculation of substitution counts.
@@ -179,11 +179,11 @@ h2. Repository
 
 You can download a pre-built RubyGems package from
 
-* rubyforge: "http://rubyforge.org/projects/egor":http://rubyforge.org/projects/egor
+* rubyforge: "http://rubyforge.org/projects/ulla":http://rubyforge.org/projects/ulla
 
 or, You can fetch the source from
 
-* github: "http://github.com/semin/egor/tree/master":http://github.com/semin/egor/tree/master
+* github: "http://github.com/semin/ulla/tree/master":http://github.com/semin/ulla/tree/master
 
 
 h2. Contact

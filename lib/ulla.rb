@@ -1,6 +1,6 @@
 $:.unshift(File.dirname(__FILE__)) unless
   $:.include?(File.dirname(__FILE__)) || $:.include?(File.expand_path(File.dirname(__FILE__)))
 
-module Egor
+module Ulla
   VERSION = '0.9.3'
 end
