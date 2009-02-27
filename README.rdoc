@@ -235,7 +235,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 == TODO
 
 * Substitution table generation considering both the source and the target environmental classes
-* Remove dependency on NMatrix package
+* Remove dependency on NArray package
 
 == Repository
 
