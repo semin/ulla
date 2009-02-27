@@ -94,7 +94,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 == Usage
 
-1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES). You can download a sample environmental class definition file from here, http://www-cryst.bioc.cam.ac.uk/~kenji/subst/classdef.dat 
+1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES). You can download a sample environmental class definition file from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/classdef.dat 
 
         ~user $ cat classdef.dat
         #
@@ -104,7 +104,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         secondary structure and phi angle;HEPC;HEPC;T;F
         solvent accessibility;TF;Aa;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from here, http://www-cryst.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz
 
         ~user $ cat sample1.tem
         >P1;1mnma
