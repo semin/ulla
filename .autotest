@@ -1,0 +1,5 @@
+require 'autotest/screen'
+
+#Autotest::Screen.statusline = '%H %`%-w%{=b bw}%n %t%{-}%+w (your statusline)'
+Autotest::Screen.statusline = '%{=b}%{G} Screen(s): %{b}%w %=%{kG}%C%A  %D, %M/%d/%Y (your statusline)'
+
