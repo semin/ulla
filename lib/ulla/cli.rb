@@ -502,9 +502,7 @@ Options:
                       'X'
                     else
                       if ei == 0 # Amino Acid Environment Feature
-                        (disulphide.has_key?(key) &&
-                         (disulphide[key][pos] == 'F') &&
-                         (sym == 'C')) ? 'J' : sym
+                        (disulphide.has_key?(key) && (disulphide[key][pos] == 'F') && (sym == 'C') && ($cys != 2)) ? 'J' : sym
                       else
                         ec.labels[ec.symbols.index(sym)]
                       end
@@ -569,8 +567,8 @@ Options:
                       next
                     end
 
-                    aa1 = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C')) ? 'J' : aa1
-                    aa2 = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C')) ? 'J' : aa2
+                    aa1 = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C') && ($cys != 2)) ? 'J' : aa1
+                    aa2 = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C') && ($cys != 2)) ? 'J' : aa2
 
                     if $cst_features.empty?
                       $env_classes[env_labels[id1][pos]].increase_residue_count(aa2)
@@ -684,8 +682,8 @@ Options:
                       next
                     end
 
-                    aa1   = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C')) ? 'J' : aa1
-                    aa2   = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C')) ? 'J' : aa2
+                    aa1   = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C') && ($cys != 2)) ? 'J' : aa1
+                    aa2   = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C') && ($cys != 2)) ? 'J' : aa2
                     cnt1  = 1.0 / cluster1.size
                     cnt2  = 1.0 / cluster2.size
                     jnt_cnt = cnt1 * cnt2
