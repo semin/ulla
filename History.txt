@@ -1,3 +1,7 @@
+== developemnt
+
+* Fixed a bug for environment label and residue name when --cys 2 is set
+
 == 0.9.3 23/2/2009
 
 * Egor has been renamed to Ulla!
