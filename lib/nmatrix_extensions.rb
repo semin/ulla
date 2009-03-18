@@ -5,8 +5,8 @@ require 'facets'
 begin
   require 'rvg/rvg'
   include Magick
-rescue
-  $logger.warn "A RubyGems package, 'rmagick' is not found, so heat maps cannot be generated."
+rescue Exception => e
+  $logger.warn "#{e.to_s.chomp} For this reason, heat maps cannot be generated."
   $no_rmagick = true
 end
 
