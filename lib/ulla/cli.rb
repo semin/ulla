@@ -6,17 +6,6 @@ require 'bio'
 require 'set'
 require 'facets'
 
-require 'math_extensions'
-require 'string_extensions'
-require 'narray_extensions'
-require 'nmatrix_extensions'
-
-require 'ulla/environment'
-require 'ulla/environment_class_hash'
-require 'ulla/environment_feature'
-require 'ulla/environment_feature_array'
-require 'ulla/heatmap_array'
-
 # This is a module for an actual command line interpreter for Ulla
 # ---
 # Copyright (C) 2008-9 Semin Lee
@@ -361,6 +350,17 @@ Options:
           warn "Cannot find environment class definition file, #{$classdef}"
           exit 1
         end
+
+	require 'math_extensions'
+	require 'string_extensions'
+	require 'narray_extensions'
+	require 'nmatrix_extensions'
+
+	require 'ulla/environment'
+	require 'ulla/environment_class_hash'
+	require 'ulla/environment_feature'
+	require 'ulla/environment_feature_array'
+	require 'ulla/heatmap_array'
 
         #
         # Part 2 END
