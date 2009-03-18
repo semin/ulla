@@ -153,13 +153,13 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
         ~user $ ulla -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution data only from the sequence pairs within a given PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+7. To produce substitution probability matrices only from the sequence pairs within a certain PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
 
         ~user $ ulla -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
-8. To change the clustering level (default 60), type
+8. To change the clustering level (default 60) to PID 80, type
 
-        ~user $ ulla -l TEMLIST --weight 80 --output 2
+        ~user $ ulla -l TEMLIST --weight 80 --output 1
 
 9. In case positions are masked with the character 'X' in any environmental features, all mutations from/to the position will be excluded from the calculation of substitution counts.
 
