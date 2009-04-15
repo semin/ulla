@@ -400,6 +400,8 @@ Options:
           line.chomp!
           if line.start_with?('#')
             next
+          elsif line.blank?
+            next
           elsif (env_ftr = line.chomp.split(/;/)).length == 5
             $logger.info "An environment feature, #{line} detected."
             if env_ftr[-1] == 'T'
@@ -418,8 +420,8 @@ Options:
                                                     env_ftr[4])
             env_index += 1
           else
-            $logger.error "\"#{line}\" doesn't seem to be a proper format for" +
-                          "a environment class definition."
+            $logger.error "\"#{line}\" doesn't seem to be a proper format for " +
+                          "an environment class definition."
             exit 1
           end
         end
