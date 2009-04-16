@@ -1,3 +1,7 @@
+== Current
+
+* Fixed a bug in reading an environment feature definition file (empty line)
+
 == 0.9.6 18/03/2009
 
 * Warns if Rmagick is not properly installed or missing.
