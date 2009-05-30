@@ -13,17 +13,18 @@ end
 module NMatrixExtensions
 
   def pretty_string(options={})
-    opts = {:col_header   => nil,
-            :row_header   => nil }.merge(options)
+    opts = {:col_header => nil,
+            :row_header => nil,
+            :col_size   => 7}.merge(options)
 
     ("%-3s" % "#") + opts[:col_header].inject("") { |s, a|
-      s + ("%7s" % a)
+      s + ("%#{opts[:col_size]}s" % a)
     } + "\n" + self.to_a.map_with_index { |a, i|
       ("%-3s" % opts[:row_header][i]) + a.inject("") { |s, v|
         if v.is_a? Float
-          s + ("%7.2f" % v)
+          s + ("%#{opts[:col_size]}.2f" % v)
         else
-          s + ("%7d" % v)
+          s + ("%#{opts[:col_size]}d" % v)
         end
       }
     }.join("\n")
@@ -67,6 +68,7 @@ module NMatrixExtensions
             :title?                 => true,
             :title                  => '',
             :title_font_size        => 35,
+            :title_font_scale       => 1.0,
             :print_value            => false,
             :key_font_size          => 15,
             :value_font_size        => 8,
@@ -75,15 +77,15 @@ module NMatrixExtensions
     RVG::dpi = opts[:dpi]
 
     rvg = RVG.new(opts[:rvg_width], opts[:rvg_height]) do |canvas|
-      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * 0.6) / 2.0
-      title_y = opts[:header_height] - opts[:title_font_size] * 0.7
+      title_x = (opts[:canvas_width] - opts[:title].length * opts[:title_font_size] * opts[:title_font_scale] / 2.0) / 2.0
+      title_y = opts[:header_height] - opts[:title_font_size] * opts[:title_font_scale]
 
       canvas.viewbox(0, 0, opts[:canvas_width], opts[:canvas_height])
       canvas.background_fill = opts[:background]
       canvas.desc = opts[:title]
 
       if opts[:title?]
-        canvas.text(title_x, title_y, opts[:title]).styles(:font_size => opts[:title_font_size])
+        canvas.text(title_x, title_y, opts[:title]).styles(:font_size => opts[:title_font_size] * opts[:title_font_scale])
       end
 
       # border for whole matrix

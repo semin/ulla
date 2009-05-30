@@ -1,5 +1,8 @@
-== Current
+== 0.9.7 30/05/2009
 
+* Added --environment option to consider not only substituted amino acids' environments but also substituting amino acids' environments
+* Changed the default pseudocount, (1 / # of environment classes) to 0, a pseudocount needs to be explicitly provided with --add option
+* Changed the fixed column size (7) of raw count matrices to vary depending on the number of digits of a maximum amino acid count
 * Fixed a bug in reading an environment feature definition file (empty line)
 
 == 0.9.6 18/03/2009

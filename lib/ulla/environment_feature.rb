@@ -4,11 +4,11 @@ module Ulla
     attr_accessor :name, :symbols, :labels, :constrained, :silent
 
     def initialize(name, symbols, labels, constrained, silent)
-      @name = name
-      @symbols = symbols
-      @labels = labels
-      @constrained = constrained
-      @silent = silent
+      @name         = name
+      @symbols      = symbols
+      @labels       = labels
+      @constrained  = constrained
+      @silent       = silent
     end
 
     def to_s

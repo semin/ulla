@@ -39,6 +39,9 @@ Options:
     --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
     --noweight: calculate substitution counts with no weights
+    --environment (-e) INTEGER:
+        0 for considering only substituted amino acids' environments (default)
+        1 for considering both substituted and substituting amino acids' environments
     --smooth (-s) INTEGER:
         0 for partial smoothing (default)
         1 for full smoothing
@@ -56,7 +59,7 @@ Options:
     --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
-    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 1/#classes)
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 0)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --heatmap INTEGER:
@@ -88,22 +91,23 @@ Options:
       # :call-seq:
       #   Ulla::CLI::calculate_pid(seq1, seq2) -> Float
       #
-      def calculate_pid(seq1, seq2)
-        aas1  = seq1.split('')
-        aas2  = seq2.split('')
+      def calculate_pid(seq1, seq2, unit)
+        aas1  = seq1.scan(/\w{#{unit}}/)
+        aas2  = seq2.scan(/\w{#{unit}}/)
         cols  = aas1.zip(aas2)
+        gap   = ($gap || '-') * unit
         align = 0 # no. of aligned columns
         ident = 0 # no. of identical columns
         intgp = 0 # no. of internal gaps
 
         cols.each do |col|
-          if (col[0] != '-') && (col[1] != '-')
+          if (col[0] != gap) && (col[1] != gap)
             align += 1
             if col[0] == col[1]
               ident += 1
             end
-          elsif (((col[0] == '-') && (col[1] != '-')) ||
-                 ((col[0] != '-') && (col[1] == '-')))
+          elsif (((col[0] == gap) && (col[1] != gap)) ||
+                 ((col[0] != gap) && (col[1] == gap)))
             intgp += 1
           end
         end
@@ -148,8 +152,11 @@ Options:
 
         # default set of 21 amino acids including J (Cysteine, the free thiol form)
         $amino_acids    = 'ACDEFGHIKLMNPQRSTVWYJ'.split('')
+        $gap            = '-'
         $tem_list       = nil
         $tem_file       = nil
+        $environment    = 0
+        $col_size       = nil
         $classdef       = 'classdef.dat'
         $outfile        = 'allmat.dat'
         $outfh          = nil # file hanfle for outfile
@@ -176,7 +183,7 @@ Options:
         $heatmapcol     = nil
         $heatmapformat  = 'png'
         $heatmapstem    = 'heatmaps'
-        $heatmapvalues   = false
+        $heatmapvalues  = false
         $rvg_width      = 550
         $rvg_height     = 650
         $canvas_width   = 550
@@ -189,7 +196,6 @@ Options:
         $aa_mutb      = {}
         $aa_rel_mutb  = {}
         $aa_tot_freq  = {}
-        $aa_env_cnt   = Hash.new(0)
         $smooth_prob  = {}
         $tot_cnt_mat  = nil
         $tot_prob_mat = nil
@@ -209,30 +215,32 @@ Options:
         #
 
         opts = GetoptLong.new(
-          [ '--help',     '-h', GetoptLong::NO_ARGUMENT ],
-          [ '--tem-list', '-l', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--tem-file', '-f', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--classdef', '-c', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--smooth',   '-s', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--nosmooth',       GetoptLong::NO_ARGUMENT ],
-          [ '--p1smooth',       GetoptLong::NO_ARGUMENT ],
-          [ '--weight',   '-w', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--noweight',       GetoptLong::NO_ARGUMENT ],
-          [ '--noroundoff',     GetoptLong::NO_ARGUMENT ],
-          [ '--sigma',          GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--autosigma',      GetoptLong::NO_ARGUMENT ],
-          [ '--heatmap',        GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap-stem',   GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap-format', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap-columns',GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--heatmap-values', GetoptLong::NO_ARGUMENT ],
-          [ '--output',         GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--targetenv','-t', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--cys',      '-y', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--penv',           GetoptLong::NO_ARGUMENT ],
-          [ '--outfile',  '-o', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--verbose',  '-v', GetoptLong::REQUIRED_ARGUMENT ],
-          [ '--version',        GetoptLong::NO_ARGUMENT ]
+          [ '--help',         '-h', GetoptLong::NO_ARGUMENT ],
+          [ '--tem-list',     '-l', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--tem-file',     '-f', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--classdef',     '-c', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--environment',  '-e', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--smooth',       '-s', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--nosmooth',           GetoptLong::NO_ARGUMENT ],
+          [ '--p1smooth',           GetoptLong::NO_ARGUMENT ],
+          [ '--weight',       '-w', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--noweight',           GetoptLong::NO_ARGUMENT ],
+          [ '--noroundoff',         GetoptLong::NO_ARGUMENT ],
+          [ '--sigma',              GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--autosigma',          GetoptLong::NO_ARGUMENT ],
+          [ '--add',                GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap',            GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap-stem',       GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap-format',     GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap-columns',    GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--heatmap-values',     GetoptLong::NO_ARGUMENT ],
+          [ '--output',             GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--targetenv',    '-t', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--cys',          '-y', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--penv',               GetoptLong::NO_ARGUMENT ],
+          [ '--outfile',      '-o', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--verbose',      '-v', GetoptLong::REQUIRED_ARGUMENT ],
+          [ '--version',            GetoptLong::NO_ARGUMENT ]
         )
 
         begin
@@ -247,6 +255,8 @@ Options:
               $tem_file     = arg
             when '--classdef'
               $classdef     = arg
+            when '--environment'
+              $environment  = arg.to_i
             when '--output'
               $output       = arg.to_i
             when '--outfile'
@@ -335,7 +345,7 @@ Options:
           exit 1
         end
 
-        # warn if any input file is missing
+        # warn if any mandatory input file is missing
         if $tem_list && !File.exist?($tem_list)
           warn "Cannot find template list file, #{$tem_list}"
           exit 1
@@ -372,12 +382,12 @@ Options:
         # Reading Environment Class Definition File
         #
 
-        # check --cys option and modify amino_acids set if necessary
+        # if --cys option 2, then we don't care about 'J' (for both Cystine and Cystine)
         if $cys == 2
-          $amino_acids = 'ACDEFGHIKLMNPQRSTVWY'.split('')
+          $amino_acids = 'ACDEFGHIKLMNPQRSTVWY'.delete('J')
         end
 
-        # create an EnvironmentFeatureList object for storing all environment
+        # create an EnvironmentFeatureArray object for storing all environment
         # features
         $env_features = EnvironmentFeatureArray.new
 
@@ -398,11 +408,9 @@ Options:
 
         IO.foreach($classdef) do |line|
           line.chomp!
-          if line.start_with?('#')
+          if line.start_with?('#') || line.blank?
             next
-          elsif line.blank?
-            next
-          elsif (env_ftr = line.chomp.split(/;/)).length == 5
+          elsif (env_ftr = line.split(/;/)).length == 5
             $logger.info "An environment feature, #{line} detected."
             if env_ftr[-1] == 'T'
               # skip silenced environment feature
@@ -426,17 +434,33 @@ Options:
           end
         end
 
+        # set the size of amino acid column unit, extended gap
+        # and extended amino acid labels
+        $col_size         = $environment == 1 ? $env_features.size : 1
+        $ext_gap          = $gap * $col_size
+        $ext_amino_acids  = []
+
         # a hash for storing all environment classes
         $env_classes = EnvironmentClassHash.new
 
         # generate all possible combinations of environment labels, and store
         # every environment class into the hash prepared above with the label
         # as a key
-        $env_features.label_combinations.each_with_index { |e, i|
-          $env_classes[e.flatten.join] = Environment.new(i,
-                                                         e.flatten.join,
-                                                         $amino_acids)
-        }
+        $env_features.label_combinations.each_with_index do |ef1, i|
+          key1 = ef1.flatten.join
+          $ext_amino_acids << key1
+
+          if $environment == 0
+            $env_classes[key1] = Environment.new(i, key1, $amino_acids)
+          else
+            # when considering both substituted and substituting amino acids' environtments,
+            # add target (substituting) aa's environment label
+            $env_features.label_combinations_without_aa_type.each_with_index do |ef2, j|
+              key2 = key1 + "-" + ef2.flatten.join
+              $env_classes[key2] = Environment.new(i + j, key2, $amino_acids)
+            end
+          end
+        end
 
         #
         # Part 3 END
@@ -514,9 +538,7 @@ Options:
                   if env_labels[key].empty?
                     env_labels[key] = labels
                   else
-                    env_labels[key].each_with_index { |e, i|
-                      env_labels[key][i] = e + labels[i]
-                    }
+                    env_labels[key].each_with_index { |e, i| env_labels[key][i] = e + labels[i] }
                   end
                 end
               end
@@ -525,97 +547,92 @@ Options:
 
           if $noweight
             ali.each_pair do |id1, seq1|
+              if $environment == 1
+                seq1 = seq1.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[id1][pos] }.join
+              end
+
               ali.each_pair do |id2, seq2|
                 if id1 != id2
-                  pid  = calculate_pid(seq1, seq2)
-                  s1 = seq1.split('')
-                  s2 = seq2.split('')
+                  if $environment == 1
+                    seq2 = seq2.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[id2][pos] }.join
+                  end
+
+                  pid = calculate_pid(seq1, seq2, $col_size)
+                  s1  = seq1.scan(/\S{#{$col_size}}/)
+                  s2  = seq2.scan(/\S{#{$col_size}}/)
 
                   # check PID_MIN
                   if $pidmin && (pid < $pidmin)
-                    $logger.info  "Skip alignment between #{id1} and #{id2} " +
-                                  "having PID, #{pid}% less than PID_MIN, #{$pidmin}."
+                    $logger.info  "Skip alignment between #{id1} and #{id2} having PID, #{pid}% less than PID_MIN, #{$pidmin}."
                     next
                   end
 
                   # check PID_MAX
                   if $pidmax && (pid > $pidmax)
-                    $logger.info  "Skip alignment between #{id1} and #{id2} " +
-                                  "having PID, #{pid}% greater than PID_MAX, #{$pidmax}."
+                    $logger.info  "Skip alignment between #{id1} and #{id2} having PID, #{pid}% greater than PID_MAX, #{$pidmax}."
                     next
                   end
 
                   s1.each_with_index do |aa1, pos|
-                    aa1.upcase!
-                    aa2 = s2[pos].upcase
+                    aa2 = s2[pos]
 
                     if env_labels[id1][pos].include?('X')
-                      $logger.info "Substitutions from #{id1}-#{pos}-#{aa1} were masked."
+                      $logger.info "Substitutions from #{id1}-#{pos}-#{aa1[0].chr} were masked."
                       next
                     end
 
                     if env_labels[id2][pos].include?('X')
-                      $logger.info "Substitutions to #{id2}-#{pos}-#{aa2} were masked."
+                      $logger.info "Substitutions to #{id2}-#{pos}-#{aa2[0].chr} were masked."
                       next
                     end
 
-                    unless $amino_acids.include?(aa1)
-                      $logger.warn "#{id1}-#{pos}-#{aa1} is not a standard amino acid." unless aa1 == "-"
+                    unless $amino_acids.include?(aa1[0].chr)
+                      $logger.warn "#{id1}-#{pos}-#{aa1[0].chr} is not a standard amino acid." unless aa1 == $ext_gap
                       next
                     end
 
-                    unless $amino_acids.include?(aa2)
-                      $logger.warn "#{id1}-#{pos}-#{aa2} is not a standard amino acid." unless aa2 == "-"
+                    unless $amino_acids.include?(aa2[0].chr)
+                      $logger.warn "#{id1}-#{pos}-#{aa2[0].chr} is not a standard amino acid." unless aa2 == $ext_gap
                       next
                     end
 
-                    aa1 = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C') && ($cys != 2)) ? 'J' : aa1
-                    aa2 = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C') && ($cys != 2)) ? 'J' : aa2
+                    aa1       = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
+                    aa2       = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    env_label = $environment == 1 ? aa1 + '-' + aa2[1..-1] : env_labels[id1][pos]
 
                     if $cst_features.empty?
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2)
+                      $env_classes[env_label].increase_residue_count(aa2[0].chr)
                     elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2)
+                      $env_classes[env_label].increase_residue_count(aa2[0].chr)
                     else
-                      $logger.debug "Skipped #{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2}, they have different symbols for constrained environment features each other."
+                      $logger.debug "Skipped #{id1}-#{pos}-#{aa1[0].chr} and #{id2}-#{pos}-#{aa2[0].chr} having different symbols for constrained environment features each other."
                       next
                     end
 
-                    grp_label = env_labels[id1][pos][1..-1]
+                    $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += 1 : $aa_tot_cnt[aa1] = 1
+                    $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += 1 : $aa_mut_cnt[aa1] = 1 if aa1 != aa2
 
-                    if $aa_env_cnt.has_key? grp_label
-                      if $aa_env_cnt[grp_label].has_key? aa1
-                        $aa_env_cnt[grp_label][aa1] += 1
-                      else
-                        $aa_env_cnt[grp_label][aa1] = 1
-                      end
-                    else
-                      $aa_env_cnt[grp_label] = Hash.new(0)
-                      $aa_env_cnt[grp_label][aa1] = 1
-                    end
-
-                    if $aa_tot_cnt.has_key? aa1
-                      $aa_tot_cnt[aa1] += 1
-                    else
-                      $aa_tot_cnt[aa1] = 1
-                    end
-
-                    if aa1 != aa2
-                      if $aa_mut_cnt.has_key? aa1
-                        $aa_mut_cnt[aa1] += 1
-                      else
-                        $aa_mut_cnt[aa1] = 1
-                      end
-                    end
-                    $logger.debug "#{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution count (1) was added to the environments class, #{env_labels[id1][pos]}."
+                    $logger.debug "#{id1}-#{pos}-#{aa1[0].chr} -> #{id2}-#{pos}-#{aa2[0].chr} substitution count (1) was added to the environments class, #{env_label}."
                   end
                 end
               end
             end
           else
             # BLOSUM-like weighting
-            clusters = []
-            ali.each_pair { |i, s| clusters << [i] }
+            clusters  = []
+            ext_ali   = Bio::Alignment::OriginalAlignment.new
+
+            ali.each_pair do |key, seq|
+              clusters << [key]
+              if $environment == 1
+                ext_seq = seq.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[key][pos] }.join
+                ext_ali.add_seq(ext_seq, key)
+              end
+            end
+
+            if $environment == 1
+              ali = ext_ali
+            end
 
             # a loop for single linkage clustering
             begin
@@ -626,7 +643,7 @@ Options:
                   found = false
                   clusters[i].each do |c1|
                     clusters[j].each do |c2|
-                      if calculate_pid(ali[c1], ali[c2]) >= $weight
+                      if calculate_pid(ali[c1], ali[c2], $col_size) >= $weight
                         indexes << j
                         found = true
                         break
@@ -657,102 +674,58 @@ Options:
             clusters.combination(2).each do |cluster1, cluster2|
               cluster1.each do |id1|
                 cluster2.each do |id2|
-                  seq1 = ali[id1].split('')
-                  seq2 = ali[id2].split('')
+                  seq1 = ali[id1].scan(/\S{#{$col_size}}/)
+                  seq2 = ali[id2].scan(/\S{#{$col_size}}/)
 
                   seq1.each_with_index do |aa1, pos|
-                    aa1.upcase!
-                    aa2 = seq2[pos].upcase rescue next # should fix this in a sane way!
+                    aa2 = seq2[pos]
 
                     if env_labels[id1][pos].include?('X')
-                      $logger.debug "All substitutions from #{id1}-#{pos}-#{aa1} are masked."
+                      $logger.debug "All substitutions from #{id1}-#{pos}-#{aa1[0].chr} are masked."
                       next
                     end
 
                     if env_labels[id2][pos].include?('X')
-                      $logger.debug "All substitutions to #{id2}-#{pos}-#{aa2} are masked."
+                      $logger.debug "All substitutions to #{id2}-#{pos}-#{aa2[0].chr} are masked."
                       next
                     end
 
-                    unless $amino_acids.include?(aa1)
-                      $logger.warn "#{id1}-#{pos}-#{aa1} is not standard amino acid." unless aa1 == "-"
+                    unless $amino_acids.include?(aa1[0].chr)
+                      $logger.warn "#{id1}-#{pos}-#{aa1[0].chr} is not standard amino acid." unless aa1 == $ext_gap
                       next
                     end
 
-                    unless $amino_acids.include?(aa2)
-                      $logger.warn "#{id2}-#{pos}-#{aa2} is not standard amino acid." unless aa2 == "-"
+                    unless $amino_acids.include?(aa2[0].chr)
+                      $logger.warn "#{id2}-#{pos}-#{aa2[0].chr} is not standard amino acid." unless aa2 == $ext_gap
                       next
                     end
 
-                    aa1   = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1 == 'C') && ($cys != 2)) ? 'J' : aa1
-                    aa2   = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2 == 'C') && ($cys != 2)) ? 'J' : aa2
-                    cnt1  = 1.0 / cluster1.size
-                    cnt2  = 1.0 / cluster2.size
-                    jnt_cnt = cnt1 * cnt2
+                    aa1         = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
+                    aa2         = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    cnt1        = 1.0 / cluster1.size.to_f
+                    cnt2        = 1.0 / cluster2.size.to_f
+                    jnt_cnt     = cnt1 * cnt2
+                    env_label1  = $environment == 1 ? aa1 + '-' + aa2[1..-1] : env_labels[id1][pos]
+                    env_label2  = $environment == 1 ? aa2 + '-' + aa1[1..-1] : env_labels[id2][pos]
 
                     if $cst_features.empty?
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, jnt_cnt)
-                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, jnt_cnt)
+                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
                     elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
-                      $env_classes[env_labels[id1][pos]].increase_residue_count(aa2, jnt_cnt)
-                      $env_classes[env_labels[id2][pos]].increase_residue_count(aa1, jnt_cnt)
+                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                      $env_classes[env_label2].increase_residue_count(aa1[1].chr, jnt_cnt)
                     else
-                      $logger.debug "#{id1}-#{pos}-#{aa1} and #{id2}-#{pos}-#{aa2} have different symbols for constrained environment features each other."
+                      $logger.debug "Skipped #{id1}-#{pos}-#{aa1[0].chr} and #{id2}-#{pos}-#{aa2[0].chr} having different symbols for constrained environment features each other."
                       next
                     end
 
-                    grp_label1 = env_labels[id1][pos][1..-1]
-                    grp_label2 = env_labels[id2][pos][1..-1]
+                    $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
+                    $aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
+                    $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1 if aa1 == aa2
+                    $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2 if aa1 == aa2
 
-                    if $aa_env_cnt.has_key? grp_label1
-                      if $aa_env_cnt[grp_label1].has_key? aa1
-                        $aa_env_cnt[grp_label1][aa1] += cnt1
-                      else
-                        $aa_env_cnt[grp_label1][aa1] = cnt1
-                      end
-                    else
-                      $aa_env_cnt[grp_label1] = Hash.new(0.0)
-                      $aa_env_cnt[grp_label1][aa1] = cnt1
-                    end
-
-                    if $aa_env_cnt.has_key? grp_label2
-                      if $aa_env_cnt[grp_label2].has_key? aa2
-                        $aa_env_cnt[grp_label2][aa2] += cnt2
-                      else
-                        $aa_env_cnt[grp_label2][aa2] = cnt2
-                      end
-                    else
-                      $aa_env_cnt[grp_label2] = Hash.new(0.0)
-                      $aa_env_cnt[grp_label2][aa2] = cnt2
-                    end
-
-                    if $aa_tot_cnt.has_key? aa1
-                      $aa_tot_cnt[aa1] += cnt1
-                    else
-                      $aa_tot_cnt[aa1] = cnt1
-                    end
-
-                    if $aa_tot_cnt.has_key? aa2
-                      $aa_tot_cnt[aa2] += cnt2
-                    else
-                      $aa_tot_cnt[aa2] = cnt2
-                    end
-
-                    if aa1 != aa2
-                      if $aa_mut_cnt.has_key? aa1
-                        $aa_mut_cnt[aa1] += cnt1
-                      else
-                        $aa_mut_cnt[aa1] = cnt1
-                      end
-                      if $aa_mut_cnt.has_key? aa2
-                        $aa_mut_cnt[aa2] += cnt2
-                      else
-                        $aa_mut_cnt[aa2] = cnt2
-                      end
-                    end
-
-                    $logger.debug "#{id1}-#{pos}-#{aa1} -> #{id2}-#{pos}-#{aa2} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_labels[id1][pos]}."
-                    $logger.debug "#{id2}-#{pos}-#{aa2} -> #{id1}-#{pos}-#{aa1} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_labels[id2][pos]}."
+                    $logger.debug "#{id1}-#{pos}-#{aa1[0].chr} -> #{id2}-#{pos}-#{aa2[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label1}."
+                    $logger.debug "#{id2}-#{pos}-#{aa2[0].chr} -> #{id1}-#{pos}-#{aa1[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label2}."
                   end
                 end
               end
@@ -801,66 +774,108 @@ HEADER
           $outfh.puts "# Weighting scheme: clustering at PID #{$weight} level"
         end
 
+        if $environment == 0
+          $outfh.puts '#'
+          $outfh.puts '# Considered environments: substituted a.a.'
+        else
+          $outfh.puts '#'
+          $outfh.puts '# Considered environments: substituted a.a. and substituting a.a.'
+        end
+
         # calculate amino acid frequencies and mutabilities, and
         # print them as default statistics in the header part
-        ala_factor  = if $aa_tot_cnt['A'] == 0
-                        0.0
-                      elsif $aa_mut_cnt['A'] == 0
-                        0.0
-                      else
-                        100.0 * $aa_tot_cnt['A'] / $aa_mut_cnt['A'].to_f
-                      end
-        $tot_aa     = $aa_tot_cnt.values.sum
+        if $environment == 0
+          ala_factor  = if $aa_tot_cnt['A'] == 0
+                          0.0
+                        elsif $aa_mut_cnt['A'] == 0
+                          0.0
+                        else
+                          100.0 * $aa_tot_cnt['A'] / $aa_mut_cnt['A'].to_f
+                        end
+        end
+
+        $tot_aa = $aa_tot_cnt.values.sum
 
         $outfh.puts '#'
         $outfh.puts "# Total amino acid frequencies:\n"
-        $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FREQ]
 
-        min_cnt = -1
+        if $environment == 0
+          $outfh.puts "# %-3s %9s %9s %5s %8s %8s" % %w[RES TOT_OBS MUT_OBS MUTB REL_MUTB REL_FREQ]
+        else
+          $outfh.puts "# %-3s %-#{$env_features.size}s %9s %9s %8s" % %w[RES ENV TOT_OBS MUT_OBS REL_FREQ]
+        end
+
+        min_cnt   = 0
         min_sigma = nil
+        aas       = $environment == 0 ? $amino_acids : $ext_amino_acids
 
-        $amino_acids.each do |res|
-          if ($aa_tot_cnt[res] / $sigma) < $min_cnt_sigma_ratio
-            if min_cnt < 0
-              min_cnt = $aa_tot_cnt[res]
-              min_sigma = min_cnt / $min_cnt_sigma_ratio
-            elsif (min_cnt > 0) && (min_cnt > $aa_tot_cnt[res])
-              min_cnt = $aa_tot_cnt[res]
-              min_sigma = min_cnt / $min_cnt_sigma_ratio
+        aas.each do |aa|
+          if ($aa_tot_cnt[aa] / $sigma) < $min_cnt_sigma_ratio
+            if $aa_tot_cnt[aa] > 0 and min_cnt > $aa_tot_cnt[aa]
+              min_cnt = $aa_tot_cnt[aa]
+            elsif min_cnt == 0
+              min_cnt = 1
             end
 
-            $logger.warn "The current sigma value, #{$sigma} seems to be too big for the total count (#{"%.2f" % $aa_tot_cnt[res]}) of amino acid, #{res}."
+            min_sigma = min_cnt / $min_cnt_sigma_ratio
+
+            if $environment == 0
+              $logger.warn  "The current sigma value, #{$sigma} seems to be too big for " +
+                            "the total count (#{"%.2f" % $aa_tot_cnt[aa]}) of amino acid, #{aa}."
+            else
+              $logger.warn  "The current sigma value, #{$sigma} seems to be too big for " +
+                            "the total count (#{"%.2f" % $aa_tot_cnt[aa]}) of amino acid, #{aa[0].chr} under the environment class #{aa[1..-1]}."
+            end
           end
 
-          $aa_mutb[res]     = ($aa_tot_cnt[res] == 0) ? 1.0 : ($aa_mut_cnt[res] / $aa_tot_cnt[res].to_f)
-          $aa_rel_mutb[res] = $aa_mutb[res] * ala_factor
-          $aa_tot_freq[res] = ($aa_tot_cnt[res] == 0) ? 0.0 : ($aa_tot_cnt[res] / $tot_aa.to_f)
-        end
-
-        $amino_acids.each do |res|
-          if $noweight
-            $outfh.puts '# %-3s %9d %9d %5.2f %8d %8.4f' %
-              [res, $aa_tot_cnt[res], $aa_mut_cnt[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_tot_freq[res]]
-          else
-            $outfh.puts '# %-3s %9.2f %9.2f %5.2f %8d %8.4f' %
-              [res, $aa_tot_cnt[res], $aa_mut_cnt[res], $aa_mutb[res], $aa_rel_mutb[res], $aa_tot_freq[res]]
+          if $environment == 0
+            $aa_mutb[aa]     = ($aa_tot_cnt[aa] == 0) ? 1.0 : ($aa_mut_cnt[aa] / $aa_tot_cnt[aa].to_f)
+            $aa_rel_mutb[aa] = $aa_mutb[aa] * ala_factor
           end
+
+          $aa_tot_freq[aa] = ($aa_tot_cnt[aa] == 0) ? 0.0 : ($aa_tot_cnt[aa] / $tot_aa.to_f)
         end
 
-        if min_cnt > -1
+        if min_cnt > 0
           $logger.warn "We recommend you to use a sigma value equal to or smaller than #{min_sigma}."
+
           if $autosigma
             $logger.warn "The sigma value has been changed from #{$sigma} to #{min_sigma}."
             $sigma = min_sigma
           end
         end
 
+        aas.each do |aa|
+          columns = $environment == 0 ?
+                    [aa, $aa_tot_cnt[aa], $aa_mut_cnt[aa], $aa_mutb[aa], $aa_rel_mutb[aa], $aa_tot_freq[aa]] :
+                    [aa[0].chr, aa[1..-1], $aa_tot_cnt[aa], $aa_mut_cnt[aa], $aa_tot_freq[aa]]
+
+          if $noweight
+            if $environment == 0
+              $outfh.puts '# %-3s %9d %9d %5.2f %8d %8.4f' % columns
+            else
+              $outfh.puts "# %-3s %-#{$env_features.size}s %9d %9d %8.4f" % columns
+            end
+          else
+            if $environment == 0
+              $outfh.puts '# %-3s %9.2f %9.2f %5.2f %8d %8.4f' % columns
+            else
+              $outfh.puts "# %-3s %-#{$env_features.size}s %9.2f %9.2f %8.4f" % columns
+            end
+          end
+        end
+
         $outfh.puts '#'
         $outfh.puts '# RES: Amino acid one letter code'
+        $outfh.puts '# ENV: Environment label of amino acid'
         $outfh.puts '# TOT_OBS: Total count of incidence'
         $outfh.puts '# MUT_OBS: Total count of mutation'
-        $outfh.puts '# MUTB: Mutability (MUT_OBS / TOT_OBS)'
-        $outfh.puts '# REL_MUTB: Relative mutability (ALA = 100)'
+
+        if $environment == 0
+          $outfh.puts '# MUTB: Mutability (MUT_OBS / TOT_OBS)'
+          $outfh.puts '# REL_MUTB: Relative mutability (ALA = 100)'
+        end
+
         $outfh.puts '# REL_FREQ: Relative frequency'
         $outfh.puts '#'
 
@@ -874,7 +889,7 @@ HEADER
         # Generating substitution frequency matrices
         #
 
-        # calculating probabilities for each environment
+        # calculating probabilities for each environment class
         $env_classes.values.each do |e|
           if e.freq_array.sum != 0
             e.prob_array = 100.0 * e.freq_array / e.freq_array.sum
@@ -882,12 +897,12 @@ HEADER
         end
 
         # count raw frequencies
-        $tot_cnt_mat    = NMatrix.send($noweight ? 'int' : 'float', $amino_acids.size, $amino_acids.size)
+        $tot_cnt_mat    = NMatrix.float($amino_acids.size, $amino_acids.size)
         group_matrices  = []
 
         # for each combination of environment features
         $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
-          grp_cnt_mat = NMatrix.send($noweight ? 'int' : 'float', $amino_acids.size, $amino_acids.size)
+          grp_cnt_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
 
           $amino_acids.each_with_index do |aa, aj|
             freq_array = group[1].find { |e| e.label.start_with?(aa) }.freq_array
@@ -903,6 +918,8 @@ HEADER
         if $output == 0
           heatmaps      = HeatmapArray.new if $heatmap == 1 or $heatmap == 2
           grp_max_val   = group_matrices.map { |l, m, n| m }.map { |m| m.max }.max
+          aa_max_cnt    = $aa_tot_cnt.to_a.map { |k, v| v }.max
+          mat_col_size  = aa_max_cnt.floor.to_s.size + 4
           $heatmapcol ||= Math::sqrt(group_matrices.size).round
 
           group_matrices.each_with_index do |(grp_label, grp_cnt_mat), grp_no|
@@ -910,7 +927,8 @@ HEADER
             stem = "#{grp_no}. #{grp_label}"
             $outfh.puts ">#{grp_label} #{grp_no}"
             $outfh.puts grp_cnt_mat.pretty_string(:col_header => $amino_acids,
-                                                  :row_header => $amino_acids)
+                                                  :row_header => $amino_acids,
+                                                  :col_size   => mat_col_size > 7 ? mat_col_size : 7)
 
             # for a heat map
             if $heatmap == 0 or $heatmap == 2
@@ -958,7 +976,8 @@ HEADER
           # total
           $outfh.puts '>Total'
           $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids,
-                                                 :row_header => $amino_acids)
+                                                 :row_header => $amino_acids,
+                                                 :col_size   => mat_col_size > 7 ? mat_col_size : 7)
 
           if $heatmap == 0 or $heatmap == 2
             stem    = "#{group_matrices.size}. TOTAL"
@@ -1001,23 +1020,28 @@ HEADER
 
         # when nosmoothing !!!
         if ($output > 0) && $nosmooth
-          # reinitialize $tot_cnt_mat for pseudocounts
           $tot_cnt_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
 
-          # for each combination of environment features
-          pseudo_cnt = $add || (1.0 / $env_classes.group_size)
-
-          # add pseudo counts for each frequency vector
-          $env_classes.values.each { |e| e.freq_array += pseudo_cnt }
+          # if pseudo count provided, reinitialize $tot_cnt_mat by adding pseudocounts
+          if $add
+            $env_classes.values.each { |e| e.freq_array += $add }
+          end
 
           # re-calculate probability vector for each environment class
-          $env_classes.values.each { |e| e.prob_array = 100.0 * e.freq_array / e.freq_array.sum }
+          $env_classes.values.each do |e|
+            if e.freq_array.sum == 0
+              # if no observation, then probabilities are zeros, too
+              e.prob_array = e.freq_array
+            else
+              e.prob_array = 100.0 * e.freq_array / e.freq_array.sum.to_f
+            end
+          end
 
           group_matrices = []
 
           $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
-            grp_cnt_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
-            grp_prob_mat = NMatrix.float($amino_acids.size, $amino_acids.size)
+            grp_cnt_mat   = NMatrix.float($amino_acids.size, $amino_acids.size)
+            grp_prob_mat  = NMatrix.float($amino_acids.size, $amino_acids.size)
 
             $amino_acids.each_with_index do |aa, aj|
               env_class = group[1].find { |e| e.label.start_with?(aa) }
@@ -1040,7 +1064,6 @@ HEADER
               $outfh.puts ">#{grp_label} #{grp_no}"
               $outfh.puts grp_prob_mat.pretty_string(:col_header => $amino_acids,
                                                      :row_header => $amino_acids)
-
 
               # for a heat map
               if $heatmap == 0 or $heatmap == 2
@@ -1136,12 +1159,24 @@ HEADER
 
           if ($smooth == :full) || $p1smooth
             # smoothing p1 probabilities for the partial smoothing procedure if --p1smooth on or, if it is full smoothing
-            0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_tot_freq[$amino_acids[i]]) }
+            0.upto($amino_acids.size - 1) do |i|
+              if $environment == 0
+                p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_tot_freq[$amino_acids[i]])
+              else
+                p1[i] = 100.0 * (omega1 * a0[i] + omega2 * $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[i]) }.map { |k, v| v }.sum)
+              end
+            end
             $smooth_prob[1] = p1
           elsif ($smooth == :partial)
             # no smoothing for p1 probabilities just as Kenji's subst
             # in this case, p1 probabilities were taken from the amino acid frequencies of your data set
-            0.upto($amino_acids.size - 1) { |i| p1[i] = 100.0 * $aa_tot_freq[$amino_acids[i]] }
+            0.upto($amino_acids.size - 1) do |i|
+              if $environment == 0
+                p1[i] = 100.0 * $aa_tot_freq[$amino_acids[i]]
+              else
+                p1[i] = 100.0 * $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[i]) }.map { |k, v| v }.sum
+              end
+            end
             $smooth_prob[1] = p1
           end
 
@@ -1149,6 +1184,10 @@ HEADER
           # p2 and above
           #
           env_labels = $env_features.map_with_index { |ef, ei| ef.labels.map { |l| "#{ei}#{l}" } }
+
+          if $environment == 1
+            env_labels += $env_features[1..-1].map_with_index { |ef, ei| ef.labels.map { |l| "#{ei + $env_features.size}#{l}" } }
+          end
 
           if $smooth == :partial
             $outfh.puts <<HEADER
@@ -1191,9 +1230,9 @@ HEADER
 # sigma value used is:  #{$sigma}
 #
 HEADER
-            1.upto($env_features.size) do |ci|
+            1.upto(env_labels.size) do |ci|
               # for partial smoothing, only P1 ~ P3, and Pn are considered
-              if (ci > 2) && (ci < $env_features.size)
+              if (ci > 2) && (ci < env_labels.size)
                 $logger.debug "Skipped the level #{ci + 1} probabilities, due to partial smoothing."
                 next
               end
@@ -1201,6 +1240,10 @@ HEADER
               env_labels.combination(ci) do |c1|
                 c1[0].product(*c1[1..-1]).each do |labels|
                   pattern = '.' * $env_features.size
+
+                  if $environment == 1
+                    pattern += '.' * ($env_features.size - 1)
+                  end
 
                   labels.each do |label|
                     i = label[0].chr.to_i
@@ -1213,12 +1256,22 @@ HEADER
                     next
                   end
 
+                  if $environment == 1
+                    pattern[$env_features.size, 0] = "-"
+                  end
+
                   # get environments matching the pattern created above
                   # and calculate amino acid frequencies and their probabilities for all the environments
-                  envs      = $env_classes.values.select { |env| env.label.match(pattern.to_re) }
+                  envs      = $env_classes.values.select { |env| env.label.match(/^#{pattern}/) }
                   freq_arr  = envs.inject(NArray.float($amino_acids.size)) { |sum, env| sum + env.freq_array }
                   prob_arr  = NArray.float($amino_acids.size)
-                  0.upto($amino_acids.size - 1) { |i| prob_arr[i] = ((freq_arr[i] == 0) ? 0 : (freq_arr[i] / freq_arr.sum.to_f)) }
+                  0.upto($amino_acids.size - 1) do |i|
+                    if freq_arr.sum == 0
+                      prob_arr[i] = 0
+                    else
+                      prob_arr[i] = freq_arr[i] / freq_arr.sum.to_f
+                    end
+                  end
 
 #                  # assess whether a residue type j is compatible with a particular combination of structural features
 #                  # corrections for non-zero colum vector phenomenon by switching the smoothing procedure off as below
@@ -1256,29 +1309,23 @@ HEADER
                   if ci == 1
                     priors << $smooth_prob[1]
                   elsif ci == 2
-                    labels.combination(1).select { |c2| c2[0].start_with?('0') }.each { |c3|
+                    labels.combination(1).select { |c2| c2[0].start_with?('0') }.each do |c3|
                       priors << $smooth_prob[2][c3.to_set]
-                    }
-                  elsif ci == $env_features.size
-                    labels.combination(2).select { |c2| c2[0].start_with?('0') || c2[1].start_with?('0') }.each { |c3|
+                    end
+                  elsif ci == env_labels.size
+                    labels.combination(2).select { |c2| c2[0].start_with?('0') || c2[1].start_with?('0') }.each do |c3|
                       priors << $smooth_prob[3][c3.to_set]
-                    }
+                    end
                   end
 
-                  # entropy based prior weighting step
-                  entropy_max     = Math::log($amino_acids.size)
-                  entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p|
-                    begin
-                      p == 0.0 ? s - 1 : s + p * Math::log(p)
-                    rescue
-                      #puts "P: #{p}"
-                    end
-                  } }
-                  mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
+                  # entropy based weighting prior step
+                  entropy_max     = NMath::log($amino_acids.size)
+                  entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0 ? s : s + p * Math::log(p) } }
+                  mod_entropies   = entropies.map { |entropy| (entropy_max - entropy) / entropy_max }
                   weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
                   weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
 
-                  # smoothing step
+                  # actual smoothing step
                   smooth_prob_arr = NArray.float($amino_acids.size)
                   big_N           = freq_arr.sum.to_f
                   small_n         = $amino_acids.size.to_f
@@ -1287,8 +1334,8 @@ HEADER
                   0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
 
                   # normalization step
-                  smooth_prob_arr_sum = smooth_prob_arr.sum
-                  0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
+                  total = smooth_prob_arr.sum
+                  0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / total) }
 
                   # store smoothed probabilties in a hash using a set of envrionment labels as a key
                   if $smooth_prob.has_key?(ci + 1)
@@ -1333,36 +1380,47 @@ HEADER
 #
 HEADER
             # full smooting
-            1.upto($env_features.size) do |ci|
+            1.upto(env_labels.size) do |ci|
               env_labels.combination(ci) do |c1|
                 c1[0].product(*c1[1..-1]).each do |labels|
+
                   pattern = '.' * $env_features.size
+
+                  if $environment == 1
+                    pattern += '.' * ($env_features.size - 1)
+                  end
+
                   labels.each do |label|
                     j = label[0].chr.to_i
                     l = label[1].chr
                     pattern[j] = l
                   end
 
+                  if $environment == 1
+                    pattern[$env_features.size, 0] = "-"
+                  end
+
                   # get environmetns, frequencies, and probabilities
-                  envs      = $env_classes.values.select { |env| env.label.match(pattern.to_re) }
+                  envs      = $env_classes.values.select { |env| env.label.match(/^#{pattern}/) }
                   freq_arr  = envs.inject(NArray.float($amino_acids.size)) { |sum, env| sum + env.freq_array }
                   prob_arr  = NArray.float($amino_acids.size)
                   0.upto($amino_acids.size - 1) { |i| prob_arr[i] = freq_arr[i] == 0 ? 0 : freq_arr[i] / freq_arr.sum.to_f }
 
                   # collect priors
-                  priors  = []
+                  priors = []
+
                   if ci > 1
                     labels.combination(ci - 1).each { |c2| priors << $smooth_prob[ci][c2.to_set] }
                   else
                     priors << $smooth_prob[1]
                   end
 
-                  # entropy based weighting priors
-                  entropy_max = Math::log($amino_acids.size)
-                  entropies = priors.map do |prior|
-                    (entropy_max + prior.to_a.inject(0.0) { |s, p| s + p * Math::log(p) }) / entropy_max
-                  end
-                  weighted_priors = priors.map_with_index { |p, i| p * entropies[i] / entropies.sum }.sum
+                  # entropy based weighting priors step
+                  entropy_max     = NMath::log($amino_acids.size)
+                  entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0 ? s : s + p * Math::log(p) } }
+                  mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
+                  weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
+                  weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
 
                   # smoothing step
                   smooth_prob_arr = NArray.float($amino_acids.size)
@@ -1373,8 +1431,8 @@ HEADER
                   0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (omega1 * weighted_priors[i] + omega2 * prob_arr[i]) }
 
                   # normalization step
-                  smooth_prob_arr_sum = smooth_prob_arr.sum
-                  0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / smooth_prob_arr_sum) }
+                  total = smooth_prob_arr.sum
+                  0.upto($amino_acids.size - 1) { |i| smooth_prob_arr[i] = 100.0 * (smooth_prob_arr[i] / total) }
 
                   # store smoothed probabilties in a hash using a set of envrionment labels as a key
                   if $smooth_prob.has_key?(ci + 1)
@@ -1391,7 +1449,7 @@ HEADER
 
           # updating smoothed probability array for each envrionment
           $env_classes.values.each do |env|
-            env.smooth_prob_array = $smooth_prob[$env_features.size + 1][env.label_set]
+            env.smooth_prob_array = $smooth_prob[env_labels.size + 1][env.label_set]
           end
 
           # sorting environments and build 21X21 substitution matrices
@@ -1528,7 +1586,7 @@ HEADER
           end
 
           grp_logo_mats = []
-          factor        = $scale / Math::log(2)
+          factor        = $scale / NMath::log(2)
 
           $env_classes.groups_sorted_by_residue_labels.each_with_index do |group, group_no|
             # calculating substitution probability matrix for each envrionment
@@ -1538,6 +1596,11 @@ HEADER
                             NMatrix.float($amino_acids.size, $amino_acids.size + 1) :
                             NMatrix.float($amino_acids.size, $amino_acids.size)
 
+            if $environment == 1
+              # parse substituting aa's environment label
+              tgt_label = grp_label.split('-').last
+            end
+
             $amino_acids.each_with_index do |aa, aj|
               env             = grp_envs.detect { |e| e.label.start_with?(aa) }
               env.logo_array  = $cys == 0 ?
@@ -1545,19 +1608,29 @@ HEADER
                                 NArray.float($amino_acids.size)
 
               env.send($nosmooth ? 'prob_array' : 'smooth_prob_array').to_a.each_with_index do |prob, ai|
-                pai                   = 100.0 * $aa_tot_freq[$amino_acids[ai]]
+                if $environment == 0
+                  pai = 100.0 * $aa_tot_freq[$amino_acids[ai]]
+                else
+                  pai = 100.0 * $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[ai]) }.map { |k, v| v }.sum
+                end
+
                 odds                  = prob / pai
-                env.logo_array[ai]    = factor * Math::log(odds)
+                env.logo_array[ai]    = factor * NMath::log(odds)
                 grp_logo_mat[aj, ai]  = env.logo_array[ai]
               end
 
               # adding log odds ratio for 'U' (J or C) when --cyc is 0
               if $cys == 0
-                pai                                 = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
-                prob                                = env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('C')] +
-                                                      env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('J')]
-                odds                                = prob / pai
-                env.logo_array[$amino_acids.size]   = factor * Math::log(odds)
+                if $environment == 0
+                  pai = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
+                else
+                  pai = 100.0 * ($aa_tot_freq.select { |k, v| k.start_with?('C') }.map { |k, v| v }.sum +
+                                 $aa_tot_freq.select { |k, v| k.start_with?('J') }.map { |k, v| v }.sum)
+                end
+                prob  = env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('C')] +
+                        env.send($nosmooth ? 'prob_array' : 'smooth_prob_array')[$amino_acids.index('J')]
+                odds  = prob / pai
+                env.logo_array[$amino_acids.size]   = factor * NMath::log(odds)
                 grp_logo_mat[aj, $amino_acids.size] = env.logo_array[$amino_acids.size]
               end
             end
@@ -1571,21 +1644,31 @@ HEADER
 
           $amino_acids.each_with_index do |aa1, aj|
             $amino_acids.each_with_index do |aa2, ai|
-              prob  = $tot_prob_mat[aj, ai]
-              pai   = 100.0 * $aa_tot_freq[$amino_acids[ai]]
-              odds  = prob / pai
-              $tot_logo_mat[aj, ai] = factor * Math::log(odds)
+              prob = $tot_prob_mat[aj, ai]
+
+              if $environment == 0
+                pai = 100.0 * $aa_tot_freq[$amino_acids[ai]]
+              else
+                pai = 100.0 * $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[ai]) }.map { |k, v| v }.sum
+              end
+
+              odds = prob / pai
+              $tot_logo_mat[aj, ai] = factor * NMath::log(odds)
             end
 
             # adding log odds ratio for 'U' (J or C) when --cyc is 0
             if $cys == 0
-              pai   = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
+              if $environment == 0
+                pai = 100.0 * ($aa_tot_freq['C'] + $aa_tot_freq['J'])
+              else
+                pai = 100.0 * ($aa_tot_freq.select { |k, v| k.start_with?('C') }.map { |k, v| v }.sum +
+                               $aa_tot_freq.select { |k, v| k.start_with?('J') }.map { |k, v| v }.sum)
+              end
               prob  = $tot_prob_mat[aj, $amino_acids.index('C')] + $tot_prob_mat[aj, $amino_acids.index('J')]
               odds  = prob / pai
-              $tot_logo_mat[aj, $amino_acids.size] = factor * Math::log(odds)
+              $tot_logo_mat[aj, $amino_acids.size] = factor * NMath::log(odds)
             end
           end
-
 
           # calculating relative entropy for each amino acid pair H and
           # the expected score E in bit units
@@ -1595,10 +1678,22 @@ HEADER
           0.upto($tot_logo_mat.shape[0] - 1) do |j|
             0.upto($tot_logo_mat.shape[0] - 1) do |i| # it's deliberately '0' not '1'
               if j != i
-                tot_E += $tot_logo_mat[j, i] * $aa_tot_freq[$amino_acids[j]] * $aa_tot_freq[$amino_acids[i]] / 2.0
+                if $environment == 0
+                  tot_E += $tot_logo_mat[j, i] * $aa_tot_freq[$amino_acids[j]] * $aa_tot_freq[$amino_acids[i]] / 2.0
+                else
+                  tot_E +=  $tot_logo_mat[j, i] *
+                            $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[j]) }.map { |k, v| v }.sum *
+                            $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[i]) }.map { |k, v| v }.sum / 2.0
+                end
                 tot_H += $tot_logo_mat[j, i] * $tot_prob_mat[j, i] / 2.0 / 10000.0
               else
-                tot_E += $tot_logo_mat[j, i] * $aa_tot_freq[$amino_acids[i]] * $aa_tot_freq[$amino_acids[i]]
+                if $environment == 0
+                  tot_E += $tot_logo_mat[j, i] * $aa_tot_freq[$amino_acids[i]] * $aa_tot_freq[$amino_acids[i]]
+                else
+                  tot_E +=  $tot_logo_mat[j, i] *
+                            $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[j]) }.map { |k, v| v }.sum *
+                            $aa_tot_freq.select { |k, v| k.start_with?($amino_acids[i]) }.map { |k, v| v }.sum
+                end
                 tot_H += $tot_logo_mat[j, i] * $tot_prob_mat[j, i] / 10000.0
               end
             end
@@ -1664,9 +1759,9 @@ HEADER
               heatmaps << grp_logo_mat.heatmap(:col_header          => $amino_acids,
                                                :row_header          => row_header,
                                                :rvg_width           => $rvg_width,
-                                               :rvg_height          => $rvg_height - 50,
+                                               :rvg_height          => $rvg_height,
                                                :canvas_width        => $canvas_width,
-                                               :canvas_height       => $canvas_height - 50,
+                                               :canvas_height       => $canvas_height,
                                                :gradient_beg_color  => '#0000FF',
                                                :gradient_mid_color  => '#FFFFFF',
                                                :gradient_end_color  => '#FF0000',
@@ -1676,6 +1771,7 @@ HEADER
                                                :print_value         => $heatmapvalues,
                                                :print_gradient      => false,
                                                :title               => stem,
+                                               :title_font_scale    => 1.0,
                                                :title_font_size     => title_font_size)
             end
           end

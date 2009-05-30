@@ -4,16 +4,19 @@ require 'facets'
 
 module NArrayExtensions
 
-  def pretty_string(opts={})
-    { :col_header   => nil,
-      :row_header   => nil }.merge!(opts)
+  def pretty_string(options={})
+    opts = {:col_header => nil,
+            :row_header => nil,
+            :col_size   => 7}.merge(options)
 
-    ("%-3s" % "#") + opts[:col_header].inject("") { |s, a| s + ("%7s" % a) } + "\n" +
+    ("%-3s" % "#") + opts[:col_header].inject("") { |s, a|
+      s + ("%#{opts[:col_size]}s" % a)
+    } + "\n" +
       self.to_a.inject("%-3s" % opts[:row_header]) { |s, v|
       if v.is_a? Float
-        s + ("%7.2f" % v)
+        s + ("%#{opts[:col_size]}.2f" % v)
       else
-        s + ("%7d" % v)
+        s + ("%#{opts[:col_size]}d" % v)
       end
     }
   end
