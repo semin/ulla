@@ -49,7 +49,10 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
     --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
     --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
-    --noweight: calculate substitution count with no weights
+    --noweight: calculate substitution counts with no weights
+    --environment (-e) INTEGER:
+        0 for considering only substituted amino acids' environments (default)
+        1 for considering both substituted and substituting amino acids' environments
     --smooth (-s) INTEGER:
         0 for partial smoothing (default)
         1 for full smoothing
@@ -60,14 +63,14 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         1 for both structure and sequence
         2 for using only C for both (must be set when you have no 'disulphide' or 'disulfide' annotation in templates)
     --output INTEGER:
-        0 for raw count (no smoothing performed)
+        0 for raw counts (no smoothing performed)
         1 for probabilities
-        2 for log odds ratios (default)
+        2 for log-odds (default)
     --noroundoff: do not round off log odds ratio
-    --scale INTEGER: log odds ratio matrices in 1/n bit units (default 3)
+    --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
     --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
-    --add DOUBLE: add this value to raw count when deriving log odds ratios without smoothing (default 1/#classes)
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 0)
     --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
     --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
     --heatmap INTEGER:
