@@ -709,11 +709,11 @@ Options:
                     env_label2  = $environment == 1 ? aa2 + '-' + aa1[1..-1] : env_labels[id2][pos]
 
                     if $cst_features.empty?
-                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
-                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
+                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt) #rescue $logger.error "Something wrong with #{tem_file}-#{id2}-#{pos}-#{aa2}-#{env_label2}"
+                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt) #rescue $logger.error "Something wrong with #{tem_file}-#{id2}-#{pos}-#{aa2}-#{env_label2}"
                     elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
                       $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
-                      $env_classes[env_label2].increase_residue_count(aa1[1].chr, jnt_cnt)
+                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
                     else
                       $logger.debug "Skipped #{id1}-#{pos}-#{aa1[0].chr} and #{id2}-#{pos}-#{aa2[0].chr} having different symbols for constrained environment features each other."
                       next
