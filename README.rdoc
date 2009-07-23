@@ -156,7 +156,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
         ~user $ ulla -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution probability matrices only from the sequence pairs within a certain PID range (if you don't provide any name for output, 'allmat.dat' will be used.),
+7. To produce substitution probability matrices from the sequence pairs within a certain PID range (if you don't provide any name for output, 'allmat.dat' will be used.),
 
         ~user $ ulla -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
