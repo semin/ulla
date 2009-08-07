@@ -144,27 +144,27 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         sample2.tem
         ...
 
-4. To produce substitution count matrices, type
+4. To produce substitution count matrices,
 
         ~user $ ulla -l TEMLIST --output 0 -o substcount.mat
 
-5. To produce substitution probability matrices, type
+5. To produce substitution probability matrices,
 
         ~user $ ulla -l TEMLIST --output 1 -o substprob.mat
 
-6. To produce log odds ratio matrices, type
+6. To produce log odds ratio matrices,
 
         ~user $ ulla -l TEMLIST --output 2 -o substlogo.mat
 
-7. To produce substitution probability matrices only from the sequence pairs within a certain PID range, type (if you don't provide any name for output, 'allmat.dat' will be used.)
+7. To produce substitution probability matrices from the sequence pairs within a certain PID range (if you don't provide any name for output, 'allmat.dat' will be used.),
 
         ~user $ ulla -l TEMLIST --pidmin 60 --pidmax 80 --output 1
 
-8. To change the clustering level (default 60) to PID 80, type
+8. To change the clustering level (default 60) to PID 80,
 
         ~user $ ulla -l TEMLIST --weight 80 --output 1
 
-9. In case positions are masked with the character 'X' in any environmental features, all mutations from/to the position will be excluded from the calculation of substitution counts.
+9. In case positions are masked with the character 'X' in any environmental features, all mutations from/to the position will be excluded from substitution counts.
 
 10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
