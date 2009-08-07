@@ -249,7 +249,7 @@ or, You can fetch the source from
 
 == Reference
 
-* {Lee S., Blundell T.L. (2009) Ulla: a program for calculating environment-specific amino acid substitution tables. Bioinformatics. 25(15):1976-1977; doi:10.1093/bioinformatics/btp300[http://bioinformatics.oxfordjournals.org/cgi/content/full/25/15/1976}]
+* {Lee S., Blundell T.L. (2009) Ulla: a program for calculating environment-specific amino acid substitution tables. Bioinformatics. 25(15):1976-1977; doi:10.1093/bioinformatics/btp300}[http://bioinformatics.oxfordjournals.org/cgi/content/full/25/15/1976]
 
 == Contact
 
