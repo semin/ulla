@@ -235,8 +235,6 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif
 
-== TODO
-
 == Repository
 
 You can download a pre-built RubyGems package from
