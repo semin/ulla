@@ -384,7 +384,7 @@ Options:
 
         # if --cys option 2, then we don't care about 'J' (for both Cystine and Cystine)
         if $cys == 2
-          $amino_acids = 'ACDEFGHIKLMNPQRSTVWY'.delete('J').split('')
+          $amino_acids.delete('J')
         end
 
         # create an EnvironmentFeatureArray object for storing all environment
