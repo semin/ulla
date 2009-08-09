@@ -1,3 +1,8 @@
+== 0.9.9 09/08/2009
+
+* Changed default value for --classdef option from 'classdef.dat' to nil
+  When no definition file provided, --cys (-y) 2 and --nosmooth options are applied automatically
+
 == 0.9.8 21/07/2009
 
 * Fixed a bug in generating amino acids symbols when --cys 2 is set

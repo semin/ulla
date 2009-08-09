@@ -23,8 +23,8 @@ module Ulla
       # :call-seq:
       #   Ulla::CLI::print_usage
       #
-      def print_usage
-        puts <<-USAGE
+      def print_usage(verbose=false)
+        usage = <<-USAGE
 ulla: a program to calculate environment-specific amino acid substitution tables.
 
 Usage:
@@ -32,10 +32,14 @@ Usage:
         or
     ulla [ options ] -f TEM-file -c CLASSDEF-file
 
+        USAGE
+
+        options = <<-OPTIONS
 Options:
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
-    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --classdef (-c) FILE: a file for the defintion of environmental class
+                          if no definition file provided, --cys (-y) 2 and --nosmooth options automatcially applied
     --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
     --noweight: calculate substitution counts with no weights
@@ -83,7 +87,9 @@ Options:
     --version: print version
     --help (-h): show help
 
-        USAGE
+        OPTIONS
+
+        puts (verbose ? usage + options : usage)
       end
 
       # Calculate PID between two sequences
@@ -157,7 +163,7 @@ Options:
         $tem_file       = nil
         $environment    = 0
         $col_size       = nil
-        $classdef       = 'classdef.dat'
+        $classdef       = nil
         $outfile        = 'allmat.dat'
         $outfh          = nil # file hanfle for outfile
         $output         = 2 # default: log odds matrix
@@ -247,7 +253,7 @@ Options:
           opts.each do |opt, arg|
             case opt
             when '--help'
-              print_usage
+              print_usage(true)
               exit 0
             when '--tem-list'
               $tem_list     = arg
@@ -382,7 +388,13 @@ Options:
         # Reading Environment Class Definition File
         #
 
-        # if --cys option 2, then we don't care about 'J' (for both Cystine and Cystine)
+        # if no class definition provided, set --cys (-y) option 2 and --nosmooth option true
+        if $classdef.nil?
+          $cys      = 2
+          $nosmooth = true
+        end
+
+        # if --cys option 2, we don't care about 'J' (for both Cystine and Cystine)
         if $cys == 2
           $amino_acids.delete('J')
         end
@@ -404,33 +416,35 @@ Options:
 
         # read environment class definiton file and store them into
         # the hash prepared above
-        env_index = 1
+        if !!$classdef
+          env_index = 1
 
-        IO.foreach($classdef) do |line|
-          line.chomp!
-          if line.start_with?('#') || line.blank?
-            next
-          elsif (env_ftr = line.split(/;/)).length == 5
-            $logger.info "An environment feature, #{line} detected."
-            if env_ftr[-1] == 'T'
-              # skip silenced environment feature
-              $logger.warn "The environment feature, #{line} silent."
+          IO.foreach($classdef) do |line|
+            line.chomp!
+            if line.start_with?('#') || line.blank?
               next
+            elsif (env_ftr = line.split(/;/)).length == 5
+              $logger.info "An environment feature, #{line} detected."
+              if env_ftr[-1] == 'T'
+                # skip silenced environment feature
+                $logger.warn "The environment feature, #{line} silent."
+                next
+              end
+              if env_ftr[-2] == 'T'
+                $cst_features << env_index
+                $logger.warn "The environment feature, #{line} constrained."
+              end
+              $env_features << EnvironmentFeature.new(env_ftr[0],
+                                                      env_ftr[1].split(''),
+                                                      env_ftr[2].split(''),
+                                                      env_ftr[3],
+                                                      env_ftr[4])
+              env_index += 1
+            else
+              $logger.error "\"#{line}\" doesn't seem to be a proper format for " +
+                            "an environment class definition."
+              exit 1
             end
-            if env_ftr[-2] == 'T'
-              $cst_features << env_index
-              $logger.warn "The environment feature, #{line} constrained."
-            end
-            $env_features << EnvironmentFeature.new(env_ftr[0],
-                                                    env_ftr[1].split(''),
-                                                    env_ftr[2].split(''),
-                                                    env_ftr[3],
-                                                    env_ftr[4])
-            env_index += 1
-          else
-            $logger.error "\"#{line}\" doesn't seem to be a proper format for " +
-                          "an environment class definition."
-            exit 1
           end
         end
 
@@ -447,7 +461,7 @@ Options:
         # every environment class into the hash prepared above with the label
         # as a key
         $env_features.label_combinations.each_with_index do |ef1, i|
-          key1 = ef1.flatten.join
+          key1 = ef1.respond_to?(:flatten) ? ef1.flatten.join : ef1
           $ext_amino_acids << key1
 
           if $environment == 0

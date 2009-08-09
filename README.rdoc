@@ -46,7 +46,8 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 == Options
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
-    --classdef (-c) FILE: a file for the defintion of environments (default: 'classdef.dat')
+    --classdef (-c) FILE: a file for the defintion of environmental class
+                          if no definition file provided, --cys (-y) 2 and --nosmooth options automatcially applied
     --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
     --noweight: calculate substitution counts with no weights
