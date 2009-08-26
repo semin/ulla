@@ -4,7 +4,6 @@ require 'logger'
 require 'narray'
 require 'bio'
 require 'set'
-require 'activesupport'
 
 # This is a module for an actual command line interpreter for Ulla
 # ---
@@ -368,6 +367,7 @@ Options:
         end
 
 	require 'math_extensions'
+	require 'array_extensions'
 	require 'string_extensions'
 	require 'narray_extensions'
 	require 'nmatrix_extensions'

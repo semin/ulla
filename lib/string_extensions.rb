@@ -1,5 +1,19 @@
 module StringExtensions
 
+  unless method_defined?(:blank?)
+    # from Active Support library
+    def blank?
+      self !~ /\S/
+    end
+  end
+
+  unless method_defined?(:start_with?)
+    # from Ruby Facets library
+    def start_with?(prefix)
+      self.index(prefix) == 0
+    end
+  end
+
   def remove_internal_spaces
     gsub(/[\n|\r|\s]+/, '')
   end
@@ -14,4 +28,3 @@ module StringExtensions
 end
 
 String.send :include, StringExtensions
-

@@ -6,6 +6,7 @@ Rakefile
 bin/ulla
 config/website.yml
 config/website.yml.sample
+lib/array_extensions.rb
 lib/math_extensions.rb
 lib/narray_extensions.rb
 lib/nmatrix_extensions.rb
