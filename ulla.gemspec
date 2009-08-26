@@ -29,17 +29,20 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<narray>, [">= 0.5.9.5"])
       s.add_runtime_dependency(%q<bio>, [">= 1.2.1"])
+      s.add_runtime_dependency(%q<activesupport>, [">= 2.3.0"])
       s.add_runtime_dependency(%q<rmagick>, [">= 2.9.1"])
       s.add_development_dependency(%q<hoe>, [">= 2.3.3"])
     else
       s.add_dependency(%q<narray>, [">= 0.5.9.5"])
       s.add_dependency(%q<bio>, [">= 1.2.1"])
+      s.add_dependency(%q<activesupport>, [">= 2.3.0"])
       s.add_dependency(%q<rmagick>, [">= 2.9.1"])
       s.add_dependency(%q<hoe>, [">= 2.3.3"])
     end
   else
     s.add_dependency(%q<narray>, [">= 0.5.9.5"])
     s.add_dependency(%q<bio>, [">= 1.2.1"])
+    s.add_dependency(%q<activesupport>, [">= 2.3.0"])
     s.add_dependency(%q<rmagick>, [">= 2.9.1"])
     s.add_dependency(%q<hoe>, [">= 2.3.3"])
   end

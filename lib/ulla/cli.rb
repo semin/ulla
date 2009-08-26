@@ -4,6 +4,7 @@ require 'logger'
 require 'narray'
 require 'bio'
 require 'set'
+require 'activesupport'
 
 # This is a module for an actual command line interpreter for Ulla
 # ---
