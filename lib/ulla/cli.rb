@@ -988,7 +988,7 @@ HEADER
           end
 
           # total
-          $outfh.puts '>Total'
+          $outfh.puts '>total'
           $outfh.puts $tot_cnt_mat.pretty_string(:col_header => $amino_acids,
                                                  :row_header => $amino_acids,
                                                  :col_size   => mat_col_size > 7 ? mat_col_size : 7)
@@ -1132,7 +1132,7 @@ HEADER
           end
 
           if $output == 1
-            $outfh.puts '>Total'
+            $outfh.puts '>total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids,
                                                     :row_header => $amino_acids)
             $outfh.close
@@ -1548,7 +1548,7 @@ HEADER
           end
 
           if $output == 1
-            $outfh.puts '>Total'
+            $outfh.puts '>total'
             $outfh.puts $tot_prob_mat.pretty_string(:col_header => $amino_acids,
                                                     :row_header => $amino_acids)
             $outfh.close
@@ -1810,7 +1810,7 @@ HEADER
             $tot_logo_mat = $tot_logo_mat.round
           end
 
-          $outfh.puts ">Total #{grp_logo_mats.size}"
+          $outfh.puts ">total #{grp_logo_mats.size}"
           $outfh.puts $tot_logo_mat.pretty_string(:col_header => $amino_acids,
                                                   :row_header => row_header)
 
