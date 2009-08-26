@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'narray'
-require 'facets'
 
 begin
   require 'rvg/rvg'
@@ -19,7 +18,7 @@ module NMatrixExtensions
 
     ("%-3s" % "#") + opts[:col_header].inject("") { |s, a|
       s + ("%#{opts[:col_size]}s" % a)
-    } + "\n" + self.to_a.map_with_index { |a, i|
+    } + "\n" + self.to_a.each_with_index.map { |a, i|
       ("%-3s" % opts[:row_header][i]) + a.inject("") { |s, v|
         if v.is_a? Float
           s + ("%#{opts[:col_size]}.2f" % v)

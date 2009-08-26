@@ -1,5 +1,4 @@
 require 'rubygems'
-require 'facets'
 
 begin
   require 'RMagick'

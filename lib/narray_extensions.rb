@@ -1,6 +1,5 @@
 require 'rubygems'
 require 'narray'
-require 'facets'
 
 module NArrayExtensions
 

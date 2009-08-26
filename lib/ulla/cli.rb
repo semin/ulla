@@ -534,7 +534,7 @@ Options:
               ff.rewind
               ff.each_entry do |pir|
                 if (pir.entry_id == key) && (pir.definition == ec.name)
-                  labels = pir.data.remove_internal_spaces.split('').map_with_index do |sym, pos|
+                  labels = pir.data.remove_internal_spaces.split('').each_with_index.map do |sym, pos|
                     if sym == '-'
                       '-'
                     elsif sym == 'X' || sym == 'x'
@@ -561,13 +561,13 @@ Options:
           if $noweight
             ali.each_pair do |id1, seq1|
               if $environment == 1
-                seq1 = seq1.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[id1][pos] }.join
+                seq1 = seq1.split('').each_with_index.map { |aa, pos| aa == $gap ? $ext_gap : env_labels[id1][pos] }.join
               end
 
               ali.each_pair do |id2, seq2|
                 if id1 != id2
                   if $environment == 1
-                    seq2 = seq2.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[id2][pos] }.join
+                    seq2 = seq2.split('').each_with_index.map { |aa, pos| aa == $gap ? $ext_gap : env_labels[id2][pos] }.join
                   end
 
                   pid = calculate_pid(seq1, seq2, $col_size)
@@ -638,7 +638,7 @@ Options:
             ali.each_pair do |key, seq|
               clusters << [key]
               if $environment == 1
-                ext_seq = seq.split('').map_with_index { |aa, pos| aa == $gap ? $ext_gap : env_labels[key][pos] }.join
+                ext_seq = seq.split('').each_with_index.map { |aa, pos| aa == $gap ? $ext_gap : env_labels[key][pos] }.join
                 ext_ali.add_seq(ext_seq, key)
               end
             end
@@ -1196,10 +1196,10 @@ HEADER
           #
           # p2 and above
           #
-          env_labels = $env_features.map_with_index { |ef, ei| ef.labels.map { |l| "#{ei}#{l}" } }
+          env_labels = $env_features.each_with_index.map { |ef, ei| ef.labels.map { |l| "#{ei}#{l}" } }
 
           if $environment == 1
-            env_labels += $env_features[1..-1].map_with_index { |ef, ei| ef.labels.map { |l| "#{ei + $env_features.size}#{l}" } }
+            env_labels += $env_features[1..-1].each_with_index.map { |ef, ei| ef.labels.map { |l| "#{ei + $env_features.size}#{l}" } }
           end
 
           if $smooth == :partial
@@ -1336,7 +1336,7 @@ HEADER
                   entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0 ? s : s + p * Math::log(p) } }
                   mod_entropies   = entropies.map { |entropy| (entropy_max - entropy) / entropy_max }
                   weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
-                  weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
+                  weighted_priors = priors.each_with_index.map { |prior, i| prior * weights[i] }.sum
 
                   # actual smoothing step
                   smooth_prob_arr = NArray.float($amino_acids.size)
@@ -1431,9 +1431,9 @@ HEADER
                   # entropy based weighting priors step
                   entropy_max     = NMath::log($amino_acids.size)
                   entropies       = priors.map { |prior| -1.0 * prior.to_a.inject(0.0) { |s, p| p == 0 ? s : s + p * Math::log(p) } }
-                  mod_entropies   = entropies.map_with_index { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
+                  mod_entropies   = entropies.each_with_index.map { |entropy, i| (entropy_max - entropies[i]) / entropy_max }
                   weights         = mod_entropies.map { |mod_entropy| mod_entropy / mod_entropies.sum }
-                  weighted_priors = priors.map_with_index { |prior, i| prior * weights[i] }.sum
+                  weighted_priors = priors.each_with_index.map { |prior, i| prior * weights[i] }.sum
 
                   # smoothing step
                   smooth_prob_arr = NArray.float($amino_acids.size)
