@@ -25,9 +25,9 @@ module Ulla
 
     def label_set
       if $direction == 0
-        label.split("").map_with_index { |l, i| "#{i}#{l}" }.to_set
+        label.split("").each_with_index.map { |l, i| "#{i}#{l}" }.to_set
       else
-        label.gsub('-', '').split("").map_with_index { |l, i| "#{i}#{l}" }.to_set
+        label.gsub('-', '').split("").each_with_index.map { |l, i| "#{i}#{l}" }.to_set
       end
     end
 
