@@ -1,5 +1,10 @@
 module StringExtensions
 
+  # from active support library
+  def blank?
+    self !~ /\S/
+  end
+
   def remove_internal_spaces
     gsub(/[\n|\r|\s]+/, '')
   end
