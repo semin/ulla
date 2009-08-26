@@ -24,7 +24,6 @@ http://www-cryst.bioc.cam.ac.uk/ulla
 Following RubyGems will be automatically installed if you have rubygems installed on your machine
 
 * narray (http://narray.rubyforge.org)
-* facets (http://facets.rubyforge.org)
 * bio (http://bioruby.open-bio.org)
 * RMagick (http://rmagick.rubyforge.org)
 

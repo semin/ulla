@@ -16,7 +16,7 @@ $hoe = Hoe.spec 'ulla' do
   self.extra_deps           = [
     ['narray',  '>= 0.5.9.5'],
     ['bio',     '>= 1.2.1'],
-    ['facets',  '>= 2.4.5'],
+#    ['facets',  '>= 2.4.5'],
     ['rmagick', '>= 2.9.1'],
   ]
 end

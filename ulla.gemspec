@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{ulla}
-  s.version = "0.9.9"
+  s.version = "0.9.9.1"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["Semin Lee"]
-  s.date = %q{2009-08-09}
+  s.date = %q{2009-08-26}
   s.default_executable = %q{ulla}
   s.description = %q{'ulla' is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.}
   s.email = ["seminlee@gmail.com"]
@@ -29,20 +29,17 @@ Gem::Specification.new do |s|
     if Gem::Version.new(Gem::RubyGemsVersion) >= Gem::Version.new('1.2.0') then
       s.add_runtime_dependency(%q<narray>, [">= 0.5.9.5"])
       s.add_runtime_dependency(%q<bio>, [">= 1.2.1"])
-      s.add_runtime_dependency(%q<facets>, [">= 2.4.5"])
       s.add_runtime_dependency(%q<rmagick>, [">= 2.9.1"])
       s.add_development_dependency(%q<hoe>, [">= 2.3.3"])
     else
       s.add_dependency(%q<narray>, [">= 0.5.9.5"])
       s.add_dependency(%q<bio>, [">= 1.2.1"])
-      s.add_dependency(%q<facets>, [">= 2.4.5"])
       s.add_dependency(%q<rmagick>, [">= 2.9.1"])
       s.add_dependency(%q<hoe>, [">= 2.3.3"])
     end
   else
     s.add_dependency(%q<narray>, [">= 0.5.9.5"])
     s.add_dependency(%q<bio>, [">= 1.2.1"])
-    s.add_dependency(%q<facets>, [">= 2.4.5"])
     s.add_dependency(%q<rmagick>, [">= 2.9.1"])
     s.add_dependency(%q<hoe>, [">= 2.3.3"])
   end

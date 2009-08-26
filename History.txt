@@ -1,3 +1,7 @@
+== 0.9.9.1 26/08/2009
+
+* Removed dependency on the Ruby Facets library
+
 == 0.9.9 09/08/2009
 
 * Changed default value for --classdef option from 'classdef.dat' to nil
