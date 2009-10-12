@@ -107,7 +107,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         secondary structure and phi angle;HEPC;HEPC;T;F
         solvent accessibility;TF;Aa;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz or from http://www-cryst.bioc.cam.ac.uk/ESST/
 
         ~user $ cat sample1.tem
         >P1;1mnma
