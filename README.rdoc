@@ -35,7 +35,7 @@ Following RubyGems will be automatically installed if you have rubygems installe
 
 == Basic Usage
 
-It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'ulla'.
+It's pretty much the same as Kenji's subst (http://mordred.bioc.cam.ac.uk/~kenji/subst/), so in most cases, you can swap 'subst' with 'ulla'.
 
     ~user $ ulla -l TEMLIST-file -c classdef.dat
                 or
@@ -97,7 +97,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 == Usage
 
-1. Prepare an environmental class definition file. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES). You can download a sample environmental class definition file from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/classdef.dat 
+1. Prepare an environmental class definition file. For more details, please check this notes (http://mordred.bioc.cam.ac.uk/~kenji/subst/NOTES). You can download a sample environmental class definition file from http://mordred.bioc.cam.ac.uk/~kenji/subst/classdef.dat 
 
         ~user $ cat classdef.dat
         #
@@ -107,7 +107,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
         secondary structure and phi angle;HEPC;HEPC;T;F
         solvent accessibility;TF;Aa;F;F
 
-2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from http://www-cryst.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz or from http://www-cryst.bioc.cam.ac.uk/ESST/
+2. Prepare structural alignments and their annotations of above environmental classes in PIR format. You can download sample alignments from http://mordred.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz or from http://www-cryst.bioc.cam.ac.uk/ESST/
 
         ~user $ cat sample1.tem
         >P1;1mnma
@@ -166,7 +166,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
 9. In case positions are masked with the character 'X' in any environmental features, all mutations from/to the position will be excluded from substitution counts.
 
-10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://www-cryst.bioc.cam.ac.uk/~kenji/subst/NOTES).
+10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this notes (http://mordred.bioc.cam.ac.uk/~kenji/subst/NOTES).
 
         # Environment-specific amino acid substitution matrices
         # Creator: ulla version 0.0.5
@@ -225,7 +225,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     which will look like this,
 
-    http://www-cryst.bioc.cam.ac.uk/~semin/images/0.HA.png
+    http://mordred.bioc.cam.ac.uk/~semin/images/0.HA.png
 
 12. To generate one big figure, 'myheatmaps.gif' containing all the heat maps (4 maps in a row),
 
@@ -233,7 +233,7 @@ It's pretty much the same as Kenji's subst (http://www-cryst.bioc.cam.ac.uk/~ken
 
     which will look like this,
 
-    http://www-cryst.bioc.cam.ac.uk/~semin/images/myheatmaps.gif
+    http://mordred.bioc.cam.ac.uk/~semin/images/myheatmaps.gif
 
 == Repository
 
