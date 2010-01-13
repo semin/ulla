@@ -38,7 +38,7 @@ Options:
     --tem-file (-f) FILE: a tem file
     --tem-list (-l) FILE: a list for tem files
     --classdef (-c) FILE: a file for the defintion of environmental class
-                          if no definition file provided, --cys (-y) 2 and --nosmooth options automatcially applied
+                          if no definition file provided, --cys (-y) 2 and --nosmooth options applied
     --outfile (-o) FILE: output filename (default 'allmat.dat')
     --weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
     --noweight: calculate substitution counts with no weights
@@ -58,13 +58,13 @@ Options:
         0 for raw counts (no smoothing performed)
         1 for probabilities
         2 for log-odds (default)
-    --noroundoff: do not round off log odds ratio
-    --scale INTEGER: log-odds matrices in 1/n bit units (default 3)
-    --sigma DOUBLE: change the sigma value for smoothing (default 5.0)
+    --noroundoff: do not round off log-odds ratio
+    --scale INTEGER: log-odds matrices in 1/n bit units (default: 3)
+    --sigma DOUBLE: change the sigma value for smoothing (default: 5.0)
     --autosigma: automatically adjust the sigma value for smoothing
-    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 0)
-    --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
-    --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+    --add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default: 0)
+    --pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value
+    --pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value
     --heatmap INTEGER:
         0 create a heat map file for each substitution table
         1 create one big file containing all heat maps from substitution tables
@@ -297,7 +297,7 @@ Options:
             when '--penv'
               warn "--penv option is not supported."
               exit 1
-              $penv         = true
+              #$penv         = true
             when '--heatmap'
               $heatmap      = case arg.to_i
                               when (0..2) then arg.to_i
