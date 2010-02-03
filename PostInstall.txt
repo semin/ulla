@@ -1,5 +1,5 @@
 HELP/OPTIONS: ulla -h
 
-For more information on ulla, see http://ulla.rubyforge.org
+For more information on ulla, see http://github.com/semin/ulla.
 
 
