@@ -10,6 +10,43 @@ require 'set'
 # Copyright (C) 2008-9 Semin Lee
 module Ulla
   class CLI
+
+    inline(:C) do |builder|
+      builder.add_compile_flags '-x c++', '-lstdc++'
+      builder.c_singleton %q{
+      static VALUE calculate_pid_cpp(VALUE seq1, VALUE seq2, VALUE unit) {
+        VALUE re      = rb_str_plus(rb_str_plus(rb_str_new2("\\\\w{"), rb_funcall(unit, rb_intern("to_s"), 0)), rb_str_new2("}"));
+        VALUE aas1    = rb_funcall(seq1, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
+        VALUE aas2    = rb_funcall(seq2, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
+        //VALUE aas1    = rb_funcall(seq1, rb_intern("split"), 1, rb_str_new2(""));
+        //VALUE aas2    = rb_funcall(seq2, rb_intern("split"), 1, rb_str_new2(""));
+
+        VALUE *aas1_p = RARRAY_PTR(aas1);
+        VALUE *aas2_p = RARRAY_PTR(aas2);
+        VALUE gap     = rb_str_new2("-");
+        VALUE cols    = rb_funcall(aas1, rb_intern("zip"), 1, aas2);
+        long  len     = RARRAY_LEN(cols);
+        double align  = 0.0;
+        double ident  = 0.0;
+        double intgp  = 0.0;
+
+        for (long i = 0; i < len; i++) {
+          if ((rb_str_equal(aas1_p[i], gap) == Qfalse) &&
+              (rb_str_equal(aas2_p[i], gap) == Qfalse)) {
+            align += 1;
+            if (rb_str_equal(aas1_p[i], aas2_p[i]) == Qtrue) {
+              ident += 1;
+            }
+          } else if (((rb_str_equal(aas1_p[i], gap) == Qtrue) && (rb_str_equal(aas2_p[i], gap) == Qfalse)) ||
+                      ((rb_str_equal(aas1_p[i], gap) == Qfalse) && (rb_str_equal(aas2_p[i], gap) == Qtrue))) {
+            intgp += 1;
+          }
+        }
+        return DBL2NUM(ident / (align + intgp));
+      }
+    }
+    end
+
     class << self
 
       # :nodoc:
@@ -179,7 +216,6 @@ Options:
         $scale          = 3
         $pidmin         = nil
         $pidmax         = nil
-        $scale          = 3
         $add            = nil
         $cys            = 0
         $targetenv      = false
@@ -365,19 +401,6 @@ Options:
           warn "Cannot find environment class definition file, #{$classdef}"
           exit 1
         end
-
-	require 'math_extensions'
-	require 'array_extensions'
-	require 'string_extensions'
-	require 'narray_extensions'
-	require 'nmatrix_extensions'
-
-	require 'ulla/environment'
-	require 'ulla/environment_class_hash'
-	require 'ulla/environment_feature'
-	require 'ulla/environment_feature_array'
-	require 'ulla/heatmap_array'
-
         #
         # Part 2 END
         #
@@ -425,15 +448,18 @@ Options:
               next
             elsif (env_ftr = line.split(/;/)).length == 5
               $logger.info "An environment feature, #{line} detected."
+
               if env_ftr[-1] == 'T'
                 # skip silenced environment feature
                 $logger.warn "The environment feature, #{line} silent."
                 next
               end
+
               if env_ftr[-2] == 'T'
                 $cst_features << env_index
                 $logger.warn "The environment feature, #{line} constrained."
               end
+
               $env_features << EnvironmentFeature.new(env_ftr[0],
                                                       env_ftr[1].split(''),
                                                       env_ftr[2].split(''),
@@ -590,12 +616,12 @@ Options:
                   s1.each_with_index do |aa1, pos|
                     aa2 = s2[pos]
 
-                    if env_labels[id1][pos].include?('X')
+                    if env_labels.has_key?(id1) && env_labels[id1][pos].include?('X')
                       $logger.info "Substitutions from #{id1}-#{pos}-#{aa1[0].chr} were masked."
                       next
                     end
 
-                    if env_labels[id2][pos].include?('X')
+                    if env_labels.has_key?(id2) && env_labels[id2][pos].include?('X')
                       $logger.info "Substitutions to #{id2}-#{pos}-#{aa2[0].chr} were masked."
                       next
                     end
@@ -610,8 +636,10 @@ Options:
                       next
                     end
 
-                    aa1       = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
-                    aa2       = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    #aa1       = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
+                    #aa2       = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    aa1       = (aa1[0].chr == 'C' && (!disulphide.has_key?(id1) || disulphide[id1][pos] == 'F') && $cys != 2) ? 'J' + aa1[1..-1] : aa1
+                    aa2       = (aa2[0].chr == 'C' && (!disulphide.has_key?(id2) || disulphide[id2][pos] == 'F') && $cys != 2) ? 'J' + aa2[1..-1] : aa2
                     env_label = $environment == 1 ? aa1 + '-' + aa2[1..-1] : env_labels[id1][pos]
 
                     if $cst_features.empty?
@@ -657,7 +685,7 @@ Options:
                   found = false
                   clusters[i].each do |c1|
                     clusters[j].each do |c2|
-                      if calculate_pid(ali[c1], ali[c2], $col_size) >= $weight
+                      if calculate_pid_cpp(ali[c1], ali[c2], $col_size) >= $weight
                         indexes << j
                         found = true
                         break
@@ -694,12 +722,12 @@ Options:
                   seq1.each_with_index do |aa1, pos|
                     aa2 = seq2[pos]
 
-                    if env_labels[id1][pos].include?('X')
+                    if env_labels.has_key?(id1) && env_labels[id1][pos].include?('X')
                       $logger.debug "All substitutions from #{id1}-#{pos}-#{aa1[0].chr} are masked."
                       next
                     end
 
-                    if env_labels[id2][pos].include?('X')
+                    if env_labels.has_key?(id2) && env_labels[id2][pos].include?('X')
                       $logger.debug "All substitutions to #{id2}-#{pos}-#{aa2[0].chr} are masked."
                       next
                     end
@@ -714,8 +742,10 @@ Options:
                       next
                     end
 
-                    aa1         = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
-                    aa2         = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    #aa1         = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
+                    #aa2         = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
+                    aa1         = (aa1[0].chr == 'C' && (!disulphide.has_key?(id1) || disulphide[id1][pos] == 'F') && $cys != 2) ? 'J' + aa1[1..-1] : aa1
+                    aa2         = (aa2[0].chr == 'C' && (!disulphide.has_key?(id2) || disulphide[id2][pos] == 'F') && $cys != 2) ? 'J' + aa2[1..-1] : aa2
                     cnt1        = 1.0 / cluster1.size.to_f
                     cnt2        = 1.0 / cluster2.size.to_f
                     jnt_cnt     = cnt1 * cnt2
@@ -723,8 +753,28 @@ Options:
                     env_label2  = $environment == 1 ? aa2 + '-' + aa1[1..-1] : env_labels[id2][pos]
 
                     if $cst_features.empty?
-                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt) #rescue $logger.error "Something wrong with #{tem_file}-#{id2}-#{pos}-#{aa2}-#{env_label2}"
-                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt) #rescue $logger.error "Something wrong with #{tem_file}-#{id2}-#{pos}-#{aa2}-#{env_label2}"
+                      if $env_classes.has_key?(env_label1)
+                        if $env_classes.has_key?(env_label2)
+                          $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                        else
+                          if (aa1 == 'C' && aa2 == 'J')
+                            $env_classes[env_label1].increase_residue_count('C', jnt_cnt)
+                          else
+                            $env_classes[env_label1].increase_residue_count(aa2, jnt_cnt)
+                          end
+                        end
+                      end
+                      if $env_classes.has_key?(env_label2)
+                        if $env_classes.has_key?(env_label1)
+                          $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
+                        else
+                          if (aa2 == 'C' && aa1 == 'J')
+                            $env_classes[env_label2].increase_residue_count('C', jnt_cnt)
+                          else
+                            $env_classes[env_label2].increase_residue_count(aa1, jnt_cnt)
+                          end
+                        end
+                      end
                     elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
                       $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
                       $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
@@ -733,10 +783,37 @@ Options:
                       next
                     end
 
-                    $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
-                    $aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
-                    $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1 if aa1 == aa2
-                    $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2 if aa1 == aa2
+                    if $env_classes.has_key?(env_label1)
+                      $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
+
+                      if $env_classes.has_key?(env_label2)
+                        if aa1[0].chr != aa2[0].chr
+                          $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
+                        end
+                      else
+                        if (aa1[0].chr != aa2)
+                          unless (aa1[0].chr == 'C' && aa2 == 'J') || (aa1[0].chr == 'J' && aa2 == 'C')
+                            $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
+                          end
+                        end
+                      end
+                    end
+
+                    if $env_classes.has_key?(env_label2)
+                      $aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
+
+                      if $env_classes.has_key?(env_label1)
+                        if aa1[0].chr != aa2[0].chr
+                          $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
+                        end
+                      else
+                        if (aa1 != aa2[0].chr)
+                          unless (aa1 == 'J' && aa2[0].chr == 'C') || (aa1 == 'C' && aa2[0].chr == 'J')
+                            $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
+                          end
+                        end
+                      end
+                    end
 
                     $logger.debug "#{id1}-#{pos}-#{aa1[0].chr} -> #{id2}-#{pos}-#{aa2[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label1}."
                     $logger.debug "#{id2}-#{pos}-#{aa2[0].chr} -> #{id1}-#{pos}-#{aa1[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label2}."
@@ -746,6 +823,13 @@ Options:
             end
           end
           $logger.info "Analysing #{tem_file} done."
+        end
+
+        $tot_aa = $aa_tot_cnt.values.sum
+
+        if $tot_aa < 1
+          $logger.warn "No amino acid substitution counted!"
+          exit 1
         end
 
         # print out default header
@@ -798,17 +882,14 @@ HEADER
 
         # calculate amino acid frequencies and mutabilities, and
         # print them as default statistics in the header part
-        if $environment == 0
-          ala_factor  = if $aa_tot_cnt['A'] == 0
-                          0.0
-                        elsif $aa_mut_cnt['A'] == 0
-                          0.0
-                        else
-                          100.0 * $aa_tot_cnt['A'] / $aa_mut_cnt['A'].to_f
-                        end
-        end
 
-        $tot_aa = $aa_tot_cnt.values.sum
+        # pre-calculate ALA's mutability
+        if $environment == 0
+          ala_mutb = if $aa_tot_cnt['A'] == 0 then 0.0
+                     elsif $aa_mut_cnt['A'] == 0 then 0.0
+                     else $aa_mut_cnt['A'].to_f / $aa_tot_cnt['A']
+                     end
+        end
 
         $outfh.puts '#'
         $outfh.puts "# Total amino acid frequencies:\n"
@@ -843,8 +924,8 @@ HEADER
           end
 
           if $environment == 0
-            $aa_mutb[aa]     = ($aa_tot_cnt[aa] == 0) ? 1.0 : ($aa_mut_cnt[aa] / $aa_tot_cnt[aa].to_f)
-            $aa_rel_mutb[aa] = $aa_mutb[aa] * ala_factor
+            $aa_mutb[aa]     = ($aa_tot_cnt[aa] == 0) ? 0.0 : ($aa_mut_cnt[aa] / $aa_tot_cnt[aa].to_f)
+            $aa_rel_mutb[aa] = 100 * $aa_mutb[aa] / ala_mutb
           end
 
           $aa_tot_freq[aa] = ($aa_tot_cnt[aa] == 0) ? 0.0 : ($aa_tot_cnt[aa] / $tot_aa.to_f)
@@ -866,7 +947,7 @@ HEADER
 
           if $noweight
             if $environment == 0
-              $outfh.puts '# %-3s %9d %9d %5.2f %8d %8.4f' % columns
+              $outfh.puts '# %-3s %9d %9d %5.2f %8d %8.6f' % columns
             else
               $outfh.puts "# %-3s %-#{$env_features.size}s %9d %9d %8.4f" % columns
             end
