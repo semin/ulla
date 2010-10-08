@@ -2,25 +2,280 @@
 "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">
 <head>
-  <meta http-equiv="Refresh" content="5; URL=http://github.com/semin/ulla">
+  <link rel="stylesheet" href="stylesheets/screen.css" type="text/css" media="screen" />
+  <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
   <title>
-      Ulla: a program for calculating environment-specific substitution tables
+      ULLA
   </title>
+  <script src="javascripts/rounded_corners_lite.inc.js" type="text/javascript"></script>
+<style>
+
+</style>
+  <script type="text/javascript">
+    window.onload = function() {
+      settings = {
+          tl: { radius: 10 },
+          tr: { radius: 10 },
+          bl: { radius: 10 },
+          br: { radius: 10 },
+          antiAlias: true,
+          autoPad: true,
+          validTags: ["div"]
+      }
+      var versionBox = new curvyCorners(settings, document.getElementById("version"));
+      versionBox.applyCornersToAll();
+    }
+  </script>
 </head>
 <body>
-    <p>
-    Egor has been renamed to Ulla, and an official web site for Ulla will be available when our new web contents management system is ready. Until then, this page will be redirected to its Git repository, <a href="http://github.com/semin/ulla/">http://github.com/semin/ulla</a> in 5 seconds.
+<div id="main">
+
+    <h1>ULLA</h1>
+    <div class="sidebar">
+      <div id="version" class="clickable" onclick='document.location = "http://rubygems.org/gems/ulla"; return false'>
+        <p>Get Version</p>
+        <a href="http://rubygems.org/gems/ulla" class="numbers">0.9.9.1</a>
+      </div>
+    </div>
+    <h2>Description</h2>
+<p>&#8216;ulla&#8217; is a program for calculating environment-specific substitution tables from user providing environmental class definitions and sequence alignments with the annotations of the environment classes.</p>
+<h2>Features</h2>
+<ul>
+	<li>Environment-specific substitution table generation based on user providing environmental class definition</li>
+	<li>Entropy-based smoothing procedures to cope with sparse data problem</li>
+	<li><span class="caps">BLOSUM</span>-like weighting procedures using <span class="caps">PID</span> threshold</li>
+	<li>Heat Map generation for substitution tables</li>
+</ul>
+<h2>Requirements</h2>
+<ul>
+	<li>ruby 1.9.0 or above (<a href="http://www.ruby-lang.org">http://www.ruby-lang.org</a>)</li>
+	<li>rubygems 1.2.0 or above (<a href="http://rubygems.org/">http://rubygems.org/</a>)</li>
+</ul>
+<p>Following RubyGems will be automatically installed if you have rubygems installed on your machine</p>
+<ul>
+	<li><a href="http://narray.rubyforge.org">narray</a></li>
+	<li><a href="http://bioruby.open-bio.org">bio</a></li>
+	<li><a href="http://rmagick.rubyforge.org">RMagick</a></li>
+</ul>
+<h2>Installation</h2>
+<pre>
+~user $ sudo gem install ulla
+</pre>
+<h2>Basic Usage</h2>
+<p>It&#8217;s pretty much the same as Kenji&#8217;s <a href="http://mordred.bioc.cam.ac.uk/~kenji/subst/">subst</a>, so in most cases, you can swap &#8216;subst&#8217; with &#8216;ulla&#8217;.</p>
+<pre>
+~user $ ulla -l TEMLIST-file -c classdef.dat
+    or
+~user $ ulla -f TEM-file -c classdef.dat
+</pre>
+<h2>Options</h2>
+<pre>
+--tem-file (-f) FILE: a tem file
+--tem-list (-l) FILE: a list for tem files
+--classdef (-c) FILE: a file for the defintion of environmental class
+                        if no definition file provided, --cys (-y) 2 and --nosmooth options automatcially applied
+--outfile (-o) FILE: output filename (default 'allmat.dat')
+--weight (-w) INTEGER: clustering level (PID) for the BLOSUM-like weighting (default: 60)
+--noweight: calculate substitution counts with no weights
+--environment (-e) INTEGER:
+    0 for considering only substituted amino acids' environments (default)
+    1 for considering both substituted and substituting amino acids' environments
+--smooth (-s) INTEGER:
+    0 for partial smoothing (default)
+    1 for full smoothing
+--p1smooth: perform smoothing for p1 probability calculation when partial smoothing
+--nosmooth: perform no smoothing operation
+--cys (-y) INTEGER:
+    0 for using C and J only for structure (default)
+    1 for both structure and sequence
+    2 for using only C for both (must be set when you have no 'disulphide' or 'disulfide' annotation in templates)
+--output INTEGER:
+    0 for raw counts (no smoothing performed)
+    1 for probabilities
+    2 for log-odds (default)
+--noroundoff: do not round off log odds ratio
+--scale INTEGER: log-odds matrices in 1/n bit units (default 3)
+--sigma DOUBLE: change the sigma value for smoothing (default 5.0)
+--autosigma: automatically adjust the sigma value for smoothing
+--add DOUBLE: add this value to raw counts when deriving log-odds without smoothing (default 0)
+--pidmin DOUBLE: count substitutions only for pairs with PID equal to or greater than this value (default none)
+--pidmax DOUBLE: count substitutions only for pairs with PID smaller than this value (default none)
+--heatmap INTEGER:
+    0 create a heat map file for each substitution table
+    1 create one big file containing all heat maps from substitution tables
+    2 do both 0 and 1
+--heatmap-format INTEGER:
+    0 for Portable Network Graphics (PNG) Format (default)
+    1 for Graphics Interchange Format (GIF)
+    2 for Joint Photographic Experts Group (JPEG) Format
+    3 for Microsoft Windows bitmap (BMP) Format
+    4 for Portable Document Format (PDF)
+--heatmap-columns INTEGER: number of tables to print in a row when --heatmap 1 or 2 set (default: sqrt(no. of tables))
+--heatmap-stem STRING: stem for a file name when --heatmap 1 or 2 set (default: 'heatmap')
+--heatmap-values: print values in the cells when generating heat maps
+--verbose (-v) INTEGER
+    0 for ERROR level
+    1 for WARN or above level (default)
+    2 for INFO or above level
+    3 for DEBUG or above level
+--version: print version
+--help (-h): show help
+</pre>
+<h2>Usage</h2>
+<p>1. Prepare an environmental class definition file. For more details, please check this <a href="http://mordred.bioc.cam.ac.uk/~kenji/subst/NOTES">notes</a>. You can download a sample environmental class definition file from <a href="http://mordred.bioc.cam.ac.uk/~kenji/subst/classdef.dat">here</a>.</p>
+<pre>
+~user $ cat classdef.dat
+#
+# name of feature (string); values adopted in .tem file (string); class labels assigned for each value (string);
+# constrained or not (T or F); silent (used as masks)? (T or F)
+#
+secondary structure and phi angle;HEPC;HEPC;T;F
+solvent accessibility;TF;Aa;F;F
+</pre>
+<p>2. Prepare structural alignments and their annotations of above environmental classes in <span class="caps">PIR</span> format. You can download sample alignments from <a href="http://mordred.bioc.cam.ac.uk/~kenji/subst/alltem-allmask.tar.gz">here</a> or from here &#8220;http://www-cryst.bioc.cam.ac.uk/<span class="caps">ESST</span>/&#8221;.</p>
+<pre>
+~user $ cat sample1.tem
+&gt;P1;1mnma
+sequence
+QKERRKIEIKFIENKTRRHVTFSKRKHGIMKKAFELSVLTGTQVLLLVVSETGLVYTFSTPKFEPIVTQQEGRNL
+IQACLNAPDD*
+&gt;P1;1egwa
+sequence
+--GRKKIQITRIMDERNRQVTFTKRKFGLMKKAYELSVLCDCEIALIIFNSSNKLFQYASTDMDKVLLKYTEY--
+----------*
+&gt;P1;1mnma
+secondary structure and phi angle
+CPCCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHHPCCCEEEEECCCPCEEEEECCCCCHHHHCHHHHHH
+HHHHHCCCCP*
+&gt;P1;1egwa
+secondary structure and phi angle
+--CCCCCCCCCCCCHHHHHHHHHHHHHHHHHHHHHHHHHCPCCCEEEEECCCPCEEEEECCCHHHHHHHHHHC--
+----------*
+&gt;P1;1mnma
+solvent accessibility
+TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTT
+TTTTTTTTTT*
+&gt;P1;1egwa
+solvent accessibility
+--TTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTFTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTTT--
+----------*
+... 
+</pre>
+<p>3. When you have two or more alignment files, you should make a separate file containing all the paths for the alignment files.</p>
+<pre>
+~user $ ls -1 *.tem &gt; TEMLIST
+~user $ cat TEMLIST
+sample1.tem
+sample2.tem
+...
+</pre>
+<p>4. To produce substitution count matrices,</p>
+<pre>
+~user $ ulla -l TEMLIST --output 0 -o substcount.mat
+</pre>
+<p>5. To produce substitution probability matrices,</p>
+<pre>
+~user $ ulla -l TEMLIST --output 1 -o substprob.mat
+</pre>
+<p>6. To produce log odds ratio matrices,</p>
+<pre>
+~user $ ulla -l TEMLIST --output 2 -o substlogo.mat
+</pre>
+<p>7. To produce substitution probability matrices from the sequence pairs within a certain <span class="caps">PID</span> range (if you don&#8217;t provide any name for output, &#8216;allmat.dat&#8217; will be used.),</p>
+<pre>
+~user $ ulla -l TEMLIST --pidmin 60 --pidmax 80 --output 1
+</pre>
+<p>8. To change the clustering level (default 60) to <span class="caps">PID</span> 80,</p>
+<pre>
+~user $ ulla -l TEMLIST --weight 80 --output 1
+</pre>
+<p>9. In case positions are masked with the character &#8216;X&#8217; in any environmental features, all mutations from/to the position will be excluded from substitution counts.</p>
+<p>10. Then, it will produce a file containing all the matrices, which will look like the one below. For more details, please check this <a href="http://mordred.bioc.cam.ac.uk/~kenji/subst/NOTES">notes</a>.</p>
+<pre>
+# Environment-specific amino acid substitution matrices
+# Creator: ulla version 0.0.5
+# Creation Date: 05/02/2009 17:29
+#
+# Definitions for structural environments:
+# 2 features used
+#
+# secondary structure and phi angle;HEPC;HEPC;F;F
+# solvent accessibility;TF;Aa;F;F
+# (read in from classdef.dat)
+#
+# Number of alignments: 1187
+# (list of .tem files read in from TEMLIST)
+#
+# Total number of environments: 8
+#
+# There are 21 amino acids considered.
+# ACDEFGHIKLMNPQRSTVWYJ
+# 
+# C: Cystine (the disulfide-bonded form)
+# J: Cysteine (the free thiol form)
+#
+# Weighting scheme: clustering at PID 60 level
+# ...
+#
+&gt;HA 0
+#        A      C      D      E      F      G      H      I      K      L      M      N      P      Q      R      S      T      V      W      Y      J
+A        3     -5      0      0     -1      2      0      0      1      0      0      0      1      1      0      1      1      1     -1      0      2
+C      -16     19    -16    -18    -11    -14    -13    -13    -14    -14    -14    -11    -17    -16    -13    -16    -14    -12    -12    -10     -4
+D        1     -7      6      3     -3      1      0     -3      1     -3     -2      2      1      2      0      1      0     -2     -3     -2     -2
+E        3     -7      5      7     -1      2      2      0      3      0      0      3      2      4      3      3      2      1     -1      0     -1
+F       -4     -4     -6     -6      7     -5     -1      0     -4      1      0     -5     -5     -4     -4     -4     -3     -1      3      3      0
+G       -2     -6     -3     -4     -5      5     -4     -5     -4     -5     -4     -2     -3     -4     -4     -2     -3     -5     -6     -4     -3
+H        0     -6      0      0      1      0      8     -1      0      0      0      1     -2      1      1      0      0      0      1      3      0
+I       -3     -7     -6     -5      0     -5     -3      4     -4      1      1     -5     -4     -4     -3     -5     -2      2     -2     -1      0
+K        2     -6      2      2     -1      1      2      0      5      1      1      2      0      3      4      2      2      0     -2      0     -1
+L       -2     -6     -5     -4      1     -4     -2      2     -3      4      2     -3     -4     -3     -2     -4     -2      1      0      0      1
+M       -2     -7     -4     -3      1     -2     -1      2     -2      2      6     -3     -4     -2     -1     -2     -1      1      0      0      1
+N        0     -5      1      0     -3      1      1     -3      0     -2     -2      6     -2      0      0      1      1     -2     -3     -1     -1
+P       -1     -7     -1     -2     -4     -1     -3     -3     -2     -3     -4     -2      9     -2     -3      0     -1     -2     -4     -4     -4
+Q        2     -7      2      2     -1      1      2     -1      2      0      0      2      0      5      2      1      1      0     -2     -1      0
+R        1     -6      1      1     -1      0      2      0      3      0      1      1     -1      2      6      1      1      0     -1      0      0
+S        0     -6     -1     -1     -3      0     -2     -3     -1     -3     -3      0      0     -1     -1      3      1     -2     -4     -3      0
+T       -1     -7     -2     -2     -3     -2     -2     -2     -2     -2     -2     -1     -2     -2     -2      0      3     -1     -3     -3      0
+V       -3     -6     -6     -5     -1     -4     -3      1     -4      0      0     -5     -3     -4     -4     -4     -2      2     -2     -2      0
+W       -4     -6     -6     -5      2     -6     -2     -2     -5     -1     -2     -5     -5     -4     -4     -5     -4     -2     12      2     -3
+Y       -3     -5     -5     -5      3     -4      1     -1     -3     -1     -1     -3     -5     -3     -3     -4     -3     -2      3      7     -1
+J       -2      0     -4     -5      0     -2     -1      0     -3      0      0     -3     -6     -2     -2     -1     -1      0     -1      0      9
+U       -5     16     -7     -8     -3     -5     -4     -3     -6     -3     -3     -5     -9     -6     -5     -4     -4     -3     -4     -3      6
+...
+</pre>
+<p>11. To generate a heat map for each table with values in it,</p>
+<pre>
+~user $ ulla -l TEMLIST --heatmap 0 --heatmap-values
+</pre>
+which will look like this,
+<img src="http://mordred.bioc.cam.ac.uk/~semin/images/0.HA.png" alt="" />
+<p>12. To generate one big figure, &#8216;myheatmaps.gif&#8217; containing all the heat maps (4 maps in a row),</p>
+<pre>
+~user $ ulla -l TEMLIST --heatmap 1 --heatmap-stem myheatmaps --heatmap-format 1 --heatmap-columns 4
+</pre>
+which will look like this,
+<img src="http://mordred.bioc.cam.ac.uk/~semin/images/myheatmaps.gif" alt="" />
+<h2>Repository</h2>
+<p>You can download a pre-built RubyGems package from</p>
+<ul>
+	<li>rubyforge: <a href="http://rubygems.org/gems/ulla">http://rubygems.org/gems/ulla</a></li>
+</ul>
+<h2>Reference</h2>
+<ul>
+	<li><a href="http://bioinformatics.oxfordjournals.org/cgi/content/full/25/15/1976">Lee S., Blundell T.L. (2009) Ulla: a program for calculating environment-specific amino acid substitution tables. Bioinformatics. 25(15):1976-1977; doi:10.1093/bioinformatics/btp300</a></li>
+</ul>
+<h2>Contact</h2>
+<p>Comments are welcome, please send an email to me (seminlee at gmail dot com).</p>
+<h2>License</h2>
+<p><img src="http://i.creativecommons.org/l/by-nc/2.0/uk/88x31.png" alt="" /><br />
+This work is licensed under a <a href="http://creativecommons.org/licenses/by-nc/2.0/uk/">Creative Commons Attribution-Noncommercial 2.0 UK: England &amp; Wales License</a>.</p>
+    <p class="coda">
+    Semin Lee, 8th October 2010<br/>
+    Theme extended from <a href="http://rb2js.rubyforge.org/">Paul Battley</a>
     </p>
-    - Semin
-    <script type="text/javascript">
-        var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-        document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-    </script>
-    <script type="text/javascript">
-        try {
-            var pageTracker = _gat._getTracker("UA-7633498-1");
-            pageTracker._trackPageview();
-        } catch(err) {}
-    </script>
+</div>
+
+<!-- insert site tracking codes here, like Google Urchin -->
+
 </body>
 </html>
