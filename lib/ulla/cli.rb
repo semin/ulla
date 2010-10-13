@@ -1,10 +1,3 @@
-require 'rubygems'
-require 'getoptlong'
-require 'logger'
-require 'narray'
-require 'bio'
-require 'set'
-
 # This is a module for an actual command line interpreter for Ulla
 # ---
 # Copyright (C) 2008-9 Semin Lee
@@ -188,9 +181,6 @@ Options:
         #
         # Global variables and their default values
         #
-
-        $logger       = Logger.new(STDOUT)
-        $logger.level = Logger::WARN
 
         # default set of 21 amino acids including J (Cysteine, the free thiol form)
         $amino_acids    = 'ACDEFGHIKLMNPQRSTVWYJ'.split('')

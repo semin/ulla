@@ -1,14 +1,3 @@
-require 'rubygems'
-require 'narray'
-
-begin
-  require 'rvg/rvg'
-  include Magick
-rescue Exception => e
-  $logger.warn "#{e.to_s.chomp} For this reason, heat maps cannot be generated."
-  $no_rmagick = true
-end
-
 module NMatrixExtensions
 
   def pretty_string(options={})

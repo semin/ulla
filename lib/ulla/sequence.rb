@@ -1,5 +1,5 @@
 module Ulla
-  class Sequence = Struct.new(:code, :data, :description) do
+  Sequence = Struct.new(:code, :data, :description) do
     def to_hash
       Hash[*members.zip(values).flatten]
     end

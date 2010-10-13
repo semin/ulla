@@ -1,15 +1,3 @@
-require 'rubygems'
-
-begin
-  require 'RMagick'
-  include Magick
-rescue Exception => e
-  $logger.warn "#{e.to_s.chomp} For this reason, heat maps cannot be generated."
-  $no_rmagick = true
-end
-
-
-
 module Ulla
   class HeatmapArray < Array
 
