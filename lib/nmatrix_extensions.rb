@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 begin
   require 'rvg/rvg'
   include Magick
@@ -6,6 +7,8 @@ rescue Exception => e
   $no_rmagick = true
 end
 
+=======
+>>>>>>> e5bd0d911ab38c672a1c0424fad4bf642468dbc4
 module NMatrixExtensions
 
   def pretty_string(options={})

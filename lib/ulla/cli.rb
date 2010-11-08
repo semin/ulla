@@ -194,9 +194,6 @@ Options:
         # Global variables and their default values
         #
 
-        $logger       = Logger.new(STDOUT)
-        $logger.level = Logger::WARN
-
         # default set of 21 amino acids including J (Cysteine, the free thiol form)
         $amino_acids    = 'ACDEFGHIKLMNPQRSTVWYJ'.split('')
         $gap            = '-'
