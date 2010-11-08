@@ -1,50 +1,84 @@
-require 'rubygems'
-require 'getoptlong'
-require 'logger'
-require 'narray'
-require 'bio'
-require 'set'
-
 # This is a module for an actual command line interpreter for Ulla
 # ---
 # Copyright (C) 2008-9 Semin Lee
 module Ulla
   class CLI
 
+    # Calculate PID between two sequences
+    #
+    # :call-seq:
+    #   Ulla::CLI::calculate_pid(seq1, seq2, unit) -> Float
+    #
+    def self.calculate_pid_rb(seq1, seq2, unit)
+      aas1  = seq1.scan(/\S{#{unit}}/)
+      aas2  = seq2.scan(/\S{#{unit}}/)
+      gap   = ($gap || '-') * unit
+      align = 0 # no. of aligned columns
+      ident = 0 # no. of identical columns
+      intgp = 0 # no. of internal gaps
+
+      if (aas1.size != aas2.size)
+        $logger.error "Cannot calculate PID between unaligned sequences"
+        $logger.error seq1, seq2
+        exit 1
+      end
+
+      (0...aas1.size).each do |i|
+        if (aas1[i] != gap) && (aas2[i] != gap)
+          align += 1
+          if aas1[i] == aas2[i]
+            ident += 1
+          end
+        elsif (((aas1[i] == gap) && (aas2[i] != gap)) ||
+                ((aas1[i] != gap) && (aas2[i] == gap)))
+          intgp += 1
+        end
+      end
+
+      100.0 * ident / (align + intgp)
+    end
+
+
     inline(:C) do |builder|
       builder.add_compile_flags '-x c++', '-lstdc++'
       builder.c_singleton %q{
-      static VALUE calculate_pid_cpp(VALUE seq1, VALUE seq2, VALUE unit) {
-        VALUE re      = rb_str_plus(rb_str_plus(rb_str_new2("\\\\w{"), rb_funcall(unit, rb_intern("to_s"), 0)), rb_str_new2("}"));
-        VALUE aas1    = rb_funcall(seq1, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
-        VALUE aas2    = rb_funcall(seq2, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
-        //VALUE aas1    = rb_funcall(seq1, rb_intern("split"), 1, rb_str_new2(""));
-        //VALUE aas2    = rb_funcall(seq2, rb_intern("split"), 1, rb_str_new2(""));
+        static VALUE calculate_pid_cpp(VALUE seq1, VALUE seq2, VALUE unit) {
+          VALUE re      = rb_str_plus(rb_str_plus(rb_str_new2("\\\\S{"), rb_funcall(unit, rb_intern("to_s"), 0)), rb_str_new2("}"));
+          VALUE aas1    = rb_funcall(seq1, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
+          VALUE aas2    = rb_funcall(seq2, rb_intern("scan"), 1, rb_reg_new_str(re, 0));
+          //VALUE aas1    = rb_funcall(seq1, rb_intern("split"), 1, rb_str_new2(""));
+          //VALUE aas2    = rb_funcall(seq2, rb_intern("split"), 1, rb_str_new2(""));
+          VALUE *aas1_p = RARRAY_PTR(aas1);
+          VALUE *aas2_p = RARRAY_PTR(aas2);
+          VALUE gap     = rb_str_new2("-");
+          long  len1    = RARRAY_LEN(aas1);
+          //long  len2     = RARRAY_LEN(aas2);
+          double align  = 0.0;
+          double ident  = 0.0;
+          double intgp  = 0.0;
 
-        VALUE *aas1_p = RARRAY_PTR(aas1);
-        VALUE *aas2_p = RARRAY_PTR(aas2);
-        VALUE gap     = rb_str_new2("-");
-        VALUE cols    = rb_funcall(aas1, rb_intern("zip"), 1, aas2);
-        long  len     = RARRAY_LEN(cols);
-        double align  = 0.0;
-        double ident  = 0.0;
-        double intgp  = 0.0;
-
-        for (long i = 0; i < len; i++) {
-          if ((rb_str_equal(aas1_p[i], gap) == Qfalse) &&
-              (rb_str_equal(aas2_p[i], gap) == Qfalse)) {
-            align += 1;
-            if (rb_str_equal(aas1_p[i], aas2_p[i]) == Qtrue) {
-              ident += 1;
+          for (long i = 0; i < len1; i++) {
+            if ((rb_str_equal(aas1_p[i], gap) == Qfalse) && (rb_str_equal(aas2_p[i], gap) == Qfalse)) {
+              align += 1.0;
+              if (rb_str_equal(aas1_p[i], aas2_p[i]) == Qtrue) {
+                ident += 1.0;
+              }
+            } else if (((rb_str_equal(aas1_p[i], gap) == Qtrue) && (rb_str_equal(aas2_p[i], gap) == Qfalse)) ||
+                        ((rb_str_equal(aas1_p[i], gap) == Qfalse) && (rb_str_equal(aas2_p[i], gap) == Qtrue))) {
+              intgp += 1.0;
             }
-          } else if (((rb_str_equal(aas1_p[i], gap) == Qtrue) && (rb_str_equal(aas2_p[i], gap) == Qfalse)) ||
-                      ((rb_str_equal(aas1_p[i], gap) == Qfalse) && (rb_str_equal(aas2_p[i], gap) == Qtrue))) {
-            intgp += 1;
           }
+          return DBL2NUM(100.0 * ident / (align + intgp));
         }
-        return DBL2NUM(ident / (align + intgp));
       }
-    }
+    end
+
+    def self.calculate_pid(seq1, seq2, unit)
+      begin
+        self.calculate_pid_cpp(seq1, seq2, unit)
+      rescue
+        self.calculate_pid_rb(seq1, seq2, unit)
+      end
     end
 
     class << self
@@ -126,35 +160,6 @@ Options:
         OPTIONS
 
         puts (verbose ? usage + options : usage)
-      end
-
-      # Calculate PID between two sequences
-      #
-      # :call-seq:
-      #   Ulla::CLI::calculate_pid(seq1, seq2) -> Float
-      #
-      def calculate_pid(seq1, seq2, unit)
-        aas1  = seq1.scan(/\w{#{unit}}/)
-        aas2  = seq2.scan(/\w{#{unit}}/)
-        cols  = aas1.zip(aas2)
-        gap   = ($gap || '-') * unit
-        align = 0 # no. of aligned columns
-        ident = 0 # no. of identical columns
-        intgp = 0 # no. of internal gaps
-
-        cols.each do |col|
-          if (col[0] != gap) && (col[1] != gap)
-            align += 1
-            if col[0] == col[1]
-              ident += 1
-            end
-          elsif (((col[0] == gap) && (col[1] != gap)) ||
-                 ((col[0] != gap) && (col[1] == gap)))
-            intgp += 1
-          end
-        end
-
-        pid = 100.0 * ident.to_f / (align + intgp)
       end
 
       # :nodoc:
@@ -597,7 +602,7 @@ Options:
                     seq2 = seq2.split('').each_with_index.map { |aa, pos| aa == $gap ? $ext_gap : env_labels[id2][pos] }.join
                   end
 
-                  pid = calculate_pid(seq1, seq2, $col_size)
+                  pid = calculate_pid_cpp(seq1, seq2, $col_size)
                   s1  = seq1.scan(/\S{#{$col_size}}/)
                   s2  = seq2.scan(/\S{#{$col_size}}/)
 
@@ -616,12 +621,12 @@ Options:
                   s1.each_with_index do |aa1, pos|
                     aa2 = s2[pos]
 
-                    if env_labels.has_key?(id1) && env_labels[id1][pos].include?('X')
+                    if env_labels[id1][pos].include?('X')
                       $logger.info "Substitutions from #{id1}-#{pos}-#{aa1[0].chr} were masked."
                       next
                     end
 
-                    if env_labels.has_key?(id2) && env_labels[id2][pos].include?('X')
+                    if env_labels[id2][pos].include?('X')
                       $logger.info "Substitutions to #{id2}-#{pos}-#{aa2[0].chr} were masked."
                       next
                     end
@@ -676,7 +681,7 @@ Options:
               ali = ext_ali
             end
 
-            # a loop for single linkage clustering
+            # loop for single linkage clustering
             begin
               continue = false
               0.upto(clusters.size - 2) do |i|
@@ -744,38 +749,19 @@ Options:
 
                     #aa1         = (disulphide.has_key?(id1) && (disulphide[id1][pos] == 'F') && (aa1[0].chr == 'C') && ($cys != 2)) ? 'J' + aa1[1..-1] : aa1
                     #aa2         = (disulphide.has_key?(id2) && (disulphide[id2][pos] == 'F') && (aa2[0].chr == 'C') && ($cys != 2)) ? 'J' + aa2[1..-1] : aa2
-                    aa1         = (aa1[0].chr == 'C' && (!disulphide.has_key?(id1) || disulphide[id1][pos] == 'F') && $cys != 2) ? 'J' + aa1[1..-1] : aa1
-                    aa2         = (aa2[0].chr == 'C' && (!disulphide.has_key?(id2) || disulphide[id2][pos] == 'F') && $cys != 2) ? 'J' + aa2[1..-1] : aa2
-                    cnt1        = 1.0 / cluster1.size.to_f
-                    cnt2        = 1.0 / cluster2.size.to_f
+                    #aa1         = (aa1[0].chr == 'C' && (!disulphide.has_key?(id1) || disulphide[id1][pos] == 'F') && $cys != 2) ? 'J' + aa1[1..-1] : aa1
+                    #aa2         = (aa2[0].chr == 'C' && (!disulphide.has_key?(id2) || disulphide[id2][pos] == 'F') && $cys != 2) ? 'J' + aa2[1..-1] : aa2
+                    cnt1        = 1.0 / cluster1.size
+                    cnt2        = 1.0 / cluster2.size
                     jnt_cnt     = cnt1 * cnt2
                     env_label1  = $environment == 1 ? aa1 + '-' + aa2[1..-1] : env_labels[id1][pos]
                     env_label2  = $environment == 1 ? aa2 + '-' + aa1[1..-1] : env_labels[id2][pos]
 
                     if $cst_features.empty?
-                      if $env_classes.has_key?(env_label1)
-                        if $env_classes.has_key?(env_label2)
-                          $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
-                        else
-                          if (aa1 == 'C' && aa2 == 'J')
-                            $env_classes[env_label1].increase_residue_count('C', jnt_cnt)
-                          else
-                            $env_classes[env_label1].increase_residue_count(aa2, jnt_cnt)
-                          end
-                        end
-                      end
-                      if $env_classes.has_key?(env_label2)
-                        if $env_classes.has_key?(env_label1)
-                          $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
-                        else
-                          if (aa2 == 'C' && aa1 == 'J')
-                            $env_classes[env_label2].increase_residue_count('C', jnt_cnt)
-                          else
-                            $env_classes[env_label2].increase_residue_count(aa1, jnt_cnt)
-                          end
-                        end
-                      end
-                    elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
+                      $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                      $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
+                    elsif (env_labels[id1][pos].split('').values_at(*$cst_features) ==
+                           env_labels[id2][pos].split('').values_at(*$cst_features))
                       $env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
                       $env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
                     else
@@ -783,37 +769,73 @@ Options:
                       next
                     end
 
-                    if $env_classes.has_key?(env_label1)
-                      $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
+                    $aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
+                    $aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
+                    ($aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1) if aa1 != aa2
+                    ($aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2) if aa1 != aa2
 
-                      if $env_classes.has_key?(env_label2)
-                        if aa1[0].chr != aa2[0].chr
-                          $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
-                        end
-                      else
-                        if (aa1[0].chr != aa2)
-                          unless (aa1[0].chr == 'C' && aa2 == 'J') || (aa1[0].chr == 'J' && aa2 == 'C')
-                            $aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
-                          end
-                        end
-                      end
-                    end
+                    #if $cst_features.empty?
+                      #if $env_classes.has_key?(env_label1)
+                        #if $env_classes.has_key?(env_label2)
+                          #$env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                        #else
+                          #if (aa1 == 'C' && aa2 == 'J')
+                            #$env_classes[env_label1].increase_residue_count('C', jnt_cnt)
+                          #else
+                            #$env_classes[env_label1].increase_residue_count(aa2, jnt_cnt)
+                          #end
+                        #end
+                      #end
+                      #if $env_classes.has_key?(env_label2)
+                        #if $env_classes.has_key?(env_label1)
+                          #$env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
+                        #else
+                          #if (aa2 == 'C' && aa1 == 'J')
+                            #$env_classes[env_label2].increase_residue_count('C', jnt_cnt)
+                          #else
+                            #$env_classes[env_label2].increase_residue_count(aa1, jnt_cnt)
+                          #end
+                        #end
+                      #end
+                    #elsif (env_labels[id1][pos].split('').values_at(*$cst_features) == env_labels[id2][pos].split('').values_at(*$cst_features))
+                      #$env_classes[env_label1].increase_residue_count(aa2[0].chr, jnt_cnt)
+                      #$env_classes[env_label2].increase_residue_count(aa1[0].chr, jnt_cnt)
+                    #else
+                      #$logger.debug "Skipped #{id1}-#{pos}-#{aa1[0].chr} and #{id2}-#{pos}-#{aa2[0].chr} having different symbols for constrained environment features each other."
+                      #next
+                    #end
 
-                    if $env_classes.has_key?(env_label2)
-                      $aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
+                    #if $env_classes.has_key?(env_label1)
+                      #$aa_tot_cnt.has_key?(aa1) ? $aa_tot_cnt[aa1] += cnt1 : $aa_tot_cnt[aa1] = cnt1
 
-                      if $env_classes.has_key?(env_label1)
-                        if aa1[0].chr != aa2[0].chr
-                          $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
-                        end
-                      else
-                        if (aa1 != aa2[0].chr)
-                          unless (aa1 == 'J' && aa2[0].chr == 'C') || (aa1 == 'C' && aa2[0].chr == 'J')
-                            $aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
-                          end
-                        end
-                      end
-                    end
+                      #if $env_classes.has_key?(env_label2)
+                        #if aa1[0].chr != aa2[0].chr
+                          #$aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
+                        #end
+                      #else
+                        #if (aa1[0].chr != aa2)
+                          #unless (aa1[0].chr == 'C' && aa2 == 'J') || (aa1[0].chr == 'J' && aa2 == 'C')
+                            #$aa_mut_cnt.has_key?(aa1) ? $aa_mut_cnt[aa1] += cnt1 : $aa_mut_cnt[aa1] = cnt1
+                          #end
+                        #end
+                      #end
+                    #end
+
+                    #if $env_classes.has_key?(env_label2)
+                      #$aa_tot_cnt.has_key?(aa2) ? $aa_tot_cnt[aa2] += cnt2 : $aa_tot_cnt[aa2] = cnt2
+
+                      #if $env_classes.has_key?(env_label1)
+                        #if aa1[0].chr != aa2[0].chr
+                          #$aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
+                        #end
+                      #else
+                        #if (aa1 != aa2[0].chr)
+                          #unless (aa1 == 'J' && aa2[0].chr == 'C') || (aa1 == 'C' && aa2[0].chr == 'J')
+                            #$aa_mut_cnt.has_key?(aa2) ? $aa_mut_cnt[aa2] += cnt2 : $aa_mut_cnt[aa2] = cnt2
+                          #end
+                        #end
+                      #end
+                    #end
 
                     $logger.debug "#{id1}-#{pos}-#{aa1[0].chr} -> #{id2}-#{pos}-#{aa2[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label1}."
                     $logger.debug "#{id2}-#{pos}-#{aa2[0].chr} -> #{id1}-#{pos}-#{aa1[0].chr} substitution count (#{"%.2f" % jnt_cnt}) was added to the environments class, #{env_label2}."

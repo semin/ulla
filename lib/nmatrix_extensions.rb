@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'narray'
-
 begin
   require 'rvg/rvg'
   include Magick
