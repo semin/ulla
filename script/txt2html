@@ -1,17 +1,17 @@
 #!/usr/bin/env ruby
 
 load File.dirname(__FILE__) + "/../Rakefile"
-require 'rubyforge'
+#require 'rubyforge'
 require 'redcloth'
 require 'syntax/convertors/html'
 require 'erb'
 
-download = "http://rubyforge.org/projects/#{$hoe.rubyforge_name}"
+#download = "http://rubyforge.org/projects/#{$hoe.rubyforge_name}"
 version  = $hoe.version
 
-def rubyforge_project_id
-  RubyForge.new.configure.autoconfig["group_ids"][$hoe.rubyforge_name]
-end
+#def rubyforge_project_id
+  #RubyForge.new.configure.autoconfig["group_ids"][$hoe.rubyforge_name]
+#end
 
 class Fixnum
   def ordinal

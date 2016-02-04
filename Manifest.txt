@@ -18,6 +18,10 @@ lib/ulla/environment_class_hash.rb
 lib/ulla/environment_feature.rb
 lib/ulla/environment_feature_array.rb
 lib/ulla/heatmap_array.rb
+lib/ulla/esst.rb
+lib/ulla/essts.rb
+lib/ulla/joy_tem.rb
+lib/ulla/sequence.rb
 script/console
 script/destroy
 script/generate

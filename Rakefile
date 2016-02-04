@@ -13,7 +13,6 @@ Hoe.plugin :newgem
 $hoe = Hoe.spec 'ulla' do
   self.developer 'Semin Lee', 'seminlee@gmail.com'
   self.post_install_message = 'PostInstall.txt' # TODO remove if post-install message not required
-  self.rubyforge_name       = self.name # TODO this is default value
   self.extra_deps           = [
     ['narray',        '>= 0.5.9.5'],
     ['bio',           '>= 1.2.1'],
@@ -22,5 +21,4 @@ $hoe = Hoe.spec 'ulla' do
 end
 
 require 'newgem/tasks'
-#Dir['tasks/**/*.rake'].each { |t| load t }
 Dir['tasks/*.rake'].each { |t| load t }
